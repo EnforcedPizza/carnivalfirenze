@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnival Firenze: Interactive Deep Dive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Ship Specs (The Ship): Goal: Inform. Method: Interactive HTML table for detailed specs, key stats (tonnage, capacity) as dynamic HTML elements. Interaction: N/A for now, simple table. Justification: Clear presentation of factual data. Library: HTML/JS.
+        - Stateroom Distribution (Staterooms): Goal: Inform proportion. Method: Chart.js Donut chart showing breakdown by major categories (Interior, Oceanview, Balcony, Suite, Terrazza). Interaction: Hover for details. Justification: Visual overview of accommodation types. Library: Chart.js.
+        - Stateroom Comparison (Staterooms): Goal: Compare. Method: Dynamic HTML cards showing key features of different stateroom types. Interaction: Filter by features (e.g., balcony, Terrazza access, occupancy). Justification: Aids decision-making. Library: HTML/JS.
+        - Dining Overview (Dining): Goal: Inform options. Method: Chart.js Bar chart comparing number of complimentary vs. specialty venues. Interaction: Hover. Justification: Quick visual of dining landscape. Library: Chart.js.
+        - Dining Guide (Dining): Goal: Organize/Inform. Method: Interactive HTML list/cards for each venue. Interaction: Filter by type (complimentary/specialty), click to expand details (cuisine, sample items, price). Justification: Easy exploration of many dining options. Library: HTML/JS.
+        - Activity Highlights (Activities & Fun): Goal: Inform. Method: Icon-driven HTML grid for key activities (WaterWorks, SportSquare, Serenity). Interaction: Hover/click for brief description pop-up/expansion. Justification: Visually engaging overview. Library: HTML/JS.
+        - Itinerary Durations (Itineraries & Decks): Goal: Inform. Method: Chart.js Horizontal Bar chart showing typical cruise durations (3, 4, 5, 6, 7-day). Interaction: Hover. Justification: Quick understanding of trip length options. Library: Chart.js.
+        - Deck Highlights (Itineraries & Decks): Goal: Organize. Method: Interactive list of decks; clicking a deck number reveals key venues on that deck in a text area. Interaction: Click to display. Justification: Simple way to explore ship layout without complex diagrams. Library: HTML/JS.
+        - Textual Content: Goal: Inform. Method: Collapsible sections/accordions for long text passages, styled paragraphs. Interaction: Click to expand/collapse. Justification: Manages text density. Library: HTML/JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7; /* Alabaster/Off-white */
+            color: #3D352E; /* Dark Brown/Charcoal */
+        }
+        .nav-link {
+            color: #3D352E;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #E67A7A; /* Muted Coral/Terracotta */
+        }
+        .accent-bg { background-color: #E67A7A; }
+        .accent-text { color: #E67A7A; }
+        .secondary-accent-bg { background-color: #4A6F8A; } /* Muted Deep Sea Blue */
+        .secondary-accent-text { color: #4A6F8A; }
+        .tertiary-accent-bg { background-color: #F4A261; } /* Sandy Brown/Orange */
+        .tertiary-accent-text { color: #F4A261; }
+        .section-title {
+            border-bottom: 2px solid #E67A7A;
+            padding-bottom: 0.5rem;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB; /* Tailwind gray-200 */
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Default max-width */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 400px; /* Max height */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 350px;
+                max-width: 700px;
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .chart-container {
+                height: 400px;
+                max-width: 800px;
+            }
+        }
+        /* For filter buttons */
+        .filter-button {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .filter-button.active {
+            background-color: #E67A7A;
+            color: white;
+        }
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .details-content.open {
+            max-height: 1000px; /* Adjust as needed */
+        }
+        .fixed-nav {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(253, 251, 247, 0.9); /* Slightly transparent background */
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed-nav shadow-md py-3 px-4 md:px-6">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold accent-text">Carnival Firenze</h1>
+            <button id="mobileMenuButton" class="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-E67A7A">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="navLinks" class="hidden md:flex md:items-center md:space-x-3 lg:space-x-6 w-full md:w-auto mt-4 md:mt-0">
+                <a href="#welcome" class="nav-link block md:inline-block py-2 px-1 font-medium">Welcome</a>
+                <a href="#ship" class="nav-link block md:inline-block py-2 px-1 font-medium">The Ship</a>
+                <a href="#staterooms" class="nav-link block md:inline-block py-2 px-1 font-medium">Staterooms</a>
+                <a href="#dining" class="nav-link block md:inline-block py-2 px-1 font-medium">Dining</a>
+                <a href="#activities" class="nav-link block md:inline-block py-2 px-1 font-medium">Activities</a>
+                <a href="#wellness" class="nav-link block md:inline-block py-2 px-1 font-medium">Wellness</a>
+                <a href="#itineraries" class="nav-link block md:inline-block py-2 px-1 font-medium">Itineraries & Decks</a>
+                <a href="#verdict" class="nav-link block md:inline-block py-2 px-1 font-medium">The Verdict</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 pt-24">
+
+        <section id="welcome" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">Welcome Aboard: Carnival Firenze</h2>
+            <p class="mb-4 text-lg leading-relaxed">
+                Welcome to an interactive exploration of the Carnival Firenze, a vessel that brings the charm of Florence, Italy, to the high seas. This application is designed to provide you with a comprehensive overview of what the ship offers, from its stunning Italian-inspired design and diverse accommodations to its myriad dining options and exciting onboard activities. Whether you're planning a future cruise or simply curious, navigate through the sections to uncover the "Fun Italian Style" that defines the Carnival Firenze experience.
+            </p>
+            <p class="text-md leading-relaxed">
+                The Carnival Firenze aims to blend Carnival's renowned vibrant atmosphere with a touch of European sophistication. Originally Costa Firenze, this ship was transformed to join the Carnival fleet, bringing with it a unique design philosophy. This guide will delve into its specifications, onboard amenities, and the overall experience you can expect.
+            </p>
+        </section>
+
+        <section id="ship" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">The Ship: Specifications & Design</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                This section delves into the core characteristics of the Carnival Firenze. Discover its technical specifications, learn about its Vista-class lineage, and explore the Florentine-inspired design and ambiance that make this ship a unique "floating Florence." Key public spaces and design elements that contribute to its "Fun Italian Style" are highlighted here.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Technical Specifications</h3>
+                    <div class="overflow-x-auto bg-white rounded-lg shadow">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-semibold">Feature</th>
+                                    <th class="px-4 py-2 text-left font-semibold">Specification</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shipSpecsTableBody" class="divide-y divide-gray-200">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Passenger and Crew Capacity</h3>
+                     <div class="chart-container h-64 md:h-80">
+                        <canvas id="capacityChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center mt-2">Visualization of passenger capacity (double and maximum) compared to crew members.</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow mb-6">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Design and Ambiance</h3>
+                <p class="mb-2">The Carnival Firenze is meticulously designed to evoke the beauty and art of Florence. The main atrium, **Piazza del Duomo**, serves as the centerpiece, with marble columns and a ceiling reminiscent of an Italian sky. Design elements like Italian marble, whimsical artwork, and photographs of Florence adorn the ship.</p>
+                <p class="mb-2">The main dining rooms, such as the **Michelangelo Restaurant**, feature lavish decorations recalling Florentine palaces. Even the Lido deck is conceived as an Italian piazza, offering a more intimate setting.</p>
+                <p>A unique aspect is the presence of **Pepper robots**, adding a futuristic touch to the classic elegance. However, being originally designed for a different market, some areas might have narrower passages or a different spatial distribution compared to other Carnival ships.</p>
+            </div>
+        </section>
+
+        <section id="staterooms" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">Staterooms: Your Italian Retreat</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Carnival Firenze offers a wide array of staterooms, each infused with Italian-inspired decor. From cozy interiors to spacious suites and the exclusive Terrazza category, this section helps you explore the different accommodation types, their amenities, and typical sizes. Use the filters to narrow down options based on your preferences.
+            </p>
+            <div class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                <h4 class="font-semibold text-blue-700">Filter Staterooms:</h4>
+                <div class="flex flex-wrap gap-2 mt-2" id="stateroomFilterControls">
+                    <button data-filter="all" class="filter-button active bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">All</button>
+                    <button data-filter="Interior" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Interior</button>
+                    <button data-filter="Ocean View" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Ocean View</button>
+                    <button data-filter="Balcony" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Balcony</button>
+                    <button data-filter="Terrazza" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Terrazza</button>
+                    <button data-filter="Suite" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Suite</button>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="stateroomList">
+                </div>
+             <div class="mt-8">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Stateroom Type Distribution</h3>
+                <div class="chart-container h-72 md:h-96">
+                    <canvas id="stateroomDistributionChart"></canvas>
+                </div>
+                <p class="text-xs text-center mt-2">Approximate percentage of major stateroom categories.</p>
+            </div>
+        </section>
+
+        <section id="dining" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">Dining: A Culinary Journey</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Embark on a culinary journey with Carnival Firenze's diverse dining scene, boasting 18 venues with 11 complimentary options. This section highlights both free dining staples and specialty restaurants, many with an Italian twist. Explore menus, ambiances, and pricing to plan your meals at sea.
+            </p>
+            <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+                <h4 class="font-semibold text-green-700">Filter Restaurants:</h4>
+                <div class="flex flex-wrap gap-2 mt-2" id="diningFilterControls">
+                    <button data-filter="all" class="filter-button active bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">All</button>
+                    <button data-filter="Complimentary" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Complimentary</button>
+                    <button data-filter="Specialty" class="filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm">Specialty (Extra Cost)</button>
+                </div>
+            </div>
+            <div class="space-y-6" id="diningList">
+                </div>
+            <div class="mt-8">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Dining Options: Complimentary vs. Specialty</h3>
+                <div class="chart-container h-64 md:h-80">
+                    <canvas id="diningOptionsChart"></canvas>
+                </div>
+                 <p class="text-xs text-center mt-2">Comparison of the number of complimentary and specialty dining venues.</p>
+            </div>
+             <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Bars and Lounges</h3>
+                <p class="mb-4">In addition to restaurants, Carnival Firenze offers numerous bars and lounges, each with a unique atmosphere and beverage selection, many carrying on the Italian theme:</p>
+                <ul class="list-disc list-inside space-y-1" id="barList">
+                    </ul>
+            </div>
+        </section>
+
+        <section id="activities" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">Activities & Entertainment: Fun for Everyone</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Discover the wide array of activities and entertainment aboard Carnival Firenze. From thrilling water slides at WaterWorks™ and the challenging SkyCourse Ropes Course to serene adults-only retreats and vibrant evening shows, there's something for everyone. This section also covers the extensive youth programs available for younger cruisers.
+            </p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="activityHighlights">
+                 </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Youth Programs</h3>
+                    <p class="mb-2">Carnival Firenze offers complimentary, supervised programs for children and teens aged 2-17:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Camp Ocean™ (Ages 2-11):</strong> Divided into Penguins (2-5), Stingrays (6-8), and Sharks (9-11), with age-appropriate activities.</li>
+                        <li><strong>Circle “C”® (Ages 12-14):</strong> Dedicated space with games and parties for young teens.</li>
+                        <li><strong>Club O2® (Ages 15-17):</strong> Exclusive hangout for older teens with music, video games, and movies.</li>
+                        <li><strong>Dr. Seuss Bookville™ & Seuss at Sea™:</strong> Themed library and activities inspired by Dr. Seuss.</li>
+                        <li><strong>Night Owls Babysitting (Extra Cost):</strong> Evening service for children aged 6 months to 11 years.</li>
+                    </ul>
+                </div>
+                 <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Evening Entertainment</h3>
+                    <p class="mb-2">When the sun goes down, the ship comes alive with a variety of options:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Teatro Rosso:</strong> Hosts Playlist Productions, Broadway-style shows.</li>
+                        <li><strong>Live Music:</strong> At the Tuscan Lounge, Piano Bar 88, and Moda Lounge (karaoke, Latin music).</li>
+                        <li><strong>The Punchliner Comedy Club:</strong> Comedy shows for families and adults.</li>
+                        <li><strong>Firenze Casino:</strong> Slot machines and table games (smoking and non-smoking areas).</li>
+                        <li><strong>Nightclub and Theme Parties:</strong> Includes the '80s Rock-N-Glow Party and the "White Party".</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="wellness" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">Wellness: Cloud 9 Spa & Fitness</h2>
+             <p class="mb-6 text-lg leading-relaxed">
+                Relax and rejuvenate at the Cloud 9 Spa™ or maintain your fitness routine at the state-of-the-art Fitness Center. This section provides an overview of spa treatments, salon services, fitness equipment, and classes available onboard. Note that Carnival Firenze does *not* feature the extensive Thermal Suites found on some other Carnival ships.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Cloud 9 Spa™</h3>
+                    <p class="mb-2">Offers a variety of European-style treatments:</p>
+                    <ul class="list-disc list-inside space-y-1 mb-3">
+                        <li>Massages (Swedish, Deep Tissue, Hot Stone, Couples)</li>
+                        <li>Facial treatments (BIOTEC, Elemis)</li>
+                        <li>Body wraps and exfoliating scrubs</li>
+                        <li>Acupuncture and medi-spa treatments (e.g., dermal fillers)</li>
+                        <li>IV therapies (bSkinny, bRevived)</li>
+                        <li>Full salon: hairstyling, manicures, pedicures, waxing</li>
+                        <li>ZSpa treatments for teens (12-17 years)</li>
+                    </ul>
+                    <p class="font-semibold text-red-600">Important: The Cloud 9 Spa on Carnival Firenze <span class="underline">does not</span> have the extensive Thermal Suites (Tepidarium, Laconium, Aroma Steam Baths, Hydrotherapy Pool) found on other Carnival ships.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Cloud 9 Fitness Center</h3>
+                    <p class="mb-2">Well-equipped to stay active:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>State-of-the-art cardio and strength equipment</li>
+                        <li>Free weights, weight machines, treadmills, ellipticals, rowers</li>
+                        <li>Complimentary classes: aerobics, stretching, abs conditioning</li>
+                        <li>Classes for a fee: Yoga, Pilates, spinning, boot camp, personal training</li>
+                        <li>Complimentary health and wellness seminars</li>
+                    </ul>
+                </div>
+            </div>
+             <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Sample Spa Treatments & Prices (Illustrative)</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left font-semibold">Treatment</th>
+                                <th class="px-4 py-2 text-left font-semibold">Duration</th>
+                                <th class="px-4 py-2 text-left font-semibold">Approx. Price (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spaTreatmentTableBody" class="divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+                <p class="text-xs mt-2">Note: Prices are subject to change and may vary. Onboard promotions are often available.</p>
+            </div>
+        </section>
+
+        <section id="itineraries" class="mb-12 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">Itineraries & Decks: Exploring the Ship</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Carnival Firenze sails year-round from Long Beach, California, primarily to the Mexican Riviera and Baja California. This section showcases sample itineraries and offers a glimpse into the ship's layout through a deck-by-deck highlight feature.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Typical Itineraries (from Long Beach, CA)</h3>
+                    <ul class="list-disc list-inside space-y-1" id="sampleItineraries">
+                        </ul>
+                </div>
+                 <div>
+                    <h3 class="text-2xl font-semibold mb-3 accent-text">Typical Cruise Durations</h3>
+                     <div class="chart-container h-64 md:h-80">
+                        <canvas id="itineraryDurationsChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center mt-2">Visualization of typical cruise durations offered.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Explore the Decks</h3>
+                <p class="mb-4">Select a deck to see some of the main venues and services it hosts. The ship has 14 passenger-accessible decks (1 to 12, then 14 and 15).</p>
+                <div class="flex flex-wrap gap-2 mb-4" id="deckSelectorControls">
+                    </div>
+                <div id="deckInfoDisplay" class="p-4 bg-gray-50 rounded min-h-[100px]">
+                    <p class="text-gray-500">Select a deck to view details.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="verdict" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 section-title">The Verdict: Is Carnival Firenze for You?</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Carnival Firenze offers a unique blend of energetic fun and Italian charm. This final section synthesizes the ship's pros and cons to help you decide if it's the right choice for your next cruise vacation. Consider what aspects are most important for your ideal onboard experience.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                    <h3 class="text-2xl font-semibold mb-3 text-green-700">Pros 👍</h3>
+                    <ul class="list-disc list-inside space-y-1" id="prosList">
+                        <li>Unique "Fun Italian Style" with Florentine decor.</li>
+                        <li>Wide range of dining options, complimentary and specialty.</li>
+                        <li>Terrazza staterooms with exclusive Terrazza Moda area (ages 12+).</li>
+                        <li>Modern ship (built in 2020) with contemporary amenities.</li>
+                        <li>Convenient year-round West Coast homeport (Long Beach).</li>
+                        <li>Good value for money, typical of Carnival.</li>
+                        <li>Solid youth programs (Camp Ocean, Circle “C”, Club O2).</li>
+                        <li>Various evening entertainment options.</li>
+                        <li>Standard cabin bathrooms with glass shower doors.</li>
+                    </ul>
+                </div>
+                <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                    <h3 class="text-2xl font-semibold mb-3 text-red-700">Cons 👎</h3>
+                    <ul class="list-disc list-inside space-y-1" id="consList">
+                        <li>Outdoor recreational areas (pools, sundecks) may be smaller than on other Carnival ships.</li>
+                        <li>Possible layout quirks and crowding in some areas; smoking casino on Deck 4 can disrupt passage.</li>
+                        <li>Absence of a full thermal suite in the Cloud 9 Spa.</li>
+                        <li>Potential noise issues due to thin walls between cabins.</li>
+                        <li>Main atrium is less of a central gathering space compared to other ships.</li>
+                        <li>Elaborate Italian theme might feel "kitsch" or "Vegas-style" to some.</li>
+                        <li>Introduction of some new for-fee casual dining options (e.g., chicken wings).</li>
+                    </ul>
+                </div>
+            </div>
+             <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                <h3 class="text-2xl font-semibold mb-3 accent-text">Final Thoughts</h3>
+                <p class="mb-2">Carnival Firenze is ideal for those who appreciate a strong immersive theme, a wide variety of culinary choices, a lively atmosphere with a European touch, and for families. It might not be the optimal choice for those seeking expansive outdoor spaces, a comprehensive thermal spa experience, or a more understated environment.</p>
+                <p>To fully enjoy Carnival Firenze, embracing its vibrant Italian theme is key. The ship carves out a unique niche, maintaining Carnival's value while offering a differentiated product on the West Coast.</p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="text-center py-8 mt-12 border-t border-gray-300">
+        <p class="text-sm text-gray-600">&copy; <span id="currentYear"></span> Carnival Firenze Interactive Guide. Created for informational purposes.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    // Update active link (optional, more complex for dynamic content loading)
+                    document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Close mobile menu if open
+                    const navLinks = document.getElementById('navLinks');
+                    if (navLinks.classList.contains('block') && !navLinks.classList.contains('md:flex')) {
+                         navLinks.classList.add('hidden');
+                         navLinks.classList.remove('block');
+                    }
+                }
+            });
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const navLinks = document.getElementById('navLinks');
+        mobileMenuButton.addEventListener('click', () => {
+            navLinks.classList.toggle('hidden');
+            navLinks.classList.toggle('block');
+        });
+
+        // Set current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Data for the application
+        const shipData = {
+            specs: [
+                { feature: "Gross Tonnage", value: "135,156 - 135,500 GT" },
+                { feature: "Length", value: "323.63 meters (1,061-1,062 feet)" },
+                { feature: "Beam", value: "37.2 meters (122 feet)" },
+                { feature: "Draft", value: "8.25 meters (27-28 feet)" },
+                { feature: "Passenger Capacity (double)", value: "Approx. 4,126 - 4,232" },
+                { feature: "Passenger Capacity (max)", value: "Up to 5,260" },
+                { feature: "Crew", value: "Approx. 1,278 - 1,425" },
+                { feature: "Number of Staterooms", value: "Approx. 2,063 - 2,136" },
+                { feature: "Passenger Decks", value: "14" },
+                { feature: "Shipyard", value: "Fincantieri, Marghera, Italy" },
+                { feature: "Completed for Costa", value: "2020 (Delivered Dec 2020)" },
+                { feature: "Carnival Maiden Voyage", value: "April 25, 2024" },
+                { feature: "Class (Subclass)", value: "Vista Class (Venice-class)" },
+                { feature: "Cost (Approx.)", value: "$950 Million" }
+            ],
+            staterooms: [
+                { name: "Interior", category: "Interior", size: "~153-175 sq ft", occupancy: "2-4", amenities: "No window (some with porthole/walkway view)", perks: "Most economical option", icon: "🛌" },
+                { name: "Ocean View", category: "Ocean View", size: "~200-265 sq ft", occupancy: "2-5", amenities: "Picture window; Deluxe may have 2nd bath/tub", perks: "Sea view", icon: "🌊" },
+                { name: "Balcony", category: "Balcony", size: "~185 sq ft + balcony 35-75+ sq ft", occupancy: "2-4", amenities: "Private balcony with seating", perks: "Private outdoor space", icon: "🌅" },
+                { name: "Terrazza Interior", category: "Terrazza", size: "Similar to standard Interior", occupancy: "2-4", amenities: "Interior cabin", perks: "Terrazza Moda access, perks for age 12+", icon: "🏵️" },
+                { name: "Terrazza Cabana", category: "Terrazza", size: "~185 sq ft + lanai/patio 100 sq ft", occupancy: "2-4", amenities: "Patio with semi-private lanai access", perks: "Terrazza Moda access, perks for age 12+", icon: "🏡" },
+                { name: "Terrazza Balcony", category: "Terrazza", size: "Similar to standard Balcony", occupancy: "2-4", amenities: "Private balcony", perks: "Terrazza Moda access, perks for age 12+", icon: "🌺" },
+                { name: "Suite (Ocean/Junior)", category: "Suite", size: "Ocean Suite: ~275 sq ft + balcony 65 sq ft", occupancy: "2-4", amenities: "Larger cabin/balcony, whirlpool tub, living area", perks: "Priority services, Terrazza Moda access (age 12+)", icon: "⭐" },
+                { name: "Accessible", category: "Accessible", size: "Varies", occupancy: "Varies", amenities: "Wider doors, roll-in shower, more maneuvering space", perks: "Designed for guests with mobility issues", icon: "♿" }
+            ],
+            dining: [
+                { name: "Michelangelo Restaurant", type: "Complimentary", cuisine: "International, Italian", description: "Grand Main Dining Room on 2 decks, Your Time Dining (reservations recommended).", price: "N/A", icon: "🍝" },
+                { name: "Medici Restaurant", type: "Complimentary", cuisine: "International, Italian, Pasta (Sea Day Lunch)", description: "Elegant Main Dining Room, fixed seating times.", price: "N/A", icon: "🍷" },
+                { name: "Lido Marketplace", type: "Complimentary", cuisine: "International Buffet", description: "Casual self-service, various stations, Italian garden theme.", price: "N/A", icon: "🥗" },
+                { name: "Guy's Burger Joint", type: "Complimentary", cuisine: "American Burgers, Italian touches", description: "Casual, poolside, very popular.", price: "N/A", icon: "🍔" },
+                { name: "Tomodoro", type: "Complimentary", cuisine: "Mexican-Italian Fusion", description: "Casual, poolside, burritos, tacos, Italian-inspired dishes.", price: "N/A", icon: "🌮" },
+                { name: "La Strada Grill", type: "Complimentary", cuisine: "Italian Street Food, BBQ, Salads", description: "Outdoor grill (Deck 5), can be near smoking area.", price: "N/A", icon: "🌭" },
+                { name: "Pizzeria del Capitano", type: "Complimentary", cuisine: "Pizza", description: "Casual, made-to-order pizza.", price: "N/A", icon: "🍕" },
+                { name: "Il Mercato", type: "Complimentary", cuisine: "Sandwiches, Meatballs", description: "Sandwich shop, new concept.", price: "N/A", icon: "🥪" },
+                { name: "Breakfast/Chicken Shack", type: "Complimentary", cuisine: "Omelets (AM), Chicken Fingers (PM)", description: "Casual, near aft pool.", price: "N/A", icon: "🍳" },
+                { name: "Fresh Creations", type: "Complimentary", cuisine: "Salads", description: "Located in Serenity Adult-Only Retreat.", price: "N/A", icon: "🥬" },
+                { name: "Swirls", type: "Complimentary", cuisine: "Soft-Serve Ice Cream, Frozen Yogurt", description: "Self-service, near Lido.", price: "N/A", icon: "🍦" },
+                { name: "Fahrenheit 555 Steakhouse", type: "Specialty", cuisine: "American Steakhouse", description: "Elegant, reservation-only, prime beef, seafood.", price: "~$49/person + supplements", icon: "🥩" },
+                { name: "Il Viaggio", type: "Specialty", cuisine: "Regional Italian", description: "Upscale Italian, generous portions, new concept.", price: "~$42/person + supplements", icon: "🇮🇹" },
+                { name: "Bonsai Teppanyaki", type: "Specialty", cuisine: "Japanese Teppanyaki (Hibachi)", description: "Intimate, entertaining, group dining, reservations required.", price: "~$38-$42/person", icon: "🥢" },
+                { name: "Bonsai Sushi", type: "Specialty", cuisine: "Japanese Sushi & Sashimi", description: "Sit-down service, sushi, rolls, appetizers (À la carte).", price: "À la carte", icon: "🍣" },
+                { name: "Seafood Shack", type: "Specialty", cuisine: "New England Style Seafood", description: "Casual counter, lobster rolls, clam chowder (À la carte).", price: "À la carte", icon: "🦞" },
+                { name: "JavaBlue Café", type: "Specialty", cuisine: "Specialty Coffees, Teas, Gelato, Pastries", description: "Intimate café (Some pastries free, drinks À la carte).", price: "À la carte", icon: "☕" },
+                { name: "Empanada & Pie", type: "Specialty", cuisine: "Savory Empanadas & Pies", description: "Small counter, new concept (À la carte).", price: "À la carte", icon: "🥟" },
+                { name: "All Things Wings", type: "Specialty", cuisine: "Chicken Wings", description: "Located in Lido Marketplace (À la carte).", price: "À la carte", icon: "🍗" },
+                { name: "The Chef's Table", type: "Specialty", cuisine: "Multi-Course Gourmet", description: "Exclusive, small group, galley tour, wine pairings.", price: "~$99-$150+/person", icon: "🧑‍🍳" },
+                { name: "Room Service", type: "Specialty", cuisine: "Various (continental breakfast free)", description: "Delivered to stateroom (Most À la carte).", price: "À la carte (most items)", icon: "🛎️" }
+            ],
+            bars: [
+                "Amari Bar (specialty Italian aperitifs/digestifs)",
+                "Atrium Bar (Piazza Duomo Bar, central)",
+                "Firenze Casino Bar (inside the casino)",
+                "Frizzante Bar (focus on sparkling wines, snacks, coffee)",
+                "Heroes Tribute Bar & Lounge (tribute to military)",
+                "Pergola Bar (likely outdoor/pool bar)",
+                "Rococo Bar (frozen cocktails, themed decor)",
+                "Spritz Bar (dedicated bar in Serenity Retreat)",
+                "Versilia Bar (poolside bar)",
+                "Piano Bar 88 (popular for sing-alongs)",
+                "Tuscan Lounge (live music and dance floor)",
+                "Moda Lounge/Bar (classic Italian cocktails, live music)"
+            ],
+            activities: [
+                { name: "WaterWorks™", description: "Water park with slides (Speedway Splash, Twister) and PowerDrencher.", icon: "💧" },
+                { name: "SportSquare™", description: "Outdoor complex: mini-golf, basketball/volleyball/pickleball, ping-pong, SkyFitness.", icon: "🏅" },
+                { name: "SkyCourse Ropes Course", description: "Suspended adventure course with obstacles and sea views.", icon: "🤸" },
+                { name: "Serenity Adult-Only Retreat™", description: "Peaceful oasis (21+) with loungers, whirlpools, Spritz bar, salad station.", icon: "🧘" },
+                { name: "Pools", description: "Main Lido pool (Italian courtyard style), Versilia pool, aft pool.", icon: "🏊" },
+                { name: "Carnival Seaside Theater", description: "Movies under the stars on a large screen.", icon: "🎬" },
+                { name: "Shopping & More", description: "The Fun Shops, Cherry on Top, jewelry store, Pixels photo gallery, art gallery, library.", icon: "🛍️" }
+            ],
+            spaTreatments: [
+                { treatment: "BIOTEC Line Eraser", duration: "50 min", price: "$229" },
+                { treatment: "Pro-Collagen Age Defy (Elemis)", duration: "50 min", price: "$199" },
+                { treatment: "Aroma Stone Therapy", duration: "50 min", price: "$199" },
+                { treatment: "Deep Tissue Massage", duration: "50 min", price: "$199" },
+                { treatment: "Thousand Flower Detox Wrap", duration: "75 min", price: "$249" },
+                { treatment: "Acupuncture Session", duration: "50 min", price: "$199" },
+                { treatment: "Traditional Manicure", duration: "30 Min", price: "$59" },
+                { treatment: "Personal Training", duration: "60 min", price: "$99" },
+                { treatment: "Pure Form Pilates/Yoga Class", duration: "45 min", price: "$20" }
+            ],
+            sampleItineraries: [
+                "<strong>3-Night Baja Mexico:</strong> Ensenada",
+                "<strong>4-Night Baja Mexico:</strong> Catalina Island, Ensenada",
+                "<strong>5-Night Mexican Riviera:</strong> Cabo San Lucas, Ensenada",
+                "<strong>6-Night Mexican Riviera:</strong> Ensenada, Cabo San Lucas",
+                "<strong>7-Night Mexican Riviera:</strong> Puerto Vallarta, Mazatlán, Cabo San Lucas"
+            ],
+            decks: [
+                { deck: 1, name: "Riviera", highlights: "Mainly staterooms." },
+                { deck: 2, name: "Main", highlights: "Staterooms, including Cove Balconies." },
+                { deck: 3, name: "Lobby", highlights: "Staterooms, Medici & Michelangelo Restaurants (lower level), Atrium (lower level), Guest Services, Shore Excursions, Circle 'C'." },
+                { deck: 4, name: "Mezzanine", highlights: "Firenze Casino, Shops, Art Gallery, Limelight Lounge (Punchliner), Teatro Rosso (lower entrance), Atrium (mid-level), Michelangelo Restaurant (upper level)." },
+                { deck: 5, name: "Promenade", highlights: "Staterooms (incl. Terrazza Cabanas), Atrium (upper level), Bonsai Sushi & Teppanyaki, Fahrenheit 555, Il Viaggio, Moda Lounge, Piano Bar 88, Tuscan Lounge, La Strada Grill, Terrazza Moda." },
+                { deck: 6, name: "Upper", highlights: "Mainly staterooms." },
+                { deck: 7, name: "Empress", highlights: "Mainly staterooms." },
+                { deck: 8, name: "Verandah", highlights: "Mainly staterooms, Bridge (forward)." },
+                { deck: 9, name: "Panorama", highlights: "Mainly staterooms." },
+                { deck: 10, name: "Lido", highlights: "Staterooms (forward), Lido Marketplace, Guy's Burger, Tomodoro, Pizzeria, Rococo Bar, Versilia Pool, Lido Pool, JavaBlue Cafe, Chicken/Seafood Shack (aft)." },
+                { deck: 11, name: "Sun", highlights: "Staterooms (forward), SportSquare, Camp Ocean, Pergola Bar, Seaside Theater, Il Mercato." },
+                { deck: 12, name: "Spa/Sky", highlights: "Staterooms (forward), Cloud 9 Spa & Fitness, The Warehouse Arcade, WaterWorks™ access, Jogging Track, Mini Golf." },
+                { deck: 14, name: "Sky/Sun", highlights: "Staterooms (forward), WaterWorks™ (main slides), SkyCourse Ropes Course." },
+                { deck: 15, name: "Serenity", highlights: "Serenity Adult-Only Retreat, Spritz Bar, Fresh Creations." }
+            ]
+        };
+
+        // Populate Ship Specs Table
+        const specsTableBody = document.getElementById('shipSpecsTableBody');
+        shipData.specs.forEach(spec => {
+            const row = specsTableBody.insertRow();
+            row.insertCell().textContent = spec.feature;
+            row.insertCell().textContent = spec.value;
+            row.cells[0].classList.add('px-4', 'py-2', 'font-medium');
+            row.cells[1].classList.add('px-4', 'py-2');
+        });
+
+        // Populate Staterooms
+        const stateroomList = document.getElementById('stateroomList');
+        const stateroomFilterControls = document.getElementById('stateroomFilterControls');
+        let currentStateroomFilter = 'all';
+
+        function renderStaterooms() {
+            stateroomList.innerHTML = ''; // Clear existing
+            const filteredStaterooms = currentStateroomFilter === 'all'
+                ? shipData.staterooms
+                : shipData.staterooms.filter(s => s.category === currentStateroomFilter || (currentStateroomFilter === "Terrazza" && s.name.includes("Terrazza")) );
+
+            filteredStaterooms.forEach(stateroom => {
+                const card = document.createElement('div');
+                card.className = 'card rounded-lg p-4 shadow-lg flex flex-col';
+                card.innerHTML = `
+                    <h4 class="text-xl font-semibold accent-text mb-2">${stateroom.icon} ${stateroom.name}</h4>
+                    <p class="text-sm mb-1"><strong>Category:</strong> ${stateroom.category}</p>
+                    <p class="text-sm mb-1"><strong>Size:</strong> ${stateroom.size}</p>
+                    <p class="text-sm mb-1"><strong>Occupancy:</strong> ${stateroom.occupancy}</p>
+                    <p class="text-sm mb-1"><strong>Features:</strong> ${stateroom.amenities}</p>
+                    <p class="text-sm mt-auto pt-2"><strong>Perks:</strong> ${stateroom.perks}</p>
+                `;
+                stateroomList.appendChild(card);
+            });
+        }
+        stateroomFilterControls.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentStateroomFilter = e.target.dataset.filter;
+                stateroomFilterControls.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'accent-bg', 'text-white'));
+                e.target.classList.add('active', 'accent-bg', 'text-white');
+                renderStaterooms();
+            }
+        });
+
+        // Populate Dining Venues
+        const diningList = document.getElementById('diningList');
+        const diningFilterControls = document.getElementById('diningFilterControls');
+        let currentDiningFilter = 'all';
+
+        function renderDiningVenues() {
+            diningList.innerHTML = ''; // Clear existing
+            const filteredDining = currentDiningFilter === 'all'
+                ? shipData.dining
+                : shipData.dining.filter(d => d.type === currentDiningFilter);
+
+            filteredDining.forEach(venue => {
+                const item = document.createElement('div');
+                item.className = 'card rounded-lg p-4 shadow-lg';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start cursor-pointer dining-item-header">
+                        <h4 class="text-xl font-semibold accent-text mb-1">${venue.icon} ${venue.name}</h4>
+                        <span class="text-2xl transform transition-transform duration-300">&#x25BC;</span> </div>
+                    <div class="details-content">
+                        <p class="text-sm mb-1"><strong>Type:</strong> <span class="${venue.type === 'Complimentary' ? 'text-green-600' : 'text-orange-600'}">${venue.type === 'Complimentary' ? 'Complimentary' : 'Specialty'}</span></p>
+                        <p class="text-sm mb-1"><strong>Cuisine:</strong> ${venue.cuisine}</p>
+                        <p class="text-sm mb-1"><strong>Description:</strong> ${venue.description}</p>
+                        ${venue.type === 'Specialty' ? `<p class="text-sm"><strong>Price:</strong> ${venue.price}</p>` : ''}
+                    </div>
+                `;
+                diningList.appendChild(item);
+            });
+
+            document.querySelectorAll('.dining-item-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const arrow = header.querySelector('span');
+                    content.classList.toggle('open');
+                    arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                });
+            });
+        }
+
+        diningFilterControls.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentDiningFilter = e.target.dataset.filter;
+                diningFilterControls.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'accent-bg', 'text-white'));
+                e.target.classList.add('active', 'accent-bg', 'text-white');
+                renderDiningVenues();
+            }
+        });
+        
+        // Populate Bar List
+        const barListContainer = document.getElementById('barList');
+        shipData.bars.forEach(bar => {
+            const listItem = document.createElement('li');
+            listItem.textContent = bar;
+            barListContainer.appendChild(listItem);
+        });
+
+        // Populate Activity Highlights
+        const activityHighlightsContainer = document.getElementById('activityHighlights');
+        shipData.activities.forEach(activity => {
+            const card = document.createElement('div');
+            card.className = 'card rounded-lg p-4 shadow-lg text-center';
+            card.innerHTML = `
+                <div class="text-4xl mb-2">${activity.icon}</div>
+                <h4 class="text-lg font-semibold accent-text mb-1">${activity.name}</h4>
+                <p class="text-sm text-gray-600">${activity.description}</p>
+            `;
+            activityHighlightsContainer.appendChild(card);
+        });
+        
+        // Populate Spa Treatments Table
+        const spaTableBody = document.getElementById('spaTreatmentTableBody');
+        shipData.spaTreatments.forEach(treatment => {
+            const row = spaTableBody.insertRow();
+            row.insertCell().textContent = treatment.treatment;
+            row.insertCell().textContent = treatment.duration;
+            row.insertCell().textContent = treatment.price;
+            row.cells[0].classList.add('px-4', 'py-2');
+            row.cells[1].classList.add('px-4', 'py-2');
+            row.cells[2].classList.add('px-4', 'py-2');
+        });
+
+        // Populate Sample Itineraries
+        const itinerariesList = document.getElementById('sampleItineraries');
+        shipData.sampleItineraries.forEach(itinerary => {
+            const li = document.createElement('li');
+            li.innerHTML = itinerary; // Use innerHTML because of <strong> tags
+            itinerariesList.appendChild(li);
+        });
+
+        // Populate Deck Selector and Info
+        const deckSelectorControls = document.getElementById('deckSelectorControls');
+        const deckInfoDisplay = document.getElementById('deckInfoDisplay');
+        shipData.decks.forEach(deckData => {
+            const button = document.createElement('button');
+            button.className = 'filter-button bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full text-sm';
+            button.textContent = `Deck ${deckData.deck}`;
+            button.dataset.deckId = deckData.deck;
+            button.addEventListener('click', () => {
+                deckInfoDisplay.innerHTML = `
+                    <h5 class="font-semibold text-lg mb-1">Deck ${deckData.deck}: ${deckData.name}</h5>
+                    <p>${deckData.highlights}</p>
+                `;
+                deckSelectorControls.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'accent-bg', 'text-white'));
+                button.classList.add('active', 'accent-bg', 'text-white');
+            });
+            deckSelectorControls.appendChild(button);
+        });
+        
+        // Initial Renders
+        renderStaterooms();
+        renderDiningVenues();
+
+        // Charts
+        const chartOptions = (titleText) => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: { size: 10 }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: titleText,
+                    font: { size: 14 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null && context.chart.config.type !== 'pie' && context.chart.config.type !== 'doughnut') {
+                                label += context.parsed.y;
+                            }
+                            if (context.parsed !== null && (context.chart.config.type === 'pie' || context.chart.config.type === 'doughnut')) {
+                                label += context.parsed;
+                            }
+                             // For horizontalBar, use x
+                            if (context.parsed.x !== null && context.chart.config.type === 'bar' && context.chart.options.indexAxis === 'y') {
+                                label = context.label + ': ' + context.parsed.x;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                 y: {
+                    ticks: { font: { size: 10 } },
+                    grid: { display: false }
+                },
+                x: {
+                    ticks: { font: { size: 10 },
+                        callback: function(value, index, values) {
+                            const label = this.getLabelForValue(value);
+                            if (label.length > 16) {
+                                return label.substring(0, 16) + '...';
+                            }
+                            return label;
+                        }
+                     },
+                     grid: { display: false }
+                }
+            }
+        });
+        
+        const commonChartColors = ['#E67A7A', '#4A6F8A', '#F4A261', '#84A98C', '#52796F', '#CAD2C5'];
+
+
+        // Capacity Chart (Bar)
+        new Chart(document.getElementById('capacityChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Passengers (Double)', 'Passengers (Max)', 'Crew'],
+                datasets: [{
+                    label: 'Number of People',
+                    data: [4179, 5260, 1351], // Averages from text
+                    backgroundColor: [commonChartColors[0], commonChartColors[1], commonChartColors[2]],
+                }]
+            },
+            options: chartOptions('Ship Capacity')
+        });
+
+        // Stateroom Distribution Chart (Doughnut)
+        new Chart(document.getElementById('stateroomDistributionChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Interior', 'Ocean View', 'Balcony', 'Terrazza', 'Suite'],
+                datasets: [{
+                    label: 'Stateroom Distribution',
+                    data: [25, 20, 35, 10, 10], // Estimated percentages
+                    backgroundColor: commonChartColors.slice(0,5),
+                }]
+            },
+            options: chartOptions('Stateroom Type Distribution')
+        });
+        
+        // Dining Options Chart (Bar)
+        const complimentaryDiningCount = shipData.dining.filter(d => d.type === 'Complimentary').length;
+        const specialtyDiningCount = shipData.dining.filter(d => d.type === 'Specialty').length;
+        new Chart(document.getElementById('diningOptionsChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Complimentary', 'Specialty (Extra Cost)'],
+                datasets: [{
+                    label: 'Number of Venues',
+                    data: [complimentaryDiningCount, specialtyDiningCount],
+                    backgroundColor: [commonChartColors[3], commonChartColors[0]],
+                }]
+            },
+            options: chartOptions('Dining Options')
+        });
+
+        // Itinerary Durations Chart (Horizontal Bar)
+        new Chart(document.getElementById('itineraryDurationsChart'), {
+            type: 'bar', // For horizontal bar, set indexAxis: 'y'
+            data: {
+                labels: ['3 Nights', '4 Nights', '5 Nights', '6 Nights', '7 Nights'],
+                datasets: [{
+                    label: 'Itinerary Presence',
+                    data: [1, 1, 1, 1, 1], // Using 1 to indicate presence
+                    backgroundColor: commonChartColors.slice(0,5),
+                }]
+            },
+            options: { ...chartOptions('Typical Cruise Durations'), indexAxis: 'y' }
+        });
+
+    </script>
+</body>
+</html>
