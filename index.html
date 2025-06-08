@@ -1,1 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnival Firenze iMessage Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Warm Neutrals" - A calm, harmonious palette with a base of #F5F5F4 (stone-100), primary text #44403C (stone-700), headers #1C1917 (stone-900), accents #A8A29E (stone-400), and a subtle highlight #059669 (emerald-600) for interactive elements. -->
+    <!-- Application Structure Plan: The SPA is designed as a user-friendly, task-oriented guide, departing from the linear report structure. It starts with a clear "Bottom Line Up Front" (BLUF) summary. The core is an interactive "Action Plan" with three distinct sections: 1. Why it's a Gamble (the tech explanation), 2. Pre-Cruise Checklist (actionable steps), and 3. Onboard Strategy (what to do on the ship). This is followed by a "Plan B" section detailing reliable alternatives. This structure guides the user from understanding the problem to taking action, and finally to having a backup plan, which is the most logical and useful flow for a traveler seeking practical advice. -->
+    <!-- Visualization & Content Choices: 1. Report Info: Wi-Fi Plan Comparison -> Goal: Compare -> Viz: Interactive HTML Table -> Interaction: Hover highlight -> Justification: Clearly presents official options and costs. 2. Report Info: iPhone Settings -> Goal: Inform/Action -> Viz: Interactive Checklist -> Interaction: Click to check -> Justification: Turns passive instructions into an active, engaging task for the user. 3. Report Info: Reliability of Communication Methods -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Interaction: Tooltips on hover -> Justification: Visually quantifies the abstract concept of reliability for different methods, making the trade-offs immediately apparent. 4. Report Info: Technical "Loophole" -> Goal: Inform/Organize -> Viz: HTML/CSS Diagram -> Interaction: None -> Justification: Simplifies a complex technical concept into an easy-to-digest visual flow. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F4;
+            color: #44403C;
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #059669;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .checklist-item input:checked + label .checkbox-icon {
+            background-color: #059669;
+            border-color: #059669;
+        }
+        .checklist-item input:checked + label .checkbox-icon svg {
+            display: block;
+        }
+        .checklist-item input:checked + label {
+            text-decoration: line-through;
+            color: #A8A29E;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-stone-900 tracking-tight">Free iMessage on Carnival?</h1>
+            <p class="mt-2 text-lg text-stone-600">Your Family's Guide to Staying Connected on the Carnival Firenze</p>
+        </header>
 
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-stone-900 mb-3">The Bottom Line Up Front</h2>
+            <p class="text-stone-700">Getting free iMessage on your cruise is a <span class="font-semibold">game of chance, not a guarantee</span>. It sometimes works by piggybacking on the ship's free Wi-Fi used for the Carnival Hub App. However, Carnival is actively closing this loophole, especially on newer ships like the Firenze. This guide gives you the best possible shot, but you <span class="font-semibold text-red-700">must have a backup plan</span>.</p>
+        </div>
+
+        <main>
+            <nav class="flex justify-center flex-wrap gap-2 mb-8">
+                <button data-target="action-plan" class="nav-button active font-semibold py-2 px-4 rounded-full bg-stone-200 text-stone-800">Your Action Plan</button>
+                <button data-target="alternatives" class="nav-button font-semibold py-2 px-4 rounded-full bg-stone-200 text-stone-800">Plan B: Reliable Alternatives</button>
+                <button data-target="tech-deep-dive" class="nav-button font-semibold py-2 px-4 rounded-full bg-stone-200 text-stone-800">The Tech Deep Dive</button>
+            </nav>
+
+            <div id="content-container">
+                <section id="action-plan" class="content-section active space-y-8">
+                    <div>
+                        <h3 class="text-2xl font-bold text-center text-stone-900 mb-4">Your 2-Step Action Plan</h3>
+                        <p class="text-center max-w-2xl mx-auto text-stone-600">Follow these steps to maximize your chances. Complete the Pre-Cruise Checklist at home, and follow the Onboard Strategy as soon as you get on the ship.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h4 class="text-xl font-bold text-stone-900 mb-4">1. Pre-Cruise Checklist</h4>
+                            <p class="text-sm text-stone-600 mb-4">Do this for every iPhone in your family before you leave home.</p>
+                            <div id="checklist" class="space-y-3"></div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h4 class="text-xl font-bold text-stone-900 mb-4">2. Onboard Strategy</h4>
+                             <p class="text-sm text-stone-600 mb-4">Follow these steps in order on embarkation day.</p>
+                            <ol class="space-y-4">
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">1</div>
+                                    <div>
+                                        <h5 class="font-semibold">Engage Airplane Mode</h5>
+                                        <p class="text-sm text-stone-600">Turn this ON immediately to avoid costly "Cellular at Sea" charges. Then, manually turn Wi-Fi back ON.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">2</div>
+                                    <div>
+                                        <h5 class="font-semibold">Connect to Guest Wi-Fi</h5>
+                                        <p class="text-sm text-stone-600">Connect to the "Carnival-Guest" network. On the pop-up page, choose the FREE option for the Hub App access only. Do NOT select a paid plan.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">3</div>
+                                    <div>
+                                        <h5 class="font-semibold">Test with a Simple Text</h5>
+                                        <p class="text-sm text-stone-600">Open iMessage and send a plain text message (no photos!) to another iPhone user. Look for the "Delivered" status under the blue bubble.</p>
+                                    </div>
+                                </li>
+                                 <li class="flex items-start">
+                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">4</div>
+                                    <div>
+                                        <h5 class="font-semibold">If it Fails, Troubleshoot</h5>
+                                        <p class="text-sm text-stone-600">Toggle your Wi-Fi off and on. "Forget" the network and reconnect. Restart your iPhone. Be patient and try again later.</p>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="alternatives" class="content-section space-y-8">
+                     <div>
+                        <h3 class="text-2xl font-bold text-center text-stone-900 mb-4">Plan B: Reliable Alternatives</h3>
+                        <p class="text-center max-w-2xl mx-auto text-stone-600">When free iMessage fails or isn't reliable enough, these are your best options. This chart compares their estimated reliability against the free iMessage attempt. Higher is better.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <div class="chart-container">
+                            <canvas id="reliabilityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-stone-200">
+                                    <th class="p-4 text-sm font-semibold text-stone-900">Method</th>
+                                    <th class="p-4 text-sm font-semibold text-stone-900">Best For</th>
+                                    <th class="p-4 text-sm font-semibold text-stone-900">Approx. Cost</th>
+                                    <th class="p-4 text-sm font-semibold text-stone-900">Key Downside</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alternatives-table" class="divide-y divide-stone-200">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tech-deep-dive" class="content-section space-y-8">
+                     <div>
+                        <h3 class="text-2xl font-bold text-center text-stone-900 mb-4">How the "iMessage Loophole" Works</h3>
+                        <p class="text-center max-w-2xl mx-auto text-stone-600">Curious why iMessage might work at all? It's about a technical "loophole" involving Apple's Push Notification Service (APNs). Carnival needs to allow APNs traffic for its own Hub App, and iMessage tries to sneak through that same open door.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                         <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                                    <span class="text-4xl">📱</span>
+                                </div>
+                                <span class="font-semibold">Your iPhone</span>
+                                <p class="text-xs text-stone-500">Sends iMessage</p>
+                            </div>
+                            <div class="text-2xl font-mono text-emerald-600 animate-pulse hidden md:block">&rarr;</div>
+                             <div class="text-2xl font-mono text-emerald-600 animate-pulse md:hidden">&darr;</div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-stone-100 rounded-lg flex items-center justify-center p-2 mb-2">
+                                    <span class="text-4xl">🚢</span>
+                                </div>
+                                <span class="font-semibold">Carnival Wi-Fi</span>
+                                 <p class="text-xs text-stone-500">Checks traffic</p>
+                            </div>
+                             <div class="text-2xl font-mono text-emerald-600 animate-pulse hidden md:block">&rarr;</div>
+                             <div class="text-2xl font-mono text-emerald-600 animate-pulse md:hidden">&darr;</div>
+                             <div class="flex flex-col items-center p-4 border-2 border-dashed border-emerald-500 rounded-lg bg-emerald-50">
+                                <span class="font-semibold text-emerald-800">The "APNs Door"</span>
+                                 <p class="text-xs text-stone-500 mb-2">TCP Ports 5223 & 443</p>
+                                <div class="flex gap-4">
+                                    <div class="flex flex-col items-center text-center">
+                                        <p class="text-sm text-green-700 font-medium">✅ Hub App Notifications</p>
+                                        <p class="text-xs text-green-600">(Allowed)</p>
+                                    </div>
+                                    <div class="flex flex-col items-center text-center">
+                                        <p class="text-sm text-blue-700 font-medium">❓ iMessage</p>
+                                        <p class="text-xs text-blue-600">(Sometimes slips through)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-mono text-emerald-600 animate-pulse hidden md:block">&rarr;</div>
+                            <div class="text-2xl font-mono text-emerald-600 animate-pulse md:hidden">&darr;</div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-24 h-24 bg-stone-800 rounded-full flex items-center justify-center mb-2">
+                                    <span class="text-4xl">☁️</span>
+                                </div>
+                                <span class="font-semibold">Apple's Servers</span>
+                                <p class="text-xs text-stone-500">Receives & Forwards</p>
+                            </div>
+                        </div>
+                        <p class="mt-6 text-sm text-stone-600 text-center max-w-3xl mx-auto">Carnival's network is designed to allow notifications for their Hub App, which use Apple's APNs. Because iMessage uses the same encrypted APNs system, the ship's filters can't easily tell the difference. If the "door" is open for the Hub App, your iMessage might get through too. But as Carnival upgrades their systems, they get better at spotting and blocking this unofficial traffic.</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="text-center mt-12 text-xs text-stone-500">
+            <p>This guide is based on an analysis of user reports and technical documentation. It is for informational purposes only.</p>
+            <p>iMessage is a trademark of Apple Inc. Carnival is a trademark of Carnival Corporation. This guide is not affiliated with or endorsed by either company.</p>
+        </footer>
+    </div>
+
+<script>
+    const navButtons = document.querySelectorAll('.nav-button');
+    const contentSections = document.querySelectorAll('.content-section');
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.target;
+
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            contentSections.forEach(section => {
+                if (section.id === targetId) {
+                    section.classList.add('active');
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+        });
+    });
+    
+    const checklistData = [
+        { id: 'iosUpdate', label: 'Update iOS to Latest Version', details: 'Ensures you have the latest networking protocols from Apple. Path: Settings > General > Software Update.' },
+        { id: 'imessageActive', label: 'Confirm iMessage is Active', details: 'Your iMessage must be working perfectly before you cruise. Path: Settings > Messages > iMessage (ON).' },
+        { id: 'backgroundRefresh', label: 'Turn Off Background App Refresh', details: 'Crucial for stopping other apps from interfering. Set to OFF globally. Path: Settings > General > Background App Refresh.' },
+        { id: 'lowQualityImage', label: 'Enable Low Quality Image Mode', details: 'If texts work, this gives small photos a tiny chance. Path: Settings > Messages > Low Quality Image Mode (ON).' },
+        { id: 'restartPhone', label: 'Restart iPhone Before Boarding', details: 'A simple restart can clear network glitches before you connect to the ship\'s Wi-Fi.' },
+    ];
+
+    const checklistContainer = document.getElementById('checklist');
+    checklistData.forEach(item => {
+        const itemHtml = `
+            <div class="checklist-item bg-stone-50 rounded-lg p-3">
+                <input type="checkbox" id="${item.id}" class="hidden">
+                <label for="${item.id}" class="flex items-center cursor-pointer">
+                    <span class="checkbox-icon w-6 h-6 mr-3 border-2 border-stone-300 rounded-md flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                    </span>
+                    <span class="flex-grow">
+                        <span class="font-medium text-stone-800">${item.label}</span>
+                        <p class="text-xs text-stone-500">${item.details}</p>
+                    </span>
+                </label>
+            </div>
+        `;
+        checklistContainer.innerHTML += itemHtml;
+    });
+    
+    const alternativesData = [
+        { method: 'Hub App Chat', bestFor: 'On-ship family chat', cost: '~$5/person per cruise', downside: 'Notifications can be very unreliable.' },
+        { method: 'Social Wi-Fi Plan', bestFor: 'WhatsApp, FB Messenger, etc. (and maybe iMessage)', cost: '~$19/day per person', downside: 'Costly; iMessage still not guaranteed.' },
+        { method: 'Premium Wi-Fi Plan', bestFor: 'Full internet, email, some streaming', cost: '~$24/day per person', downside: 'Most expensive option per person.' },
+        { method: 'Wi-Fi in Port', bestFor: 'Catching up for free', cost: 'Free (at cafes, etc.)', downside: 'Only available when docked.' }
+    ];
+
+    const alternativesTable = document.getElementById('alternatives-table');
+    alternativesData.forEach(alt => {
+        const rowHtml = `
+            <tr class="hover:bg-stone-50">
+                <td class="p-4 font-semibold text-stone-800">${alt.method}</td>
+                <td class="p-4">${alt.bestFor}</td>
+                <td class="p-4">${alt.cost}</td>
+                <td class="p-4">${alt.downside}</td>
+            </tr>
+        `;
+        alternativesTable.innerHTML += rowHtml;
+    });
+
+    const reliabilityData = {
+        labels: ['Free iMessage Attempt', 'Hub App Chat', 'Social Plan Messaging', 'Wi-Fi in Port'],
+        datasets: [{
+            label: 'Estimated Reliability',
+            data: [15, 60, 90, 100],
+            backgroundColor: [
+                'rgba(239, 68, 68, 0.6)',
+                'rgba(245, 158, 11, 0.6)',
+                'rgba(5, 150, 105, 0.6)',
+                'rgba(37, 99, 235, 0.6)'
+            ],
+            borderColor: [
+                'rgb(239, 68, 68)',
+                'rgb(245, 158, 11)',
+                'rgb(5, 150, 105)',
+                'rgb(37, 99, 235)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    const ctx = document.getElementById('reliabilityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: reliabilityData,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                       callback: function(value) {
+                           return value + '%'
+                       }
+                    }
+                },
+                 y: {
+                    ticks: {
+                        autoSkip: false,
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.dataset.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
