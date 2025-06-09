@@ -55,8 +55,6 @@
             background-color: var(--accent-primary);
             color: white !important;
         }
-        .dropdown:hover .dropdown-menu { display: block; }
-        .dropdown-menu { display: none; position: absolute; }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -97,24 +95,24 @@
                 </div>
                 <div class="hidden lg:flex items-center space-x-1">
                     <button onclick="switchView('home')" class="nav-button" id="nav-home">Home</button>
-                    <div class="relative dropdown">
+                    <div class="relative group">
                         <button class="nav-button" id="nav-hub">My Hub</button>
-                        <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                        <div class="hidden group-hover:block absolute z-10 mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
                              <a href="#" onclick="switchView('shelf')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">My Shelf</a>
                              <a href="#" onclick="switchView('calendar')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Calendar</a>
                              <a href="#" onclick="switchView('journal')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Journal</a>
                         </div>
                     </div>
-                    <div class="relative dropdown">
+                    <div class="relative group">
                         <button class="nav-button" id="nav-core">Core Tools</button>
-                        <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                        <div class="hidden group-hover:block absolute z-10 mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
                              <a href="#" onclick="switchView('generator')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Builder</a>
                              <a href="#" onclick="switchView('analyzer')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Analyzer</a>
                         </div>
                     </div>
-                    <div class="relative dropdown">
+                    <div class="relative group">
                         <button class="nav-button" id="nav-discovery">Discovery</button>
-                         <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                         <div class="hidden group-hover:block absolute z-10 mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
                              <a href="#" onclick="switchView('products')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Product Database</a>
                              <a href="#" onclick="switchView('ingredients')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Ingredient Dex</a>
                              <a href="#" onclick="switchView('dupes')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Dupe Finder</a>
@@ -122,9 +120,9 @@
                              <a href="#" onclick="switchView('decoder')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">INCI Decoder</a>
                          </div>
                     </div>
-                    <div class="relative dropdown">
+                    <div class="relative group">
                          <button class="nav-button" id="nav-learn">Learn</button>
-                         <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                         <div class="hidden group-hover:block absolute z-10 mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
                             <a href="#" onclick="switchView('guides')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Guides</a>
                             <a href="#" onclick="switchView('glossary')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Glossary</a>
                             <a href="#" onclick="switchView('quiz')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Skincare Quiz</a>
@@ -192,7 +190,7 @@
         </main>
         
         <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center p-4">
-            <div id="modal-content" class="bg-secondary p-6 rounded-lg shadow-xl max-w-lg w-full max-h-full overflow-y-auto">
+            <div id="modal-content" class="bg-secondary p-6 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center">
                     <h3 id="modal-title" class="text-lg font-bold text-primary"></h3>
                     <button onclick="closeModal()" class="text-secondary hover:text-primary">&times;</button>
@@ -298,11 +296,12 @@ let appState = {
             accutaneSafe: false,
             forbiddenIngredients: [],
         },
-        myShelf: [], // {productId: 'p01', status: 'owned'/'wishlist'/'empties', dateAdded: '...', repurchase: null}
+        myShelf: [], // {productId: 'p01', status: 'owned'/'wishlist'/'empties', repurchase: null}
         journal: [], // {id: Date.now(), date: '...', content: '', productsUsed: [], holistic: {}}
         calendar: {}, // { '2024-06-09': { am: [p_id], pm: [p_id] } }
         routines: [{ name: 'Default Routine', am: [], pm: []}],
-        activeRoutineIndex: 0
+        activeRoutineIndex: 0,
+        customProducts: [] // NEW: To store user-added products
     },
     productsFuse: null,
     ingredientsFuse: null,
@@ -315,13 +314,14 @@ function init() {
     const savedData = localStorage.getItem('skincareHubData_v2');
     if (savedData) {
         const parsedData = JSON.parse(savedData);
-        // Deep merge to ensure new properties aren't lost
         appState.userData = deepMerge(appState.userData, parsedData);
     } else {
         saveData();
     }
     
-    appState.productsFuse = new Fuse(productsDB, { keys: ['name', 'brand'] });
+    // Fuse instances are now built with combined DB + custom products
+    rebuildFuseInstances();
+    
     appState.ingredientsFuse = new Fuse(Object.values(ingredientsDB), { keys: ['name', 'cat', 'desc'] });
 
     if (appState.userData.settings.darkMode) {
@@ -329,7 +329,6 @@ function init() {
     }
     updateThemeIcons();
 
-    // Check for shared routine in URL
     const urlParams = new URLSearchParams(window.location.search);
     const sharedRoutine = urlParams.get('routine');
     const sharedView = urlParams.get('view');
@@ -361,11 +360,18 @@ function deepMerge(target, source) {
     return target;
 }
 
+function getAllProducts() {
+    return [...productsDB, ...appState.userData.customProducts];
+}
+
+function rebuildFuseInstances() {
+    appState.productsFuse = new Fuse(getAllProducts(), { keys: ['name', 'brand'] });
+}
+
+
 // --- VIEW ROUTING & RENDERING ---
 function switchView(viewId, params = {}) {
     if(!viewId) return;
-    
-    // Hide all views
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
     
     const targetView = document.getElementById(`${viewId}-view`);
@@ -379,18 +385,16 @@ function switchView(viewId, params = {}) {
 
     updateNav(viewId);
     
-    // Clear URL params on navigation, except when coming from a shared link
     if (window.location.search) {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 }
 
 function updateNav(viewId) {
-     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`nav-${viewId}`) || document.querySelector(`#nav-${getNavGroup(viewId)}`);
     if (activeBtn) activeBtn.classList.add('active');
     
-    // Update mobile dropdown
     const mobileNav = document.querySelector('.lg\\:hidden select');
     if (mobileNav) mobileNav.value = viewId;
 }
@@ -407,14 +411,16 @@ function renderCurrentView(viewId, params) {
     const container = document.getElementById(`${viewId}-view`);
     if (!container) return;
 
-    let renderer = window[`render${viewId.replace(/-/g, '_').charAt(0).toUpperCase() + viewId.replace(/-/g, '_').slice(1)}View`];
+    let rendererName = `render${viewId.replace(/-/g, '_').charAt(0).toUpperCase() + viewId.replace(/-/g, '_').slice(1)}View`;
+    let renderer = window[rendererName];
     if (typeof renderer === 'function') {
         container.innerHTML = renderer(params);
     } else {
         container.innerHTML = `<div class="text-center p-8 text-danger-primary">Error: View "${viewId}" not found.</div>`;
     }
     
-    let setupFunction = window[`setup${viewId.replace(/-/g, '_').charAt(0).toUpperCase() + viewId.replace(/-/g, '_').slice(1)}Listeners`];
+    let setupFunctionName = `setup${viewId.replace(/-/g, '_').charAt(0).toUpperCase() + viewId.replace(/-/g, '_').slice(1)}Listeners`;
+    let setupFunction = window[setupFunctionName];
     if (typeof setupFunction === 'function') {
         setupFunction(params);
     }
@@ -552,7 +558,8 @@ function renderShelfView() {
                 <h3 class="text-lg font-semibold mb-2">Add a Product to Your Shelf</h3>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="search" id="shelf-search-input" class="flex-grow p-2 bg-tertiary border border-border-color rounded-md" placeholder="Search for a product by name...">
-                    <button onclick="addProductToShelf()" class="px-4 py-2 bg-accent-primary text-white font-semibold rounded-lg hover:bg-opacity-90">Add to Owned</button>
+                    <button onclick="addProductToShelf()" class="px-4 py-2 bg-accent-secondary text-white font-semibold rounded-lg whitespace-nowrap">Add to Owned</button>
+                    <button onclick="openCustomProductModal()" class="px-4 py-2 bg-accent-primary text-white font-semibold rounded-lg whitespace-nowrap">Add Custom Product</button>
                 </div>
                 <div id="shelf-search-results" class="mt-2"></div>
             </div>
@@ -581,7 +588,7 @@ function renderAnalyzerView() {
             <label for="routine-selector" class="font-semibold">Current Routine:</label>
             <select id="routine-selector" class="flex-grow p-2 border border-border-color rounded-md bg-tertiary">${routineOptions}</select>
             <input type="text" id="new-routine-name" placeholder="New Routine Name" class="p-2 border border-border-color rounded-md bg-tertiary">
-            <button onclick="createNewRoutine()" class="px-3 py-2 bg-accent-secondary text-white rounded-md text-sm">Create New</button>
+            <button onclick="createNewRoutine()" class="px-3 py-2 bg-accent-secondary text-white rounded-md text-sm">Create</button>
             <button onclick="deleteCurrentRoutine()" class="px-3 py-2 bg-danger-primary text-white rounded-md text-sm">Delete</button>
         </div>
 
@@ -595,14 +602,12 @@ function renderAnalyzerView() {
             <div class="lg:w-2/3 space-y-6">
                 <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color">
                     <h3 class="font-bold text-lg mb-2 text-yellow-500">AM Routine ☀️</h3>
-                    <div id="am-routine-dropzone" data-time="am" class="dropzone p-4 rounded-lg space-y-2">
-                        </div>
+                    <div id="am-routine-dropzone" data-time="am" class="dropzone p-4 rounded-lg space-y-2"></div>
                 </div>
 
                 <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color">
                     <h3 class="font-bold text-lg mb-2 text-indigo-400">PM Routine 🌙</h3>
-                    <div id="pm-routine-dropzone" data-time="pm" class="dropzone p-4 rounded-lg space-y-2">
-                        </div>
+                    <div id="pm-routine-dropzone" data-time="pm" class="dropzone p-4 rounded-lg space-y-2"></div>
                 </div>
                 
                 <div class="flex items-center justify-end space-x-2">
@@ -643,8 +648,7 @@ function renderCalendarView() {
         <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
             <div class="lg:w-1/4 bg-secondary p-4 rounded-xl shadow-md border border-border-color self-start">
                 <h3 class="font-bold text-lg mb-2">Your Shelf</h3>
-                <div id="calendar-shelf-products" class="space-y-2 max-h-[500px] overflow-y-auto">
-                    </div>
+                <div id="calendar-shelf-products" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
             </div>
 
             <div class="lg:w-3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -718,6 +722,7 @@ function renderGeneratorView() {
 }
 
 function renderProductsView() {
+    const allProducts = getAllProducts();
     return `
         <h2 class="text-3xl font-bold text-center mb-6">Product Database</h2>
         <div class="max-w-5xl mx-auto">
@@ -725,7 +730,7 @@ function renderProductsView() {
                 <input type="search" id="product-search-input" class="p-2 bg-tertiary border border-border-color rounded-md" placeholder="Search by name/brand...">
                 <select id="product-type-filter" class="p-2 bg-tertiary border border-border-color rounded-md">
                     <option value="">All Types</option>
-                    ${[...new Set(productsDB.map(p=>p.type))].map(t=>`<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`).join('')}
+                    ${[...new Set(allProducts.map(p=>p.type))].map(t=>`<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`).join('')}
                 </select>
                 <select id="product-ing-filter" class="p-2 bg-tertiary border border-border-color rounded-md">
                     <option value="">All Ingredients</option>
@@ -777,8 +782,8 @@ function renderComboView() {
 }
 
 function renderDupesView() {
-    let options = productsDB
-        .sort((a, b) => b.price - a.price) // Show most expensive first
+    let options = getAllProducts()
+        .sort((a, b) => b.price - a.price)
         .map(p => `<option value="${p.id}">${p.name} ($${p.price})</option>`).join('');
 
     return `
@@ -1035,7 +1040,6 @@ function setupCalendarViewListeners() {
                 appState.userData.calendar[day] = { am: [], pm: [] };
             }
 
-            // Prevent duplicates
             if (!appState.userData.calendar[day][time].includes(productId)) {
                 appState.userData.calendar[day][time].push(productId);
                 saveData();
@@ -1050,11 +1054,11 @@ function setupGeneratorViewListeners() {
 }
 
 function setupProductsViewListeners() {
-    filterProducts(); // Initial render of all products
+    filterProducts();
 }
 
 function setupIngredientsViewListeners(){
-    filterIngredients(); // initial render
+    filterIngredients();
 }
 
 // --- FEATURE LOGIC ---
@@ -1091,14 +1095,14 @@ function exportData() {
 function confirmDeleteData() {
     showAlert(
         "Are you sure?", 
-        "This will permanently delete all your saved products, journal entries, and settings. This action cannot be undone.",
+        "This will permanently delete all your saved products (including custom ones), journal entries, and settings. This action cannot be undone.",
         [
             { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
             { text: 'Yes, Delete Everything', class: 'bg-danger-primary text-white', action: () => {
                 localStorage.removeItem('skincareHubData_v2');
-                // Reset state to default, keeping dark mode preference
                 const isDark = document.documentElement.classList.contains('dark');
-                appState.userData = { settings: { darkMode: isDark }, myShelf: [], journal: [], calendar: {}, routines: [{ name: 'Default Routine', am: [], pm: []}], activeRoutineIndex: 0 };
+                appState.userData = { settings: { darkMode: isDark }, myShelf: [], journal: [], calendar: {}, routines: [{ name: 'Default Routine', am: [], pm: []}], activeRoutineIndex: 0, customProducts: [] };
+                rebuildFuseInstances();
                 switchView('settings');
                 closeModal();
             }}
@@ -1106,7 +1110,7 @@ function confirmDeleteData() {
     );
 }
 
-// -- Shelf Logic --
+// -- Shelf & Custom Product Logic --
 function selectProductForShelf(id, name) {
     const input = document.getElementById('shelf-search-input');
     input.value = name;
@@ -1121,7 +1125,6 @@ function addProductToShelf() {
         showAlert('No Product Selected', 'Please search for and select a product from the list first.');
         return;
     }
-    // Check if product is already on any shelf
     if (appState.userData.myShelf.some(p => p.productId === productId)) {
         showAlert('Product Already on Shelf', 'This product is already in your "Owned", "Wishlist", or "Empties".');
         return;
@@ -1146,8 +1149,9 @@ function renderShelfContent(tab) {
         return;
     }
     
+    const allProducts = getAllProducts();
     container.innerHTML = shelfItems.map(item => {
-        const product = productsDB.find(p => p.id === item.productId);
+        const product = allProducts.find(p => p.id === item.productId);
         if (!product) return '';
         
         let actionsHtml = '';
@@ -1166,6 +1170,11 @@ function renderShelfContent(tab) {
                 <button onclick="setRepurchaseStatus('${item.productId}', false)" class="text-xs px-2 py-1 ${item.repurchase === false ? 'bg-danger-primary' : 'bg-gray-400'} text-white rounded">Won't</button>
             `;
         }
+        
+        // Add Edit/Delete for custom products
+        if (product.id.startsWith('custom-')) {
+            actionsHtml += `<button onclick="openCustomProductModal('${product.id}')" class="text-xs px-2 py-1 bg-orange-500 text-white rounded">Edit</button>`;
+        }
 
         return `
             <div class="bg-tertiary p-3 rounded-lg border border-border-color flex flex-col justify-between">
@@ -1175,7 +1184,7 @@ function renderShelfContent(tab) {
                     <p class="text-xs text-secondary mt-1">Key: ${product.key_ing.join(', ')}</p>
                 </div>
                 <div class="flex items-center justify-between mt-3">
-                    <div class="flex gap-1">
+                    <div class="flex gap-1 flex-wrap">
                         ${actionsHtml}
                     </div>
                     <button onclick="removeProductFromShelf('${item.productId}')" class="text-sm text-danger-primary font-semibold">&times;</button>
@@ -1191,7 +1200,7 @@ function moveProductStatus(productId, newStatus) {
         const oldStatus = item.status;
         item.status = newStatus;
         if (newStatus === 'empties') {
-            item.repurchase = null; // Reset repurchase status
+            item.repurchase = null;
         }
         saveData();
         renderShelfContent(oldStatus);
@@ -1209,9 +1218,117 @@ function setRepurchaseStatus(productId, status) {
 
 function removeProductFromShelf(productId) {
     const currentTab = document.querySelector('.shelf-tab-button.border-accent-primary').dataset.tab;
-    appState.userData.myShelf = appState.userData.myShelf.filter(p => p.productId !== productId);
+    const isCustom = productId.startsWith('custom-');
+
+    if (isCustom) {
+         showAlert('Delete Custom Product?', `This will permanently delete '${productId}' from your custom products list and remove it from your shelf. Are you sure?`, [
+            { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
+            { text: 'Yes, Delete', class: 'bg-danger-primary text-white', action: () => {
+                // Delete from custom product list
+                appState.userData.customProducts = appState.userData.customProducts.filter(p => p.id !== productId);
+                // Delete from shelf
+                appState.userData.myShelf = appState.userData.myShelf.filter(p => p.productId !== productId);
+                saveData();
+                rebuildFuseInstances();
+                renderShelfContent(currentTab);
+                closeModal();
+            }}
+        ]);
+    } else {
+        appState.userData.myShelf = appState.userData.myShelf.filter(p => p.productId !== productId);
+        saveData();
+        renderShelfContent(currentTab);
+    }
+}
+
+function openCustomProductModal(productId = null) {
+    const isEditing = productId !== null;
+    const product = isEditing ? appState.userData.customProducts.find(p => p.id === productId) : {};
+    const productTypes = [...new Set(getAllProducts().map(p => p.type))];
+
+    const formHtml = `
+        <form id="custom-product-form" class="space-y-4">
+            <input type="hidden" id="custom-product-id" value="${productId || ''}">
+            <div>
+                <label class="font-medium">Product Name*</label>
+                <input type="text" id="custom-product-name" class="w-full p-2 bg-tertiary border border-border-color rounded-md" value="${product.name || ''}" required>
+            </div>
+            <div>
+                <label class="font-medium">Brand*</label>
+                <input type="text" id="custom-product-brand" class="w-full p-2 bg-tertiary border border-border-color rounded-md" value="${product.brand || ''}" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="font-medium">Price ($)</label>
+                    <input type="number" id="custom-product-price" class="w-full p-2 bg-tertiary border border-border-color rounded-md" value="${product.price || 0}" step="0.01">
+                </div>
+                <div>
+                    <label class="font-medium">Volume (ml)</label>
+                    <input type="number" id="custom-product-volume" class="w-full p-2 bg-tertiary border border-border-color rounded-md" value="${product.volume || 0}">
+                </div>
+            </div>
+            <div>
+                <label class="font-medium">Product Type</label>
+                <select id="custom-product-type" class="w-full p-2 bg-tertiary border border-border-color rounded-md">
+                    ${productTypes.map(t => `<option value="${t}" ${product.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-medium">Key Ingredients (comma-separated)</label>
+                 <input type="text" id="custom-product-key_ing" class="w-full p-2 bg-tertiary border border-border-color rounded-md" value="${product.key_ing?.join(', ') || ''}" placeholder="e.g. niacinamide, retinol">
+            </div>
+            <div>
+                <label class="font-medium">Full INCI List (comma-separated)</label>
+                <textarea id="custom-product-all_ing" class="w-full p-2 bg-tertiary border border-border-color rounded-md" rows="4">${product.all_ing || ''}</textarea>
+            </div>
+        </form>
+    `;
+
+    const actions = [
+        { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
+        { text: isEditing ? 'Save Changes' : 'Save Product', class: 'bg-accent-primary text-white', action: saveCustomProduct }
+    ];
+
+    showAlert(isEditing ? 'Edit Custom Product' : 'Add Custom Product', formHtml, actions);
+}
+
+function saveCustomProduct() {
+    const id = document.getElementById('custom-product-id').value;
+    const isEditing = id !== '';
+    
+    const name = document.getElementById('custom-product-name').value;
+    const brand = document.getElementById('custom-product-brand').value;
+
+    if (!name || !brand) {
+        alert('Product Name and Brand are required.');
+        return;
+    }
+    
+    const newProduct = {
+        id: isEditing ? id : `custom-${Date.now()}`,
+        name,
+        brand,
+        price: parseFloat(document.getElementById('custom-product-price').value) || 0,
+        volume: parseInt(document.getElementById('custom-product-volume').value) || 0,
+        type: document.getElementById('custom-product-type').value,
+        key_ing: document.getElementById('custom-product-key_ing').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+        all_ing: document.getElementById('custom-product-all_ing').value,
+    };
+
+    if (isEditing) {
+        const index = appState.userData.customProducts.findIndex(p => p.id === id);
+        appState.userData.customProducts[index] = newProduct;
+    } else {
+        appState.userData.customProducts.push(newProduct);
+        // Also add it to the shelf
+        appState.userData.myShelf.push({ productId: newProduct.id, status: 'owned', dateAdded: new Date().toISOString() });
+    }
+
     saveData();
-    renderShelfContent(currentTab);
+    rebuildFuseInstances();
+    closeModal();
+    renderShelfContent('owned'); // Refresh the view
 }
 
 // -- Analyzer Logic --
@@ -1222,8 +1339,9 @@ function renderAnalyzerShelf() {
         container.innerHTML = '<p class="text-sm text-secondary">Add products to your "Owned" shelf to build a routine.</p>';
         return;
     }
+    const allProducts = getAllProducts();
     container.innerHTML = shelfItems.map(item => {
-        const product = productsDB.find(p => p.id === item.productId);
+        const product = allProducts.find(p => p.id === item.productId);
         if (!product) return '';
         return `
             <div class="bg-tertiary p-2 rounded-md border border-border-color cursor-grab" draggable="true" ondragstart="dragProduct(event, '${product.id}')">
@@ -1237,12 +1355,13 @@ function renderAnalyzerShelf() {
 function renderRoutineDropzones() {
     const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
     if (!routine) return;
-
+    const allProducts = getAllProducts();
     ['am', 'pm'].forEach(time => {
         const container = document.getElementById(`${time}-routine-dropzone`);
         if (routine[time].length > 0) {
             container.innerHTML = routine[time].map(productId => {
-                const product = productsDB.find(p => p.id === productId);
+                const product = allProducts.find(p => p.id === productId);
+                if(!product) return '';
                 return `
                     <div class="bg-tertiary p-2 rounded-md border border-border-color flex justify-between items-center">
                         <div>
@@ -1271,29 +1390,27 @@ function removeProductFromRoutine(productId, time) {
 }
 
 function analyzeRoutine() {
+    const allProducts = getAllProducts();
     const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
     const resultsContainer = document.getElementById('analyzer-results');
     let issues = [];
     let suggestions = [];
     
-    // Check for core steps
-    const hasCleanser = [...routine.am, ...routine.pm].some(id => productsDB.find(p => p.id === id)?.type === 'cleanser');
-    const hasMoisturizer = [...routine.am, ...routine.pm].some(id => productsDB.find(p => p.id === id)?.type === 'moisturizer');
-    const hasSunscreen = routine.am.some(id => productsDB.find(p => p.id === id)?.type === 'sunscreen');
+    const hasCleanser = [...routine.am, ...routine.pm].some(id => allProducts.find(p => p.id === id)?.type === 'cleanser');
+    const hasMoisturizer = [...routine.am, ...routine.pm].some(id => allProducts.find(p => p.id === id)?.type === 'moisturizer');
+    const hasSunscreen = routine.am.some(id => allProducts.find(p => p.id === id)?.type === 'sunscreen');
     if (!hasCleanser) suggestions.push({ type: 'suggestion', text: 'Consider adding a cleanser to your routine for basic hygiene.'});
     if (!hasMoisturizer) suggestions.push({ type: 'suggestion', text: 'Adding a moisturizer is key for skin hydration and barrier health.'});
     if (!hasSunscreen) issues.push({ type: 'warning', text: 'Your AM routine is missing sunscreen, the most crucial step for skin protection and anti-aging.'});
 
-    // AM/PM specific checks
-    const amProducts = routine.am.map(id => productsDB.find(p => p.id === id));
-    const pmProducts = routine.pm.map(id => productsDB.find(p => p.id === id));
+    const amProducts = routine.am.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+    const pmProducts = routine.pm.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
     
     const amIngredients = amProducts.flatMap(p => p.key_ing);
     if (amIngredients.includes('retinol')) {
         issues.push({ type: 'critical', text: `Retinol should not be used in the AM routine as it can be destabilized by UV light and increase sun sensitivity.`});
     }
 
-    // Conflict checks
     const checkConflicts = (products, time) => {
         const keyIngredients = products.flatMap(p => p.key_ing);
         for (const ing1 of keyIngredients) {
@@ -1309,7 +1426,6 @@ function analyzeRoutine() {
     checkConflicts(amProducts, 'am');
     checkConflicts(pmProducts, 'pm');
 
-    // Safety checks
     const { pregnancySafe, accutaneSafe, forbiddenIngredients } = appState.userData.settings;
     if (pregnancySafe || accutaneSafe || forbiddenIngredients.length > 0) {
         [...amProducts, ...pmProducts].forEach(product => {
@@ -1332,7 +1448,6 @@ function analyzeRoutine() {
         });
     }
     
-    // Cost calculation
     let totalCost = 0;
     let costHtml = '<h4 class="font-bold text-primary mt-4">Cost Analysis (Beta)</h4><ul class="list-disc list-inside text-sm text-secondary">';
     [...amProducts, ...pmProducts].forEach(p => {
@@ -1341,8 +1456,6 @@ function analyzeRoutine() {
     });
     costHtml += `</ul><p class="font-semibold mt-2">Total one-time cost for this routine: $${totalCost.toFixed(2)}</p>`;
 
-
-    // Render results
     let html = `<div class="bg-tertiary p-4 rounded-lg border border-border-color space-y-3">`;
     if (issues.length === 0 && suggestions.length === 0) {
         html += `<div class="p-3 rounded-md bg-success-primary/20 border border-success-primary/50 text-success-primary">
@@ -1350,10 +1463,9 @@ function analyzeRoutine() {
             <p>Your routine looks great! No major conflicts or issues found based on our database.</p>
         </div>`;
     } else {
-        // Use a Set to only show unique issues
         html += [...new Set(issues.map(i => i.text))].map(uniqueText => {
             const issue = issues.find(i => i.text === uniqueText);
-            let colorClass = 'bg-yellow-500/20 border-yellow-500/50 text-yellow-600'; // warning
+            let colorClass = 'bg-yellow-500/20 border-yellow-500/50 text-yellow-600';
             if (issue.type === 'critical') colorClass = 'bg-danger-primary/20 border-danger-primary/50 text-danger-primary';
             return `<div class="p-3 rounded-md ${colorClass}">${issue.text}</div>`;
         }).join('');
@@ -1379,7 +1491,7 @@ function createNewRoutine() {
     appState.userData.routines.push({ name, am: [], pm: [] });
     appState.userData.activeRoutineIndex = appState.userData.routines.length - 1;
     saveData();
-    switchView('analyzer'); // Re-render
+    switchView('analyzer');
 }
 
 function deleteCurrentRoutine() {
@@ -1413,8 +1525,7 @@ function shareRoutine() {
     navigator.clipboard.writeText(url).then(() => {
         showAlert('Link Copied!', 'A shareable link to this routine has been copied to your clipboard.');
     }).catch(err => {
-        showAlert('Copy Failed', 'Could not copy the link automatically. Please copy it manually from the text box below.', [{ text: 'OK', class: 'bg-accent-primary text-white', action: closeModal }]);
-        document.getElementById('modal-body').innerHTML += `<textarea class="w-full mt-2 p-2 bg-tertiary border rounded">${url}</textarea>`;
+        showAlert('Copy Failed', 'Could not copy the link automatically.', [{ text: 'OK', class: 'bg-accent-primary text-white', action: closeModal }]);
     });
 }
 
@@ -1424,19 +1535,19 @@ function handleSharedRoutine(base64String) {
         const [amString, pmString] = decoded.split(';');
         const amIds = amString ? amString.split(',') : [];
         const pmIds = pmString ? pmString.split(',') : [];
+        const allProducts = getAllProducts();
 
-        // Create a new routine from the shared link
         const newRoutine = {
             name: `Shared Routine (${new Date().toLocaleDateString()})`,
-            am: amIds.filter(id => productsDB.some(p => p.id === id)), // Ensure products exist in DB
-            pm: pmIds.filter(id => productsDB.some(p => p.id === id))
+            am: amIds.filter(id => allProducts.some(p => p.id === id)),
+            pm: pmIds.filter(id => allProducts.some(p => p.id === id))
         };
 
         appState.userData.routines.push(newRoutine);
         appState.userData.activeRoutineIndex = appState.userData.routines.length - 1;
         saveData();
         switchView('analyzer');
-        setTimeout(analyzeRoutine, 200); // Analyze after a short delay
+        setTimeout(analyzeRoutine, 200);
     } catch (e) {
         console.error('Failed to parse shared routine:', e);
         showAlert('Invalid Link', 'The shared routine link appears to be broken or invalid.');
@@ -1453,8 +1564,9 @@ function renderCalendarShelf() {
         container.innerHTML = '<p class="text-sm text-secondary">Add products to your "Owned" shelf first.</p>';
         return;
     }
+    const allProducts = getAllProducts();
     container.innerHTML = shelfItems.map(item => {
-        const product = productsDB.find(p => p.id === item.productId);
+        const product = allProducts.find(p => p.id === item.productId);
         if (!product) return '';
         return `
             <div class="bg-tertiary p-2 rounded-md border border-border-color cursor-grab" draggable="true" ondragstart="dragProduct(event, '${product.id}')">
@@ -1466,6 +1578,7 @@ function renderCalendarShelf() {
 }
 
 function renderCalendarGrid() {
+    const allProducts = getAllProducts();
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     days.forEach(day => {
         ['am', 'pm'].forEach(time => {
@@ -1473,7 +1586,8 @@ function renderCalendarGrid() {
             const productIds = appState.userData.calendar[day]?.[time] || [];
             if (productIds.length > 0) {
                 container.innerHTML = productIds.map(id => {
-                    const product = productsDB.find(p => p.id === id);
+                    const product = allProducts.find(p => p.id === id);
+                    if (!product) return '';
                     return `
                         <div class="bg-tertiary text-xs p-1 rounded border border-border-color flex justify-between items-center">
                             <span>${product.name}</span>
@@ -1513,7 +1627,7 @@ function addJournalEntry() {
     };
     appState.userData.journal.push(newEntry);
     saveData();
-    switchView('journal'); // Re-render the view
+    switchView('journal');
 }
 
 function deleteJournalEntry(id) {
@@ -1554,16 +1668,16 @@ function renderGeneratorStep(step) {
 }
 
 function generateRoutine(goal) {
+    const allProducts = getAllProducts();
     const container = document.getElementById('generator-content');
-    // Simple logic: find one of each core product type. This can be expanded.
-    const cleanser = productsDB.find(p => p.id === 'p01'); // CeraVe Hydrating
-    const moisturizer = productsDB.find(p => p.id === 'p11'); // Kiehls
-    const sunscreen = productsDB.find(p => p.id === 'p08'); // Supergoop
+    const cleanser = allProducts.find(p => p.id === 'p01');
+    const moisturizer = allProducts.find(p => p.id === 'p11');
+    const sunscreen = allProducts.find(p => p.id === 'p08');
 
     let treatment = null;
-    if (goal === 'Acne') treatment = productsDB.find(p => p.key_ing.includes('salicylic acid'));
-    else if (goal === 'Anti-Aging') treatment = productsDB.find(p => p.key_ing.includes('retinol'));
-    else if (goal === 'Brightening') treatment = productsDB.find(p => p.key_ing.includes('l-ascorbic acid'));
+    if (goal === 'Acne') treatment = allProducts.find(p => p.key_ing.includes('salicylic acid'));
+    else if (goal === 'Anti-Aging') treatment = allProducts.find(p => p.key_ing.includes('retinol'));
+    else if (goal === 'Brightening') treatment = allProducts.find(p => p.key_ing.includes('l-ascorbic acid'));
 
     let html = `
         <h3 class="font-bold text-lg mb-4">Here is a basic suggested routine for <span class="text-accent-primary">${goal}</span>:</h3>
@@ -1573,7 +1687,7 @@ function generateRoutine(goal) {
                 <h4 class="font-semibold">☀️ AM Routine</h4>
                 <ul class="list-disc list-inside text-secondary ml-4">
                     <li><strong>Cleanse:</strong> ${cleanser.name}</li>
-                    ${goal === 'Brightening' ? `<li><strong>Treat:</strong> ${treatment.name}</li>` : ''}
+                    ${goal === 'Brightening' && treatment ? `<li><strong>Treat:</strong> ${treatment.name}</li>` : ''}
                     <li><strong>Moisturize:</strong> ${moisturizer.name}</li>
                     <li><strong>Protect:</strong> ${sunscreen.name}</li>
                 </ul>
@@ -1582,7 +1696,7 @@ function generateRoutine(goal) {
                 <h4 class="font-semibold">🌙 PM Routine</h4>
                 <ul class="list-disc list-inside text-secondary ml-4">
                     <li><strong>Cleanse:</strong> ${cleanser.name}</li>
-                    ${goal === 'Acne' || goal === 'Anti-Aging' ? `<li><strong>Treat:</strong> ${treatment.name} (Start 2-3 times a week)</li>` : ''}
+                    ${(goal === 'Acne' || goal === 'Anti-Aging') && treatment ? `<li><strong>Treat:</strong> ${treatment.name} (Start 2-3 times a week)</li>` : ''}
                     <li><strong>Moisturize:</strong> ${moisturizer.name}</li>
                 </ul>
             </div>
@@ -1595,12 +1709,13 @@ function generateRoutine(goal) {
 
 // -- Product/Ingredient Discovery --
 function filterProducts() {
+    const allProducts = getAllProducts();
     const query = document.getElementById('product-search-input').value.toLowerCase();
     const type = document.getElementById('product-type-filter').value;
     const ing = document.getElementById('product-ing-filter').value;
     const grid = document.getElementById('products-grid');
 
-    let filtered = productsDB;
+    let filtered = allProducts;
 
     if (query) {
         filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query));
@@ -1696,18 +1811,19 @@ function checkCombination() {
 }
 
 function findDupes(productId) {
+    const allProducts = getAllProducts();
     const resultsContainer = document.getElementById('dupe-results');
     if (!productId) {
         resultsContainer.innerHTML = '<p class="text-center text-secondary">Your dupe results will appear here.</p>';
         return;
     }
-    const targetProduct = productsDB.find(p => p.id === productId);
+    const targetProduct = allProducts.find(p => p.id === productId);
     if (!targetProduct) {
         resultsContainer.innerHTML = '<p class="text-center text-danger-primary">Could not find the selected product.</p>';
         return;
     }
 
-    const dupes = productsDB.filter(p => {
+    const dupes = allProducts.filter(p => {
         if (p.id === targetProduct.id) return false;
         return p.key_ing.some(ing => targetProduct.key_ing.includes(ing));
     });
@@ -1753,8 +1869,8 @@ function decodeInci() {
         if (found) {
             const [key, ingData] = found;
             if (ingData.cat === 'Sensitizer') colorClass = 'border-l-4 border-danger-primary';
-            else if (ingData.cat === 'Active' || ingData.cat === 'Exfoliant' || ingData.cat === 'Antioxidant') colorClass = 'border-l-4 border-accent-secondary';
-            else if (ingData.cat === 'Soothing' || ingData.cat === 'Barrier') colorClass = 'border-l-4 border-success-primary';
+            else if (['Active', 'Exfoliant', 'Antioxidant'].includes(ingData.cat)) colorClass = 'border-l-4 border-accent-secondary';
+            else if (['Soothing', 'Barrier'].includes(ingData.cat)) colorClass = 'border-l-4 border-success-primary';
 
             html += `
                 <div class="p-3 bg-tertiary rounded-lg border border-border-color ${colorClass}">
@@ -1810,8 +1926,6 @@ function startPatchTimer(hours) {
         showAlert('Check Patch Test', `It has been ${hours} hours. Please check your patch test area for any signs of irritation.`);
     }, hours * 60 * 60 * 1000);
 }
-
-
 </script>
 </body>
 </html>
