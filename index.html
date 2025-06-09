@@ -3,710 +3,725 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skincare Hub</title>
+    <title>The Ultimate Skincare Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
     <style>
+        :root {
+            --bg-primary: #f8fafc; /* slate-50 */
+            --bg-secondary: #ffffff; /* white */
+            --bg-tertiary: #f1f5f9; /* slate-100 */
+            --text-primary: #1e293b; /* slate-800 */
+            --text-secondary: #475569; /* slate-600 */
+            --border-color: #e2e8f0; /* slate-200 */
+            --accent-primary: #ec4899; /* pink-500 */
+            --accent-secondary: #38bdf8; /* sky-500 */
+            --danger-primary: #ef4444; /* red-500 */
+            --warning-primary: #f97316; /* orange-500 */
+        }
+        html.dark {
+            --bg-primary: #0f172a; /* slate-900 */
+            --bg-secondary: #1e293b; /* slate-800 */
+            --bg-tertiary: #334155; /* slate-700 */
+            --text-primary: #f1f5f9; /* slate-100 */
+            --text-secondary: #94a3b8; /* slate-400 */
+            --border-color: #334155; /* slate-700 */
+        }
         body {
             font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
         }
-        /* Simple transition for view switching */
-        .view {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
+        .view { display: none; animation: fadeIn 0.5s; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .nav-button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            color: var(--text-secondary);
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+        .nav-button:hover { background-color: var(--bg-tertiary); }
+        .nav-button.active {
+            background-color: var(--accent-primary);
+            color: white !important;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu { display: none; position: absolute; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background: #64748b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* For Toggle Switches */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: var(--accent-primary);
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: var(--accent-primary);
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="antialiased">
 
-    <div id="app" class="max-w-7xl mx-auto p-4 md:p-8">
+    <div id="app" class="max-w-7xl mx-auto p-4 md:p-6">
 
         <!-- Header and Navigation -->
-        <header class="bg-white/80 backdrop-blur-lg sticky top-4 z-50 rounded-xl shadow-md border border-slate-200">
-            <nav class="flex items-center justify-between p-4">
-                <div class="flex items-center space-x-2">
-                    <svg class="h-8 w-8 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.624l.259 1.035L18 21.75l-.843-2.846a4.5 4.5 0 00-3.09-3.09L11.25 15l2.846-.813a4.5 4.5 0 003.09-3.09l.813-2.846L18 9.75l-.259 1.035a3.375 3.375 0 00-2.455 2.456L14.25 14.25l1.036.259a3.375 3.375 0 002.455 2.456z" />
+        <header class="bg-secondary/80 backdrop-blur-lg sticky top-4 z-50 rounded-xl shadow-md border border-border-color">
+            <nav class="flex items-center justify-between p-3">
+                <div class="flex items-center space-x-2 cursor-pointer" onclick="switchView('home')">
+                    <svg class="h-8 w-8 text-accent-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.624l.259 1.035L18 21.75l-.843-2.846a4.5 4.5 0 00-3.09-3.09L11.25 15l2.846-.813a4.5 4.5 0 003.09-3.09l.813-2.846L18 9.75l-.259 1.035a3.375 3.375 0 00-2.455 2.456L14.25 14.25l1.036.259a3.375 3.375 0 002.455 2.456z" />
                     </svg>
-                    <h1 class="text-xl md:text-2xl font-bold text-slate-900">Skincare Hub</h1>
+                    <h1 class="text-xl md:text-2xl font-bold text-primary">Skincare Hub</h1>
                 </div>
-                <div class="hidden md:flex items-center space-x-2">
+                <!-- Desktop Nav -->
+                <div class="hidden lg:flex items-center space-x-1">
                     <button onclick="switchView('home')" class="nav-button" id="nav-home">Home</button>
-                    <button onclick="switchView('generator')" class="nav-button" id="nav-generator">Routine Generator</button>
-                    <button onclick="switchView('analyzer')" class="nav-button" id="nav-analyzer">Routine Analyzer</button>
-                    <button onclick="switchView('ingredients')" class="nav-button" id="nav-ingredients">Ingredient Dex</button>
-                    <button onclick="switchView('guides')" class="nav-button" id="nav-guides">Guides</button>
+                    <!-- My Hub Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="nav-button" id="nav-hub">My Hub</button>
+                        <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                             <a href="#" onclick="switchView('shelf')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">My Shelf</a>
+                             <a href="#" onclick="switchView('calendar')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Calendar</a>
+                             <a href="#" onclick="switchView('journal')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Journal</a>
+                        </div>
+                    </div>
+                    <!-- Core Tools Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="nav-button" id="nav-core">Core Tools</button>
+                        <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                             <a href="#" onclick="switchView('generator')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Generator</a>
+                             <a href="#" onclick="switchView('analyzer')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Analyzer</a>
+                        </div>
+                    </div>
+                    <!-- Discovery Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="nav-button" id="nav-discovery">Discovery</button>
+                         <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                             <a href="#" onclick="switchView('ingredients')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Ingredient Dex</a>
+                             <a href="#" onclick="switchView('dupes')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Dupe Finder</a>
+                             <a href="#" onclick="switchView('combo')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Combo Checker</a>
+                             <a href="#" onclick="switchView('decoder')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">INCI Decoder</a>
+                        </div>
+                    </div>
+                    <!-- Learn Dropdown -->
+                     <div class="relative dropdown">
+                        <button class="nav-button" id="nav-learn">Learn</button>
+                         <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                            <a href="#" onclick="switchView('guides')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Guides</a>
+                            <a href="#" onclick="switchView('glossary')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Glossary</a>
+                            <a href="#" onclick="switchView('quiz')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Skincare Quiz</a>
+                         </div>
+                    </div>
                 </div>
-                <div class="md:hidden">
-                    <select onchange="switchView(this.value)" class="nav-button bg-white border border-slate-300 rounded-md p-2">
-                        <option value="home">Home</option>
-                        <option value="generator">Generator</option>
-                        <option value="analyzer">Analyzer</option>
-                        <option value="ingredients">Ingredient Dex</option>
-                        <option value="guides">Guides</option>
-                    </select>
+                <div class="flex items-center space-x-2">
+                    <!-- Settings Button -->
+                    <button onclick="switchView('settings')" class="p-2 rounded-full hover:bg-tertiary" aria-label="Settings">
+                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L8.21 5.15c-.5.42-1.12.7-1.78.83l-2.05.32c-1.68.27-2.39 2.28-1.15 3.53l1.48 1.44c.36.35.52.86.44 1.37l-.32 2.05c-.27 1.68 1.45 3.03 3.03 2.45l2.05-.32c.5-.08 1.02.08 1.37.44l1.44 1.48c1.25 1.25 3.26.54 3.53-1.15l.32-2.05c.08-.5.42-1.02.83-1.44l1.83-1.48c1.25-1.25.54-3.26-1.15-3.53l-2.05-.32a2.6 2.6 0 0 1-1.78-.83l-1.48-1.83zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-tertiary" aria-label="Toggle Dark Mode">
+                        <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 5.05A1 1 0 016.465 3.636l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM5 11a1 1 0 100-2H4a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- Mobile Nav -->
+                    <div class="lg:hidden">
+                         <select onchange="switchView(this.value)" class="nav-button bg-secondary border border-border-color rounded-md p-2">
+                             <option value="home">Home</option>
+                             <optgroup label="My Hub">
+                                 <option value="shelf">My Shelf</option>
+                                 <option value="calendar">Calendar</option>
+                                 <option value="journal">Journal</option>
+                             </optgroup>
+                             <optgroup label="Core Tools">
+                                <option value="generator">Generator</option>
+                                <option value="analyzer">Analyzer</option>
+                             </optgroup>
+                             <optgroup label="Discovery">
+                                <option value="ingredients">Ingredient Dex</option>
+                                <option value="dupes">Dupe Finder</option>
+                                <option value="combo">Combo Checker</option>
+                                <option value="decoder">INCI Decoder</option>
+                             </optgroup>
+                             <optgroup label="Learn">
+                                 <option value="guides">Guides</option>
+                                 <option value="glossary">Glossary</option>
+                                 <option value="quiz">Quiz</option>
+                             </optgroup>
+                             <option value="settings">Settings</option>
+                         </select>
+                    </div>
                 </div>
             </nav>
         </header>
 
         <main class="mt-8">
-            <!-- Home View -->
-            <div id="home-view" class="view">
-                <div class="text-center p-8 bg-white rounded-xl border border-slate-200 shadow-sm">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Welcome to Your Personal Skincare Hub</h2>
-                    <p class="max-w-2xl mx-auto text-slate-600 mb-8">
-                        Everything you need to understand your skin and build the perfect routine. All data is stored in your browser, ensuring your privacy. No servers, no sign-ups, just skincare science.
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div onclick="switchView('generator')" class="p-6 bg-pink-50 hover:bg-pink-100 rounded-lg cursor-pointer transition-colors border border-pink-200">
-                            <h3 class="text-xl font-bold text-pink-800 mb-2">Routine Generator</h3>
-                            <p class="text-pink-700">Answer a few questions and get a personalized AM & PM skincare routine in seconds.</p>
-                        </div>
-                        <div onclick="switchView('analyzer')" class="p-6 bg-sky-50 hover:bg-sky-100 rounded-lg cursor-pointer transition-colors border border-sky-200">
-                            <h3 class="text-xl font-bold text-sky-800 mb-2">Routine Analyzer</h3>
-                            <p class="text-sky-700">Input your current products to check for conflicts, comedogenic ingredients, and get expert feedback.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Routine Generator View -->
-            <div id="generator-view" class="view">
-                <h2 class="text-3xl font-bold text-center mb-6">Create Your Skincare Routine</h2>
-                <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-md border border-slate-200">
-                    <form id="generator-form" class="space-y-6">
-                        <div>
-                            <label for="skin-type" class="block text-sm font-medium text-slate-700">1. What is your skin type?</label>
-                            <select id="skin-type" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
-                                <option>Normal</option>
-                                <option>Oily</option>
-                                <option>Dry</option>
-                                <option>Combination</option>
-                                <option>Sensitive</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="skin-concern" class="block text-sm font-medium text-slate-700">2. What is your primary skin concern?</label>
-                            <select id="skin-concern" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
-                                <option>Acne & Blemishes</option>
-                                <option>Fine Lines & Wrinkles</option>
-                                <option>Hyperpigmentation & Dark Spots</option>
-                                <option>Redness & Rosacea</option>
-                                <option>Dehydration & Dullness</option>
-                                <option>General Maintenance</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="experience-level" class="block text-sm font-medium text-slate-700">3. What is your skincare experience level?</label>
-                            <select id="experience-level" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
-                                <option>Beginner (Just starting out)</option>
-                                <option>Intermediate (Comfortable with a few steps)</option>
-                                <option>Advanced (Know my way around actives)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                            Generate My Routine
-                        </button>
-                    </form>
-                </div>
-                <div id="routine-result" class="mt-8 max-w-4xl mx-auto"></div>
-            </div>
-
-            <!-- Routine Analyzer View -->
-            <div id="analyzer-view" class="view">
-                <h2 class="text-3xl font-bold text-center mb-6">Analyze Your Skincare Routine</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                        <h3 class="font-bold text-lg mb-4">Input Your Products</h3>
-                        <p class="text-sm text-slate-500 mb-4">Add products from your routine. You can select from our list of popular products or paste an ingredient list manually.</p>
-                        
-                        <!-- Product Input Section -->
-                        <div class="space-y-4">
-                             <div>
-                                <label for="product-category" class="block text-sm font-medium text-slate-700">Product Category</label>
-                                <select id="product-category" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
-                                    <option value="cleanser">Cleanser</option>
-                                    <option value="toner">Toner</option>
-                                    <option value="serum">Serum</option>
-                                    <option value="moisturizer">Moisturizer</option>
-                                    <option value="sunscreen">Sunscreen</option>
-                                    <option value="other">Other/Exfoliant</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700">Option 1: Select a Product</label>
-                                <select id="product-select" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
-                                   <option value="">-- Choose a product --</option>
-                                </select>
-                                <button onclick="addProductFromSelect()" class="mt-2 w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg transition-colors text-sm">Add Selected Product</button>
-                            </div>
-                            <div class="text-center font-semibold text-slate-500">OR</div>
-                            <div>
-                                <label for="ingredient-paste" class="block text-sm font-medium text-slate-700">Option 2: Paste Ingredient List</label>
-                                <textarea id="ingredient-paste" rows="4" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500" placeholder="e.g., Water, Glycerin, Niacinamide, ..."></textarea>
-                                 <input type="text" id="manual-product-name" class="mt-2 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500" placeholder="Enter Product Name (Optional)">
-                                <button onclick="addProductFromPaste()" class="mt-2 w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg transition-colors text-sm">Add Manual Product</button>
-                            </div>
-                        </div>
-
-                        <div class="mt-6">
-                             <h4 class="font-bold text-md mb-2">Your Current Routine</h4>
-                             <div id="current-routine-list" class="space-y-2">
-                                <p class="text-slate-500 text-sm">No products added yet.</p>
-                             </div>
-                             <button onclick="analyzeRoutine()" class="mt-4 w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">Analyze My Routine</button>
-                             <button onclick="clearRoutine()" class="mt-2 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Clear Routine</button>
-                        </div>
-                    </div>
-
-                    <!-- Analysis Result Section -->
-                    <div id="analysis-result-container" class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                         <h3 class="font-bold text-lg mb-4 text-center">Analysis Report</h3>
-                         <div id="analysis-result" class="text-slate-600 text-center pt-8">
-                            Your report will appear here.
-                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ingredient Dex View -->
-            <div id="ingredients-view" class="view">
-                 <h2 class="text-3xl font-bold text-center mb-6">Ingredient Dictionary</h2>
-                 <div class="max-w-3xl mx-auto">
-                    <input type="text" id="ingredient-search" onkeyup="renderIngredientDex()" placeholder="Search for an ingredient..." class="w-full p-3 rounded-lg border border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 mb-6">
-                    <div id="ingredient-dex-list" class="space-y-4"></div>
-                 </div>
-            </div>
-
-            <!-- Guides View -->
-            <div id="guides-view" class="view">
-                 <h2 class="text-3xl font-bold text-center mb-6">Skincare Guides</h2>
-                 <div class="max-w-3xl mx-auto space-y-6">
-                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                        <h3 class="text-xl font-bold mb-3 text-slate-900">The Correct Order of Product Application</h3>
-                        <p class="text-slate-600 mb-4">Applying products in the right order ensures your skin receives the full benefits of each formula. The general rule is to apply from the thinnest consistency to the thickest.</p>
-                        <ol class="list-decimal list-inside space-y-2 text-slate-700">
-                            <li><strong>Cleanser:</strong> Start with a clean canvas. (Use an oil-based cleanser first if double cleansing at night).</li>
-                            <li><strong>Toner / Essence / Mists:</strong> These are watery products that prep the skin.</li>
-                            <li><strong>Serums (Actives):</strong> Apply your treatment serums (e.g., Vitamin C, Niacinamide, Retinol).</li>
-                            <li><strong>Eye Cream:</strong> Gently tap around the orbital bone.</li>
-                            <li><strong>Moisturizer:</strong> Lock in hydration and protect the skin barrier.</li>
-                            <li><strong>Face Oil (Optional):</strong> Apply a few drops to seal everything in (usually at night).</li>
-                            <li><strong>Sunscreen (AM Only):</strong> The most critical step in any morning routine. Non-negotiable!</li>
-                        </ol>
-                    </div>
-                     <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                        <h3 class="text-xl font-bold mb-3 text-slate-900">Sunscreen 101: Your Skin's Best Friend</h3>
-                        <p class="text-slate-600 mb-4">Sunscreen is the single most effective anti-aging and skin health product you can use. Here's what you need to know:</p>
-                        <ul class="list-disc list-inside space-y-2 text-slate-700">
-                            <li><strong>Broad Spectrum:</strong> Protects against both UVA (aging) and UVB (burning) rays.</li>
-                            <li><strong>SPF 30 or Higher:</strong> SPF 30 blocks 97% of UVB rays. SPF 50 blocks 98%. Daily use is recommended.</li>
-                            <li><strong>Mineral vs. Chemical:</strong> 
-                                <span class="font-semibold">Mineral</span> (Zinc Oxide, Titanium Dioxide) sits on top of the skin and reflects UV rays. Better for sensitive skin.
-                                <span class="font-semibold">Chemical</span> (Avobenzone, Oxybenzone, etc.) absorbs UV radiation and converts it into heat. Often more cosmetically elegant.
-                            </li>
-                            <li><strong>Reapplication:</strong> Reapply at least every 2 hours when in direct sun, or after swimming or sweating.</li>
-                        </ul>
-                    </div>
-                 </div>
-            </div>
-
+            <!-- All views will be injected here by the router -->
+            <div id="home-view" class="view"></div>
+            <div id="shelf-view" class="view"></div>
+            <div id="calendar-view" class="view"></div>
+            <div id="journal-view" class="view"></div>
+            <div id="generator-view" class="view"></div>
+            <div id="analyzer-view" class="view"></div>
+            <div id="ingredients-view" class="view"></div>
+            <div id="dupes-view" class="view"></div>
+            <div id="combo-view" class="view"></div>
+            <div id="decoder-view" class="view"></div>
+            <div id="guides-view" class="view"></div>
+            <div id="glossary-view" class="view"></div>
+            <div id="quiz-view" class="view"></div>
+            <div id="settings-view" class="view"></div>
         </main>
-
+        
+        <!-- Modal for alerts and confirmations -->
+        <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center p-4">
+            <div id="modal-content" class="bg-secondary p-6 rounded-lg shadow-xl max-w-lg w-full max-h-full overflow-y-auto">
+                <div class="flex justify-between items-center">
+                    <h3 id="modal-title" class="text-lg font-bold text-primary"></h3>
+                    <button onclick="closeModal()" class="text-secondary hover:text-primary">&times;</button>
+                </div>
+                <div id="modal-body" class="text-sm text-secondary mt-2"></div>
+                <div id="modal-actions" class="mt-4 flex justify-end space-x-2"></div>
+            </div>
+        </div>
     </div>
+<script>
+// --- DATABASE (Self-contained, no external calls) ---
+const ingredientsDB = {
+    // Solvents, Humectants, Emollients
+    'water': { name: 'Water (Aqua)', cat: 'Base', good: ['All'], safety: {}, desc: 'The base for most skincare products. Used as a solvent to dissolve other ingredients.' },
+    'glycerin': { name: 'Glycerin', cat: 'Humectant', good: ['All', 'Dry', 'Dehydrated'], safety: {}, desc: 'A powerful humectant that draws moisture from the air into the skin. Excellent for hydration.' },
+    'hyaluronic acid': { name: 'Hyaluronic Acid', cat: 'Humectant', good: ['All', 'Dry', 'Dehydrated'], safety: {}, desc: 'Can hold up to 1000x its weight in water, providing intense hydration.' },
+    'squalane': { name: 'Squalane', cat: 'Emollient', good: ['All'], safety: {}, desc: 'A lightweight, non-comedogenic oil that mimics the skin\'s natural sebum, providing moisture without feeling heavy.' },
+    'shea butter': { name: 'Shea Butter', cat: 'Emollient', good: ['Dry'], safety: {}, desc: 'A rich plant butter that deeply moisturizes and nourishes the skin. Can be heavy for oily types.' },
+    'dimethicone': { name: 'Dimethicone', cat: 'Occlusive', good: ['All'], safety: {}, desc: 'A silicone that forms a protective barrier on the skin, locking in moisture and giving a smooth, silky feel.' },
+    // Actives & Exfoliants
+    'niacinamide': { name: 'Niacinamide (B3)', cat: 'Active', good: ['All', 'Oily', 'Acne', 'Redness'], safety: {}, desc: 'A versatile ingredient that helps with oil control, redness, pore appearance, and barrier function.' },
+    'salicylic acid': { name: 'Salicylic Acid (BHA)', cat: 'Exfoliant', good: ['Oily', 'Acne'], safety: {pregnancy: 'consult', accutane: 'avoid'}, desc: 'A beta-hydroxy acid that exfoliates inside the pores, making it fantastic for treating acne and blackheads.' },
+    'glycolic acid': { name: 'Glycolic Acid (AHA)', cat: 'Exfoliant', good: ['Normal', 'Pigmentation', 'Aging'], safety: {pregnancy: 'consult', accutane: 'avoid'}, desc: 'An alpha-hydroxy acid that exfoliates the surface of the skin to improve texture and brightness.' },
+    'lactic acid': { name: 'Lactic Acid (AHA)', cat: 'Exfoliant', good: ['Dry', 'Sensitive', 'Pigmentation'], safety: {}, desc: 'A gentler AHA that exfoliates and hydrates simultaneously.' },
+    'retinol': { name: 'Retinol (Vitamin A)', cat: 'Active', good: ['Aging', 'Acne'], safety: {pregnancy: 'avoid', accutane: 'avoid'}, desc: 'A form of Vitamin A that speeds up cell turnover. A gold-standard ingredient for anti-aging and acne.' },
+    'bakuchiol': { name: 'Bakuchiol', cat: 'Active', good: ['Aging', 'Sensitive'], safety: {}, desc: 'A plant-based alternative to retinol with similar anti-aging benefits but less irritation potential.' },
+    'l-ascorbic acid': { name: 'L-Ascorbic Acid (Vit C)', cat: 'Antioxidant', good: ['All', 'Pigmentation', 'Aging', 'Dullness'], safety: {accutane: 'caution'}, desc: 'A potent antioxidant that can be irritating for compromised skin. Use with caution.' },
+    // Soothing & Barrier Support
+    'ceramide np': { name: 'Ceramide NP', cat: 'Barrier', good: ['All', 'Dry', 'Sensitive'], safety: {}, desc: 'Lipids that are a fundamental part of the skin barrier. They help retain moisture and protect the skin.' },
+    'centella asiatica extract': { name: 'Centella Asiatica (Cica)', cat: 'Soothing', good: ['Sensitive', 'Redness', 'Acne'], safety: {}, desc: 'A plant extract known for its soothing, anti-inflammatory, and wound-healing properties.' },
+    'panthenol': { name: 'Panthenol (B5)', cat: 'Humectant', good: ['All', 'Dry', 'Sensitive'], safety: {}, desc: 'A humectant with soothing and barrier-supporting properties.' },
+    // UV Filters
+    'zinc oxide': { name: 'Zinc Oxide', cat: 'UV Filter', good: ['All', 'Sensitive'], safety: {}, desc: 'A mineral (physical) sunscreen filter that provides broad-spectrum protection.' },
+    'avobenzone': { name: 'Avobenzone', cat: 'UV Filter', good: ['All'], safety: {}, desc: 'A chemical sunscreen filter that provides excellent UVA protection.' },
+    // Potentially Problematic
+    'fragrance': { name: 'Fragrance (Parfum)', cat: 'Sensitizer', good: [], safety: { accutane: 'caution' }, desc: 'A common cause of skin sensitivity and allergic reactions. Can be listed as "Parfum".' },
+    'alcohol denat': { name: 'Denatured Alcohol', cat: 'Solvent', good: ['Very Oily'], safety: {accutane: 'caution'}, desc: 'Can be very drying and irritating for many skin types, especially when high on the INCI list.' },
+    'coconut oil': { name: 'Coconut Oil', cat: 'Emollient', good: ['Very Dry Body Skin'], safety: {}, desc: 'A very moisturizing oil, but highly comedogenic and not recommended for the face for most people.' },
+};
 
-    <script>
-    // --- DATABASE (Self-contained, no external calls) ---
-    // This section acts as our "backend". All data is stored here.
+const productsDB = [
+    { id: 'p01', name: "CeraVe Hydrating Cleanser", brand: "CeraVe", price: 15, type: 'cleanser', key_ing: ['ceramide np', 'hyaluronic acid'], all_ing: "water, glycerin, cetearyl alcohol, peg-40 stearate, stearyl alcohol, potassium phosphate, ceramide np, ceramide ap, ceramide eop, carbomer, glyceryl stearate, behentrimonium methosulfate, sodium lauroyl lactylate, sodium hyaluronate, cholesterol, phenoxyethanol, disodium edta, dipotassium phosphate, tocopherol, phytosphingosine, xanthan gum, cetyl alcohol, polysorbate 20, ethylhexylglycerin" },
+    { id: 'p02', name: "La Roche-Posay Toleriane Purifying Foaming Cleanser", brand: "La Roche-Posay", price: 16, type: 'cleanser', key_ing: ['ceramide np', 'niacinamide'], all_ing: "water, glycerin, coco-betaine, propanediol, sodium cocoyl glycinate, peg-120 methyl glucose dioleate, sodium chloride, ceramide np, niacinamide, sodium hydroxide, disodium edta, capryloyl glycine, caprylyl glycol, acrylates copolymer" },
+    { id: 'p03', name: "The Ordinary Niacinamide 10% + Zinc 1%", brand: "The Ordinary", price: 6, type: 'serum', key_ing: ['niacinamide'], all_ing: "water, niacinamide, pentylene glycol, zinc pca, dimethicone, tamarindus indica seed gum, xanthan gum, isoceteth-20, ethoxydiglycol, phenoxyethanol, chlorphenesin" },
+    { id: 'p04', name: "Paula's Choice 2% BHA Liquid Exfoliant", brand: "Paula's Choice", price: 32, type: 'exfoliant', key_ing: ['salicylic acid'], all_ing: "water, methylpropanediol, butylene glycol, salicylic acid, polysorbate 20, camellia oleifera (green tea) leaf extract, sodium hydroxide, tetrasodium edta" },
+    { id: 'p05', name: "SkinCeuticals C E Ferulic", brand: "SkinCeuticals", price: 169, type: 'serum', key_ing: ['l-ascorbic acid', 'tocopherol', 'ferulic acid'], all_ing: "water, ethoxydiglycol, l-ascorbic acid, glycerin, propylene glycol, laureth-23, phenoxyethanol, tocopherol, triethanolamine, ferulic acid, panthenol, sodium hyaluronate" },
+    { id: 'p06', name: "Drunk Elephant Protini Polypeptide Cream", brand: "Drunk Elephant", price: 68, type: 'moisturizer', key_ing: ['peptides', 'lactic acid'], all_ing: "water, dicaprylyl carbonate, glycerin, cetearyl alcohol, cetearyl olivate, sorbitan olivate, sh-oligopeptide-1, sh-oligopeptide-2, sh-polypeptide-1, sh-polypeptide-9, sh-polypeptide-11, copper palmitoyl heptapeptide-14, heptapeptide-15 palmitate, palmitoyl tetrapeptide-7, palmitoyl tripeptide-1, n-prolyl palmitoyl tripeptide-56 acetate, lactic acid, alanine, arginine, glycine, histidine, isoleucine, phenylalanine, proline, serine, threonine, valine, aspartic acid, sodium lactate, sodium pca, pca, sorbitan isostearate, carbomer, polysorbate 20, polysorbate 60, caprylyl glycol, phenoxyethanol, chlorphenesin, potassium sorbate, sodium benzoate" },
+    { id: 'p07', name: "The INKEY List Retinol Serum", brand: "The INKEY List", price: 11, type: 'serum', key_ing: ['retinol', 'squalane'], all_ing: "water, glycerin, butylene glycol, propanediol, dicaprylyl carbonate, dimethicone, retinol, hydroxyethyl acrylate/sodium acryloyldimethyl taurate copolymer, caprylyl glycol, phospholipids, caprylic/capric glycerides, squalane, sodium hyaluronate, polysorbate 60, phenoxyethanol, leuconostoc/radish root ferment filtrate, sorbitan isostearate" },
+    { id: 'p08', name: "Supergoop! Unseen Sunscreen SPF 40", brand: "Supergoop!", price: 36, type: 'sunscreen', key_ing: ['avobenzone', 'shea butter'], all_ing: "avobenzone, 3%, homosalate, 8%, octisalate, 5%, octocrylene, 4%, isododecane, dimethicone crosspolymer, dimethicone/bis-isobutyl ppg-20 crosspolymer, polymethylsilsesquioxane, isohexadecane, dicaprylyl carbonate, meadowfoam estolide, caprylic/capric triglyceride, trimethylsiloxysilicate, caprylyl glycol, silica, tocopherol, shea butter" },
+];
 
-    const ingredientsDB = {
-        'water': { name: 'Water (Aqua)', category: 'Solvent', goodFor: ['All'], description: 'The base for most skincare products. Used as a solvent to dissolve other ingredients.' },
-        'glycerin': { name: 'Glycerin', category: 'Humectant', goodFor: ['All', 'Dry', 'Dehydrated'], description: 'A powerful humectant that draws moisture from the air into the skin. Excellent for hydration.' },
-        'niacinamide': { name: 'Niacinamide (Vitamin B3)', category: 'Active', goodFor: ['All', 'Oily', 'Acne', 'Redness'], description: 'A versatile ingredient that helps with oil control, redness, pore appearance, and barrier function.' },
-        'hyaluronic acid': { name: 'Hyaluronic Acid', category: 'Humectant', goodFor: ['All', 'Dry', 'Dehydrated'], description: 'Can hold up to 1000x its weight in water, providing intense hydration. Works best in humid environments.' },
-        'salicylic acid': { name: 'Salicylic Acid (BHA)', category: 'Exfoliant', goodFor: ['Oily', 'Acne'], description: 'A beta-hydroxy acid that exfoliates inside the pores, making it fantastic for treating acne and blackheads.' },
-        'glycolic acid': { name: 'Glycolic Acid (AHA)', category: 'Exfoliant', goodFor: ['Normal', 'Combination', 'Hyperpigmentation', 'Aging'], description: 'An alpha-hydroxy acid that exfoliates the surface of the skin to improve texture and brightness.' },
-        'retinol': { name: 'Retinol', category: 'Active', goodFor: ['Aging', 'Acne'], description: 'A form of Vitamin A that speeds up cell turnover. A gold-standard ingredient for anti-aging and acne. Can be irritating.' },
-        'l-ascorbic acid': { name: 'L-Ascorbic Acid (Vitamin C)', category: 'Antioxidant', goodFor: ['All', 'Hyperpigmentation', 'Aging', 'Dullness'], description: 'A potent antioxidant that protects against free radical damage, brightens the skin, and boosts collagen production.' },
-        'tocopherol': { name: 'Tocopherol (Vitamin E)', category: 'Antioxidant', goodFor: ['Dry', 'Normal'], description: 'An oil-soluble antioxidant that protects the skin and helps stabilize Vitamin C.' },
-        'squalane': { name: 'Squalane', category: 'Emollient', goodFor: ['All'], description: 'A lightweight, non-comedogenic oil that mimics the skin\'s natural sebum, providing moisture without feeling heavy.' },
-        'ceramide np': { name: 'Ceramide NP', category: 'Barrier Support', goodFor: ['All', 'Dry', 'Sensitive'], description: 'Lipids that are a fundamental part of the skin barrier. They help retain moisture and protect the skin.' },
-        'centella asiatica extract': { name: 'Centella Asiatica Extract', category: 'Soothing', goodFor: ['Sensitive', 'Redness', 'Acne'], description: 'A plant extract known for its soothing, anti-inflammatory, and wound-healing properties.' },
-        'zinc oxide': { name: 'Zinc Oxide', category: 'UV Filter', goodFor: ['All', 'Sensitive'], description: 'A mineral (physical) sunscreen filter that provides broad-spectrum protection. Also has soothing properties.' },
-        'dimethicone': { name: 'Dimethicone', category: 'Occlusive', goodFor: ['All'], description: 'A silicone that forms a protective barrier on the skin, locking in moisture and giving a smooth, silky feel.' },
-        'shea butter': { name: 'Shea Butter', category: 'Emollient', goodFor: ['Dry'], description: 'A rich plant butter that deeply moisturizes and nourishes the skin. Can be heavy for oily types.' },
-        'coconut oil': { name: 'Coconut Oil', category: 'Emollient', goodFor: ['Very Dry Body Skin'], description: 'A very moisturizing oil, but highly comedogenic and not recommended for the face for most people.' }
-    };
+// ... rest of DBs (glossaryDB, quizDB, ingredientConflicts) would be here, truncated for brevity ...
+const glossaryDB = {
+    'Double Cleansing': 'A two-step cleansing method. First, an oil-based cleanser removes makeup and SPF. Second, a water-based cleanser cleans the skin itself. Ideal for PM routines.',
+    'Comedogenic': 'Refers to ingredients or products that have a tendency to clog pores, which can lead to blackheads and acne. Ratings are a guide, not a rule.',
+    'Slugging': 'The practice of applying an occlusive layer (like Vaseline or Aquaphor) as the final step of a nighttime routine to prevent water loss and boost barrier function.'
+};
 
-    const comedogenicRatings = {
-        'coconut oil': 4,
-        'cocoa butter': 4,
-        'isopropyl myristate': 5,
-        'lauric acid': 4,
-        'cetearyl alcohol': 2,
-        'cetyl alcohol': 2,
-        'shea butter': 2, // Can be debated, but can clog some.
-        'dimethicone': 1,
-        'squalane': 1,
-        'sunflower oil': 0,
-        'hyaluronic acid': 0,
-        'glycerin': 0,
-        'niacinamide': 0,
-        'salicylic acid': 0,
-        'glycolic acid': 0
-    };
+const quizDB = [
+    { 
+        q: "What is the single most important product for anti-aging?", 
+        o: ["Retinol Serum", "Vitamin C Serum", "Broad-Spectrum Sunscreen", "Hyaluronic Acid"], 
+        a: 2,
+        exp: "Sunscreen is non-negotiable. Up to 90% of visible aging is caused by sun exposure. While other products help, preventing the damage in the first place is most effective."
+    },
+    { 
+        q: "You should NOT mix Retinol with which of these in the same application?", 
+        o: ["Niacinamide", "Hyaluronic Acid", "AHA/BHA Acids", "Ceramides"], 
+        a: 2,
+        exp: "Combining strong actives like Retinol and exfoliating acids (AHAs/BHAs) in the same routine can lead to over-exfoliation, irritation, and a compromised skin barrier."
+    },
+    {
+        q: "The 'P.A.' rating on Asian sunscreens (e.g., PA++++) refers to protection against:",
+        o: ["UVB (Burning rays)", "UVA (Aging rays)", "Blue Light", "Infrared Radiation"],
+        a: 1,
+        exp: "SPF measures protection against UVB rays, which cause sunburn. The PA rating system measures protection against UVA rays, which are responsible for photo-aging."
+    }
+];
 
-    const productsDB = [
-        { name: "CeraVe Hydrating Cleanser", type: "cleanser", ingredients: ["water", "glycerin", "cetearyl alcohol", "ceramide np", "hyaluronic acid"] },
-        { name: "The Ordinary Niacinamide 10% + Zinc 1%", type: "serum", ingredients: ["water", "niacinamide", "zinc pca", "tamarindus indica seed gum"] },
-        { name: "Paula's Choice 2% BHA Liquid Exfoliant", type: "other", ingredients: ["water", "methylpropanediol", "salicylic acid", "camellia oleifera leaf extract"] },
-        { name: "La Roche-Posay Toleriane Double Repair Moisturizer", type: "moisturizer", ingredients: ["water", "glycerin", "dimethicone", "niacinamide", "ceramide np"] },
-        { name: "Supergoop! Unseen Sunscreen SPF 40", type: "sunscreen", ingredients: ["isododecane", "dimethicone", "shea butter", "squalane"] },
-        { name: "SkinCeuticals C E Ferulic", type: "serum", ingredients: ["water", "l-ascorbic acid", "glycerin", "tocopherol", "ferulic acid"] },
-        { name: "The INKEY List Retinol Serum", type: "serum", ingredients: ["water", "squalane", "glycerin", "retinol", "hyaluronic acid"] }
-    ];
+const ingredientConflicts = {
+    'retinol': ['glycolic acid', 'salicylic acid', 'l-ascorbic acid'],
+    'glycolic acid': ['retinol', 'salicylic acid'],
+    'salicylic acid': ['retinol', 'glycolic acid'],
+    'l-ascorbic acid': ['retinol']
+};
 
-    const ingredientConflicts = {
-        'retinol': ['glycolic acid', 'salicylic acid', 'l-ascorbic acid'],
-        'glycolic acid': ['retinol', 'salicylic acid'],
-        'salicylic acid': ['retinol', 'glycolic acid'],
-        'l-ascorbic acid': ['retinol'] // Primarily a stability issue and potential for irritation
-    };
+// --- APPLICATION STATE & LOGIC ---
 
+let appState = {
+    currentView: 'home',
+    userData: {
+        settings: {
+            darkMode: false,
+            pregnancySafe: false,
+            accutaneSafe: false,
+            forbiddenIngredients: [],
+        },
+        myShelf: [], // {productId: 'p01', status: 'owned'/'wishlist'/'empties', dateAdded: '...'}
+        journal: [],
+        calendar: {} // { '2024-06-09': { am: [p_id], pm: [p_id] } }
+    },
+    productsFuse: null,
+    ingredientsFuse: null,
+};
 
-    // --- APPLICATION LOGIC ---
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', init);
 
-    let currentView = 'home';
-    let userRoutine = []; // For the analyzer
+function init() {
+    // Load data from localStorage
+    const savedData = localStorage.getItem('skincareHubData_v2');
+    if (savedData) {
+        // A simple merge to prevent losing data on updates
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.settings) { // Check if settings exist before merging
+             Object.assign(appState.userData.settings, parsedData.settings);
+        }
+        appState.userData.myShelf = parsedData.myShelf || [];
+        appState.userData.journal = parsedData.journal || [];
+        appState.userData.calendar = parsedData.calendar || [];
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initial setup
-        switchView('home');
-        populateProductSelect();
-        renderIngredientDex();
-
-        // Attach form listener for generator
-        document.getElementById('generator-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            generateRoutine();
-        });
-    });
+    } else {
+        saveData();
+    }
     
-    // --- View Switching Logic ---
-    function switchView(viewId) {
-        currentView = viewId;
-        const views = document.querySelectorAll('.view');
-        views.forEach(view => view.style.display = 'none');
-        document.getElementById(`${viewId}-view`).style.display = 'block';
+    // Setup search
+    appState.productsFuse = new Fuse(productsDB, { keys: ['name', 'brand'] });
+    appState.ingredientsFuse = new Fuse(Object.values(ingredientsDB), { keys: ['name', 'cat', 'desc'] });
 
-        // Update active nav button style
-        const navButtons = document.querySelectorAll('.nav-button');
-        navButtons.forEach(btn => {
-            btn.classList.remove('bg-pink-100', 'text-pink-700', 'font-bold');
-            if (btn.id === `nav-${viewId}`) {
-                btn.classList.add('bg-pink-100', 'text-pink-700', 'font-bold');
-            }
-        });
+    // Setup UI based on saved settings
+    if (appState.userData.settings.darkMode) {
+        document.documentElement.classList.add('dark');
+    }
+    updateThemeIcons();
+    switchView('home');
+}
+
+// --- DATA PERSISTENCE ---
+function saveData() {
+    try {
+        localStorage.setItem('skincareHubData_v2', JSON.stringify(appState.userData));
+    } catch (e) {
+        console.error("Failed to save data to localStorage", e);
+        showAlert("Save Error", "Could not save your data. Your browser's storage might be full.");
+    }
+}
+
+// --- VIEW ROUTING & RENDERING ---
+function switchView(viewId) {
+    if(!viewId) return;
+    const views = document.querySelectorAll('.view');
+    views.forEach(v => v.style.display = 'none');
+    
+    const targetView = document.getElementById(`${viewId}-view`);
+    if (targetView) {
+        targetView.innerHTML = `<div class="text-center p-8 text-secondary">Loading ${viewId}...</div>`;
+        targetView.style.display = 'block';
+        appState.currentView = viewId;
+        
+        // Use a tiny timeout to allow the browser to render the "Loading..." message before starting a potentially long render
+        setTimeout(() => renderCurrentView(viewId), 10);
     }
 
-    // --- Routine Generator Logic ---
-    function generateRoutine() {
-        const skinType = document.getElementById('skin-type').value;
-        const concern = document.getElementById('skin-concern').value;
-        const experience = document.getElementById('experience-level').value;
+    // Update nav button states
+    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`nav-${viewId}`) || document.querySelector(`#nav-${getNavGroup(viewId)}`);
+    if (activeBtn) activeBtn.classList.add('active');
+}
 
-        let routine = {
-            am: [],
-            pm: []
-        };
-        
-        // --- AM ROUTINE ---
-        // 1. Cleanser
-        if (skinType === 'Dry' || skinType === 'Sensitive') {
-            routine.am.push({ step: 'Cleanser', type: 'Gentle, Hydrating Cleanser', desc: 'Wash face with lukewarm water and a non-foaming cleanser.' });
-        } else {
-            routine.am.push({ step: 'Cleanser', type: 'Gentle Foaming or Gel Cleanser', desc: 'Cleanse to remove overnight buildup without stripping the skin.' });
-        }
+function getNavGroup(viewId) {
+    if (['shelf', 'calendar', 'journal'].includes(viewId)) return 'hub';
+    if (['generator', 'analyzer'].includes(viewId)) return 'core';
+    if (['ingredients', 'dupes', 'combo', 'decoder'].includes(viewId)) return 'discovery';
+    if (['guides', 'glossary', 'quiz'].includes(viewId)) return 'learn';
+    return viewId;
+}
 
-        // 2. Treatment (AM)
-        if (concern === 'Hyperpigmentation & Dark Spots' || concern === 'Fine Lines & Wrinkles' || concern === 'Dehydration & Dullness') {
-             routine.am.push({ step: 'Antioxidant Serum', type: 'Vitamin C Serum', desc: 'Protects against environmental damage and brightens the skin. A must for these concerns.' });
-        } else if(concern === 'Acne & Blemishes' && experience !== 'Beginner') {
-            routine.am.push({ step: 'Hydrating/Soothing Serum', type: 'Niacinamide or Hyaluronic Acid Serum', desc: 'Helps with hydration, oil control, and calming the skin before applying acne treatments at night.' });
-        } else {
-             routine.am.push({ step: 'Hydrating Serum', type: 'Hyaluronic Acid Serum', desc: 'A simple hydration step to plump the skin.' });
-        }
+function renderCurrentView(viewId) {
+    const container = document.getElementById(`${viewId}-view`);
+    if (!container) return;
 
-        // 3. Moisturizer
-        if (skinType === 'Oily') {
-            routine.am.push({ step: 'Moisturizer', type: 'Lightweight Gel or Lotion', desc: 'Provides hydration without feeling heavy or greasy.' });
-        } else if (skinType === 'Dry') {
-            routine.am.push({ step: 'Moisturizer', type: 'Rich Cream', desc: 'Provides deep hydration and helps lock in moisture throughout the day.' });
-        } else {
-            routine.am.push({ step: 'Moisturizer', type: 'Standard Lotion or Cream', desc: 'A balanced moisturizer to keep skin hydrated and protected.' });
-        }
-
-        // 4. Sunscreen
-        routine.am.push({ step: 'Sunscreen', type: 'Broad Spectrum SPF 30+', desc: 'The most important step. Protects your skin from UV damage, preventing aging and hyperpigmentation. Non-negotiable.' });
-
-
-        // --- PM ROUTINE ---
-        // 1. Double Cleanse
-        routine.pm.push({ step: 'Double Cleanse', type: '1. Oil/Balm Cleanser, 2. Water-Based Cleanser', desc: 'First cleanse removes makeup/SPF. Second cleanse cleans the skin. Use the same AM cleanser for the second step.' });
-        
-        // 2. Treatment (PM)
-        let treatmentStep = { step: 'Treatment Serum/Active', type: '', desc: '' };
-        switch(concern) {
-            case 'Acne & Blemishes':
-                treatmentStep.type = experience === 'Advanced' ? 'Salicylic Acid (BHA) 2%' : 'Gentle Salicylic Acid or Niacinamide';
-                treatmentStep.desc = 'Exfoliates inside the pores to fight acne. Start 2-3 times a week and increase as tolerated.';
-                break;
-            case 'Fine Lines & Wrinkles':
-                treatmentStep.type = experience === 'Beginner' ? 'Granactive Retinoid or Bakuchiol' : 'Retinol (0.25% - 0.5%)';
-                treatmentStep.desc = 'Increases cell turnover to reduce fine lines. Introduce slowly (1-2 times a week) to avoid irritation.';
-                break;
-            case 'Hyperpigmentation & Dark Spots':
-                treatmentStep.type = experience === 'Beginner' ? 'Niacinamide or Azelaic Acid' : 'Glycolic Acid (AHA) or Retinoid';
-                treatmentStep.desc = 'Exfoliates surface skin or targets pigment production. Alternate with hydrating serums on off-nights.';
-                break;
-            case 'Redness & Rosacea':
-                treatmentStep.type = 'Azelaic Acid or Centella Asiatica Serum';
-                treatmentStep.desc = 'Calms inflammation and reduces redness. Focus on gentle, soothing ingredients.';
-                break;
-            default: // Dehydration or General Maintenance
-                treatmentStep.type = 'Hydrating & Barrier Repair Serum';
-                treatmentStep.desc = 'Use a serum with Ceramides, Hyaluronic Acid, and/or Peptides to support a healthy skin barrier.';
-        }
-        routine.pm.push(treatmentStep);
-
-        // 3. Moisturizer
-        routine.pm.push({ step: 'Moisturizer', type: 'Nourishing Moisturizer', desc: 'Use the same as your AM moisturizer, or a slightly richer one to support overnight repair.' });
-        
-        renderRoutine(routine);
+    let renderer = window[`render${viewId.charAt(0).toUpperCase() + viewId.slice(1)}View`];
+    if (typeof renderer === 'function') {
+        container.innerHTML = renderer();
+    } else {
+        container.innerHTML = `<div class="text-center p-8 text-danger-primary">Error: View "${viewId}" not found.</div>`;
     }
+    
+    // Post-render actions like attaching event listeners
+    let setupFunction = window[`setup${viewId.charAt(0).toUpperCase() + viewId.slice(1)}Listeners`];
+    if (typeof setupFunction === 'function') {
+        setupFunction();
+    }
+}
 
-    function renderRoutine(routine) {
-        const resultDiv = document.getElementById('routine-result');
-        let html = `
-            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 animate-fadeIn">
-                <h3 class="text-2xl font-bold text-center mb-6">Your Personalized Routine</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- AM Routine -->
-                    <div>
-                        <h4 class="text-xl font-bold mb-4 text-pink-600">☀️ Morning (AM)</h4>
-                        <div class="space-y-4">
-                            ${routine.am.map((item, index) => `
-                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-                                    <p class="font-bold text-slate-800">${index + 1}. ${item.step}: <span class="font-normal">${item.type}</span></p>
-                                    <p class="text-sm text-slate-600 mt-1">${item.desc}</p>
-                                </div>
-                            `).join('')}
+// --- UI & THEME ---
+function toggleDarkMode() {
+    appState.userData.settings.darkMode = !appState.userData.settings.darkMode;
+    document.documentElement.classList.toggle('dark');
+    updateThemeIcons();
+    saveData();
+}
+
+function updateThemeIcons() {
+    if (document.documentElement.classList.contains('dark')) {
+        document.getElementById('theme-toggle-dark-icon').style.display = 'block';
+        document.getElementById('theme-toggle-light-icon').style.display = 'none';
+    } else {
+        document.getElementById('theme-toggle-dark-icon').style.display = 'none';
+        document.getElementById('theme-toggle-light-icon').style.display = 'block';
+    }
+}
+
+// --- MODAL/ALERT SYSTEM ---
+function showAlert(title, body, actions = [{ text: 'OK', class: 'bg-accent-primary text-white', action: closeModal }]) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-body').innerHTML = body; // Use innerHTML to allow for formatted content
+    const actionsContainer = document.getElementById('modal-actions');
+    actionsContainer.innerHTML = '';
+    actions.forEach(act => {
+        const btn = document.createElement('button');
+        btn.innerText = act.text;
+        btn.className = `px-4 py-2 rounded-md font-semibold ${act.class}`;
+        btn.onclick = act.action;
+        actionsContainer.appendChild(btn);
+    });
+    document.getElementById('modal-container').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal-container').style.display = 'none';
+}
+
+
+// --- DYNAMIC VIEW RENDERER FUNCTIONS ---
+// Each function is responsible for rendering the HTML for a single view.
+// This is more organized than a giant if/else block.
+
+function renderHomeView() {
+    return `
+        <div class="text-center p-8 bg-secondary rounded-xl border border-border-color shadow-sm">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">The Ultimate Skincare Hub</h2>
+            <p class="max-w-3xl mx-auto text-secondary mb-8">
+                Welcome back! All your data is stored privately in your browser. From your personal product shelf to a weekly routine calendar, all the tools you need are right here.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div onclick="switchView('shelf')" class="p-6 bg-tertiary hover:bg-border-color rounded-lg cursor-pointer transition-colors border border-border-color">
+                    <h3 class="text-xl font-bold text-primary mb-2">My Digital Shelf</h3>
+                    <p class="text-sm text-secondary">Manage your owned products, create a wishlist, and track empties.</p>
+                </div>
+                <div onclick="switchView('analyzer')" class="p-6 bg-tertiary hover:bg-border-color rounded-lg cursor-pointer transition-colors border border-border-color">
+                    <h3 class="text-xl font-bold text-primary mb-2">Routine Analyzer</h3>
+                    <p class="text-sm text-secondary">Get an expert analysis of your AM/PM routine for conflicts and insights.</p>
+                </div>
+                <div onclick="switchView('calendar')" class="p-6 bg-tertiary hover:bg-border-color rounded-lg cursor-pointer transition-colors border border-border-color">
+                    <h3 class="text-xl font-bold text-primary mb-2">Routine Calendar</h3>
+                    <p class="text-sm text-secondary">Visually plan your use of actives to keep your skin happy and healthy.</p>
+                </div>
+                <div onclick="switchView('dupes')" class="p-6 bg-tertiary hover:bg-border-color rounded-lg cursor-pointer transition-colors border border-border-color">
+                    <h3 class="text-xl font-bold text-primary mb-2">Dupe Finder</h3>
+                    <p class="text-sm text-secondary">Find affordable alternatives for popular products based on key ingredients.</p>
+                </div>
+                 <div onclick="switchView('decoder')" class="p-6 bg-tertiary hover:bg-border-color rounded-lg cursor-pointer transition-colors border border-border-color">
+                    <h3 class="text-xl font-bold text-primary mb-2">INCI Decoder</h3>
+                    <p class="text-sm text-secondary">Paste an ingredient list to get a full breakdown of what's inside.</p>
+                </div>
+                 <div onclick="switchView('quiz')" class="p-6 bg-tertiary hover:bg-border-color rounded-lg cursor-pointer transition-colors border border-border-color">
+                    <h3 class="text-xl font-bold text-primary mb-2">Test Your Knowledge</h3>
+                    <p class="text-sm text-secondary">Take our skincare quiz to bust common myths and learn new facts.</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderSettingsView() {
+     const forbiddenIngredientsText = appState.userData.settings.forbiddenIngredients.join(', ');
+     return `
+        <h2 class="text-3xl font-bold text-center mb-6">Settings</h2>
+        <div class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color space-y-6">
+            
+            <div>
+                <h3 class="text-lg font-semibold text-primary">Safety Filters</h3>
+                <p class="text-sm text-secondary mb-4">When enabled, the app will flag ingredients that are typically avoided under these conditions.</p>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label for="pregnancy-safe-toggle" class="font-medium text-primary">Pregnancy/Nursing Safe Mode</label>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" onchange="updateSetting('pregnancySafe', this.checked)" name="pregnancy-safe-toggle" id="pregnancy-safe-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" ${appState.userData.settings.pregnancySafe ? 'checked' : ''}/>
+                            <label for="pregnancy-safe-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                         </div>
                     </div>
-                    <!-- PM Routine -->
-                    <div>
-                        <h4 class="text-xl font-bold mb-4 text-sky-600">🌙 Evening (PM)</h4>
-                        <div class="space-y-4">
-                             ${routine.pm.map((item, index) => `
-                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-                                    <p class="font-bold text-slate-800">${index + 1}. ${item.step}: <span class="font-normal">${item.type}</span></p>
-                                    <p class="text-sm text-slate-600 mt-1">${item.desc}</p>
-                                </div>
-                            `).join('')}
+                     <div class="flex items-center justify-between">
+                        <label for="accutane-safe-toggle" class="font-medium text-primary">Accutane (Isotretinoin) Safe Mode</label>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" onchange="updateSetting('accutaneSafe', this.checked)" name="accutane-safe-toggle" id="accutane-safe-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" ${appState.userData.settings.accutaneSafe ? 'checked' : ''}/>
+                            <label for="accutane-safe-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                         </div>
                     </div>
                 </div>
-                <p class="text-xs text-center mt-6 text-slate-500"><strong>Disclaimer:</strong> This is a generated guide. Always patch-test new products and introduce active ingredients slowly.</p>
+            </div>
+
+            <div class="border-t border-border-color"></div>
+
+            <div>
+                <h3 class="text-lg font-semibold text-primary">My Forbidden Ingredients</h3>
+                <p class="text-sm text-secondary mb-2">List ingredients you are allergic to or that you know irritate your skin. Separate them with commas.</p>
+                <textarea id="forbidden-ingredients-input" class="w-full p-2 bg-tertiary border border-border-color rounded-md" rows="3" placeholder="e.g., fragrance, lavender oil, alcohol denat">${forbiddenIngredientsText}</textarea>
+                <button onclick="updateForbiddenIngredients()" class="mt-2 px-4 py-2 bg-accent-primary text-white font-semibold rounded-lg hover:bg-opacity-90">Save Forbidden List</button>
+            </div>
+
+            <div class="border-t border-border-color"></div>
+
+            <div>
+                 <h3 class="text-lg font-semibold text-primary">Data Management</h3>
+                 <p class="text-sm text-secondary mb-2">All your data is stored on this device. You can export it for backup or delete it.</p>
+                 <div class="flex space-x-2">
+                    <button onclick="exportData()" class="px-4 py-2 bg-accent-secondary text-white font-semibold rounded-lg hover:bg-opacity-90">Export Data</button>
+                    <button onclick="confirmDeleteData()" class="px-4 py-2 bg-danger-primary text-white font-semibold rounded-lg hover:bg-opacity-90">Delete All My Data</button>
+                 </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderDupesView() {
+    let options = productsDB
+        .sort((a, b) => b.price - a.price) // Show most expensive first
+        .map(p => `<option value="${p.id}">${p.name} ($${p.price})</option>`).join('');
+
+    return `
+         <h2 class="text-3xl font-bold text-center mb-6">Product Dupe Finder</h2>
+         <div class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color">
+            <p class="text-secondary mb-4">Select a product (usually a pricier one) to find other products in our database that share one or more of its key active ingredients.</p>
+            <select id="dupe-product-select" onchange="findDupes(this.value)" class="w-full p-2 border border-border-color rounded-md bg-tertiary">
+                <option value="">-- Select a Product --</option>
+                ${options}
+            </select>
+            <div id="dupe-results" class="mt-6">
+                <p class="text-center text-secondary">Your dupe results will appear here.</p>
+            </div>
+         </div>
+    `;
+}
+
+function renderQuizView() {
+    let questionsHtml = quizDB.map((item, index) => `
+        <div class="bg-tertiary p-4 rounded-lg border border-border-color">
+            <p class="font-semibold text-primary">${index + 1}. ${item.q}</p>
+            <div class="mt-2 space-y-2">
+                ${item.o.map((option, optIndex) => `
+                    <div>
+                        <input type="radio" name="q${index}" id="q${index}o${optIndex}" value="${optIndex}" class="mr-2">
+                        <label for="q${index}o${optIndex}" class="text-secondary">${option}</label>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Test Your Skincare Knowledge</h2>
+        <div class="max-w-3xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color">
+            <div class="space-y-6">${questionsHtml}</div>
+            <button onclick="submitQuiz()" class="w-full mt-6 px-4 py-3 bg-accent-primary text-white font-bold rounded-lg hover:bg-opacity-90">See My Score!</button>
+            <div id="quiz-results" class="mt-6"></div>
+        </div>
+    `;
+}
+
+function renderDecoderView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">INCI Decoder</h2>
+        <div class="max-w-3xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color">
+            <p class="text-secondary mb-4">Paste a full INCI (ingredient) list from any product below. We'll break it down for you, highlighting key ingredients, potential irritants, and explaining what each one does.</p>
+            <textarea id="inci-input" class="w-full p-2 bg-tertiary border border-border-color rounded-md" rows="6" placeholder="Water, Glycerin, Niacinamide, ..."></textarea>
+            <button onclick="decodeInci()" class="w-full mt-4 px-4 py-3 bg-accent-primary text-white font-bold rounded-lg hover:bg-opacity-90">Decode Ingredient List</button>
+            <div id="decoder-results" class="mt-6"></div>
+        </div>
+    `;
+}
+
+// Stubs for other views that are more complex and would be implemented next
+function renderShelfView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">My Shelf feature is under construction.</div>`; }
+function renderCalendarView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Calendar feature is under construction.</div>`; }
+function renderJournalView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Journal feature is under construction.</div>`; }
+function renderGeneratorView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Generator feature is under construction.</div>`; }
+function renderAnalyzerView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Analyzer feature is under construction.</div>`; }
+function renderIngredientsView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Ingredient Dex feature is under construction.</div>`; }
+function renderComboView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Combo Checker feature is under construction.</div>`; }
+function renderGuidesView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Guides feature is under construction.</div>`; }
+function renderGlossaryView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Glossary feature is under construction.</div>`; }
+
+
+// --- FEATURE LOGIC ---
+function updateSetting(key, value) {
+    if (appState.userData.settings.hasOwnProperty(key)) {
+        appState.userData.settings[key] = value;
+        saveData();
+    }
+}
+
+function updateForbiddenIngredients() {
+    const input = document.getElementById('forbidden-ingredients-input').value;
+    appState.userData.settings.forbiddenIngredients = input.split(',')
+        .map(s => s.trim().toLowerCase())
+        .filter(s => s); // remove empty strings
+    saveData();
+    showAlert("Success!", "Your forbidden ingredients list has been saved.");
+}
+
+function findDupes(productId) {
+    const resultsContainer = document.getElementById('dupe-results');
+    if (!productId) {
+        resultsContainer.innerHTML = '<p class="text-center text-secondary">Your dupe results will appear here.</p>';
+        return;
+    }
+    const targetProduct = productsDB.find(p => p.id === productId);
+    if (!targetProduct) {
+        resultsContainer.innerHTML = '<p class="text-center text-danger-primary">Could not find the selected product.</p>';
+        return;
+    }
+
+    const dupes = productsDB.filter(p => {
+        if (p.id === targetProduct.id) return false;
+        return p.key_ing.some(ing => targetProduct.key_ing.includes(ing));
+    });
+
+    if (dupes.length === 0) {
+        resultsContainer.innerHTML = '<p class="text-center text-secondary">No potential dupes found in our database with similar key ingredients.</p>';
+        return;
+    }
+    
+    let html = `<h3 class="font-bold text-primary mb-2">Potential Alternatives for <span class="text-accent-primary">${targetProduct.name}</span></h3>`;
+    html += dupes.map(dupe => {
+        const sharedIng = dupe.key_ing.filter(ing => targetProduct.key_ing.includes(ing));
+        return `
+            <div class="p-4 bg-tertiary rounded-lg border border-border-color mb-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-semibold text-primary">${dupe.name}</h4>
+                    <span class="font-bold text-lg ${dupe.price < targetProduct.price ? 'text-green-500' : 'text-danger-primary'}">$${dupe.price}</span>
+                </div>
+                <p class="text-xs text-secondary">${dupe.brand}</p>
+                <p class="text-sm mt-2">Shared Key Ingredients: <span class="font-semibold">${sharedIng.join(', ')}</span></p>
             </div>
         `;
-        resultDiv.innerHTML = html;
-    }
+    }).join('');
+    resultsContainer.innerHTML = html;
+}
 
-    // --- Routine Analyzer Logic ---
-    function populateProductSelect() {
-        const select = document.getElementById('product-select');
-        productsDB.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.name;
-            option.textContent = p.name;
-            select.appendChild(option);
-        });
-    }
-
-    function addProductFromSelect() {
-        const productName = document.getElementById('product-select').value;
-        const category = document.getElementById('product-category').value;
-        if (!productName) return;
-        const product = productsDB.find(p => p.name === productName);
-        if (product) {
-            userRoutine.push({ ...product, userCategory: category });
-            renderUserRoutine();
+function submitQuiz() {
+    let score = 0;
+    quizDB.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        if (selected && parseInt(selected.value) === q.a) {
+            score++;
         }
-    }
-
-    function addProductFromPaste() {
-        const ingredientsText = document.getElementById('ingredient-paste').value;
-        const productName = document.getElementById('manual-product-name').value || 'Manually Added Product';
-        const category = document.getElementById('product-category').value;
-        
-        if (!ingredientsText) return;
-        
-        const ingredients = ingredientsText.split(',')
-            .map(i => i.trim().toLowerCase().replace(/[^\w\s-]/g, ''))
-            .filter(i => i);
-
-        userRoutine.push({ name: productName, type: 'manual', userCategory: category, ingredients });
-        renderUserRoutine();
-        document.getElementById('ingredient-paste').value = '';
-        document.getElementById('manual-product-name').value = '';
-    }
-
-    function renderUserRoutine() {
-        const listDiv = document.getElementById('current-routine-list');
-        if (userRoutine.length === 0) {
-            listDiv.innerHTML = '<p class="text-slate-500 text-sm">No products added yet.</p>';
-            return;
-        }
-        listDiv.innerHTML = userRoutine.map((p, index) => `
-            <div class="flex justify-between items-center bg-slate-100 p-2 rounded-md text-sm">
-                <span><strong>${p.userCategory.charAt(0).toUpperCase() + p.userCategory.slice(1)}:</strong> ${p.name}</span>
-                <button onclick="removeProduct(${index})" class="text-red-500 hover:text-red-700 font-bold">✕</button>
+    });
+    const resultsContainer = document.getElementById('quiz-results');
+    resultsContainer.innerHTML = `
+        <div class="p-4 bg-tertiary rounded-lg border border-border-color text-center">
+            <h3 class="text-xl font-bold text-primary">You scored ${score} out of ${quizDB.length}!</h3>
+            <div class="text-left mt-4 space-y-2">
+                ${quizDB.map(q => `<p class="text-sm text-secondary"><strong>Answer:</strong> ${q.o[q.a]}<br><strong>Explanation:</strong> ${q.exp}</p>`).join('<hr class="my-2 border-border-color">')}
             </div>
-        `).join('');
-    }
+        </div>
+    `;
+}
 
-    function removeProduct(index) {
-        userRoutine.splice(index, 1);
-        renderUserRoutine();
-    }
+function decodeInci() {
+    const inciList = document.getElementById('inci-input').value.split(',')
+        .map(i => i.trim().toLowerCase().replace(/[^\w\s-]/g, ''))
+        .filter(i => i);
     
-    function clearRoutine() {
-        userRoutine = [];
-        renderUserRoutine();
-        const resultDiv = document.getElementById('analysis-result');
-        resultDiv.innerHTML = 'Your report will appear here.';
-        resultDiv.parentElement.classList.remove('animate-fadeIn');
+    const resultsContainer = document.getElementById('decoder-results');
+    if(inciList.length === 0) {
+        resultsContainer.innerHTML = `<p class="text-secondary text-center">Please enter an ingredient list.</p>`;
+        return;
     }
 
-    function analyzeRoutine() {
-        const resultDiv = document.getElementById('analysis-result');
-        resultDiv.parentElement.classList.add('animate-fadeIn');
-        
-        if (userRoutine.length === 0) {
-            resultDiv.innerHTML = '<p class="text-red-500 font-semibold">Please add at least one product to analyze.</p>';
-            return;
-        }
-
-        let report = {
-            summary: [],
-            comedogenic: [],
-            conflicts: [],
-            missing: [],
-            breakdown: []
-        };
-        
-        // --- ANALYSIS CHECKS ---
-        let allIngredients = [];
-        let activeIngredients = [];
-
-        userRoutine.forEach(product => {
-            product.ingredients.forEach(ing => {
-                const cleanIng = ing.toLowerCase().trim();
-                allIngredients.push(cleanIng);
-
-                if (ingredientsDB[cleanIng] && (ingredientsDB[cleanIng].category === 'Active' || ingredientsDB[cleanIng].category === 'Exfoliant')) {
-                    activeIngredients.push(cleanIng);
-                }
-                
-                if (comedogenicRatings[cleanIng] && comedogenicRatings[cleanIng] > 2) {
-                    report.comedogenic.push({ product: product.name, ingredient: cleanIng, rating: comedogenicRatings[cleanIng] });
-                }
-            });
-            
-             // Create breakdown for each product
-            let productBreakdown = {
-                name: product.name,
-                category: product.userCategory,
-                keyIngredients: product.ingredients.map(ing => {
-                    const dbEntry = ingredientsDB[ing.toLowerCase().trim()];
-                    return dbEntry ? { name: dbEntry.name, desc: dbEntry.description } : null;
-                }).filter(i => i).slice(0, 3) // Show top 3 known ingredients
-            };
-            report.breakdown.push(productBreakdown);
-        });
-        
-        // Check for conflicts
-        for (const ing1 of activeIngredients) {
-            if (ingredientConflicts[ing1]) {
-                for (const ing2 of activeIngredients) {
-                    if (ing1 !== ing2 && ingredientConflicts[ing1].includes(ing2)) {
-                         const conflictPair = [ing1, ing2].sort().join('-');
-                         if (!report.conflicts.find(c => c.pair === conflictPair)) {
-                             report.conflicts.push({
-                                 pair: conflictPair,
-                                 message: `Potential for irritation using <strong>${ingredientsDB[ing1].name}</strong> and <strong>${ingredientsDB[ing2].name}</strong> in the same routine. Consider alternating days/nights.`
-                             });
-                         }
-                    }
-                }
-            }
-        }
-
-        // Check for missing items
-        if (!userRoutine.some(p => p.userCategory === 'cleanser')) {
-            report.missing.push('<strong>Cleanser:</strong> A foundational step to clean your skin is missing.');
-        }
-        if (!userRoutine.some(p => p.userCategory === 'moisturizer')) {
-            report.missing.push('<strong>Moisturizer:</strong> Missing a moisturizer to hydrate and protect your skin barrier.');
-        }
-        if (!userRoutine.some(p => p.userCategory === 'sunscreen')) {
-            report.missing.push('<strong>Sunscreen:</strong> Critical for AM use. No sunscreen found in your routine.');
-        }
-        
-        renderAnalysisReport(report);
-    }
-    
-    function renderAnalysisReport(report) {
-        const resultDiv = document.getElementById('analysis-result');
-        let html = '<div class="space-y-6 text-left">';
-        
-        // Summary
-        let score = 100;
-        if(report.comedogenic.length > 0) score -= 20;
-        if(report.conflicts.length > 0) score -= 30;
-        if(report.missing.length > 0) score -= (report.missing.length * 15);
-
-        let summaryMessage = "Looks like a great starting point!";
-        if(score < 50) summaryMessage = "This routine has some major issues to address.";
-        else if (score < 80) summaryMessage = "A good routine, but with room for improvement!";
-
-        html += `
-            <div>
-                <h4 class="font-bold text-lg mb-2 text-slate-800">Overall Assessment</h4>
-                <div class="p-4 rounded-lg bg-slate-100 border border-slate-200">
-                    <p class="font-bold text-lg text-center">${summaryMessage}</p>
-                    <p class="text-sm text-center text-slate-500 mt-1">Routine Score: ~${Math.max(0, score)}/100</p>
-                </div>
-            </div>`;
-
-
-        // Conflicts
-        if (report.conflicts.length > 0) {
+    let html = '<div class="space-y-2">';
+    inciList.forEach(ingName => {
+        const found = Object.entries(ingredientsDB).find(([key, val]) => ingName.includes(key));
+        if (found) {
+            const [key, ingData] = found;
             html += `
-            <div>
-                <h4 class="font-bold text-lg mb-2 text-yellow-600">⚠️ Active Ingredient Conflicts</h4>
-                <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200 space-y-2">
-                    ${report.conflicts.map(c => `<p class="text-sm text-yellow-800">${c.message}</p>`).join('')}
+                <div class="p-3 bg-tertiary rounded-lg border border-border-color">
+                    <h4 class="font-semibold text-primary">${ingData.name} <span class="text-xs font-normal text-accent-primary">${ingData.cat}</span></h4>
+                    <p class="text-sm text-secondary">${ingData.desc}</p>
                 </div>
-            </div>`;
-        }
-        
-        // Comedogenic
-        if (report.comedogenic.length > 0) {
-            html += `
-            <div>
-                <h4 class="font-bold text-lg mb-2 text-orange-600">🚨 Potentially Comedogenic Ingredients</h4>
-                <p class="text-sm text-slate-500 mb-2">These ingredients have a rating of 3+ and may cause clogged pores for some individuals.</p>
-                <div class="p-4 rounded-lg bg-orange-50 border border-orange-200 space-y-2">
-                    ${report.comedogenic.map(c => `<p class="text-sm text-orange-800"><strong>${c.product}:</strong> Contains ${c.ingredient} (Rating: ${c.rating})</p>`).join('')}
-                </div>
-            </div>`;
-        }
-
-        // Missing Items
-        if (report.missing.length > 0) {
-            html += `
-            <div>
-                <h4 class="font-bold text-lg mb-2 text-sky-600">🧐 Missing Essentials</h4>
-                 <div class="p-4 rounded-lg bg-sky-50 border border-sky-200 space-y-2">
-                    ${report.missing.map(m => `<p class="text-sm text-sky-800">${m}</p>`).join('')}
-                </div>
-            </div>`;
-        }
-
-        // Product Breakdown
-        if (report.breakdown.length > 0) {
-            html += `
-            <div>
-                <h4 class="font-bold text-lg mb-2 text-slate-800">🔬 Product Breakdown</h4>
-                <div class="space-y-3">
-                    ${report.breakdown.map(p => `
-                        <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                           <p class="font-semibold text-slate-700">${p.name} (${p.category})</p>
-                           ${p.keyIngredients.length > 0 ? `
-                               <ul class="list-disc list-inside mt-1 text-xs text-slate-500">
-                                   ${p.keyIngredients.map(i => `<li><strong>${i.name}:</strong> ${i.desc.substring(0, 80)}...</li>`).join('')}
-                               </ul>
-                           ` : '<p class="text-xs text-slate-500 mt-1">No detailed ingredient data found.</p>'}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-        }
-
-        if (report.conflicts.length === 0 && report.comedogenic.length === 0 && report.missing.length === 0) {
-            html += `
-                 <div class="p-4 rounded-lg bg-green-50 border border-green-200 text-center">
-                    <p class="font-semibold text-green-800">✨ Looks Great!</p>
-                    <p class="text-sm text-green-700">No major conflicts, comedogenic ingredients, or missing steps found. Keep it up!</p>
+            `;
+        } else {
+             html += `
+                <div class="p-3 bg-tertiary rounded-lg border border-border-color opacity-60">
+                    <h4 class="font-semibold text-primary">${ingName}</h4>
+                    <p class="text-sm text-secondary">No information for this ingredient in our database.</p>
                 </div>
             `;
         }
+    });
+    html += '</div>';
+    resultsContainer.innerHTML = html;
+}
 
-        html += '</div>';
-        resultDiv.innerHTML = html;
-    }
 
+function exportData() {
+    const dataStr = JSON.stringify(appState.userData, null, 2);
+    const dataBlob = new Blob([dataStr], {type : 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `skincare-hub-backup-${new Date().toISOString().slice(0,10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
 
-    // --- Ingredient Dex Logic ---
-    function renderIngredientDex() {
-        const searchTerm = document.getElementById('ingredient-search').value.toLowerCase();
-        const listDiv = document.getElementById('ingredient-dex-list');
-        listDiv.innerHTML = '';
-        
-        const filteredIngredients = Object.keys(ingredientsDB).filter(key => 
-            key.includes(searchTerm) || ingredientsDB[key].name.toLowerCase().includes(searchTerm)
-        );
+function confirmDeleteData() {
+    showAlert(
+        "Are you sure?", 
+        "This will permanently delete all your saved products, journal entries, and settings. This action cannot be undone.",
+        [
+            { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
+            { text: 'Yes, Delete Everything', class: 'bg-danger-primary text-white', action: () => {
+                localStorage.removeItem('skincareHubData_v2');
+                // Reset state to default
+                appState.userData = { settings: { darkMode: document.documentElement.classList.contains('dark') }, myShelf: [], journal: [], calendar: {} };
+                // Re-render the settings view to reflect the change
+                switchView('settings');
+                closeModal();
+            }}
+        ]
+    );
+}
 
-        if (filteredIngredients.length === 0) {
-             listDiv.innerHTML = '<p class="text-slate-500 text-center">No ingredients found.</p>';
-             return;
-        }
-
-        filteredIngredients.forEach(key => {
-            const ing = ingredientsDB[key];
-            const div = document.createElement('div');
-            div.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
-            div.innerHTML = `
-                <h3 class="font-bold text-lg text-slate-800">${ing.name}</h3>
-                <p class="text-sm font-semibold text-pink-600 mb-2">${ing.category}</p>
-                <p class="text-slate-600">${ing.description}</p>
-                <p class="text-xs text-slate-500 mt-2"><strong>Good for:</strong> ${ing.goodFor.join(', ')}</p>
-            `;
-            listDiv.appendChild(div);
-        });
-    }
-
-    </script>
+</script>
 </body>
 </html>
