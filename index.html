@@ -21,6 +21,7 @@
             --accent-secondary: #38bdf8; /* sky-500 */
             --danger-primary: #ef4444; /* red-500 */
             --warning-primary: #f97316; /* orange-500 */
+            --success-primary: #22c55e; /* green-500 */
         }
         html.dark {
             --bg-primary: #0f172a; /* slate-900 */
@@ -71,14 +72,22 @@
         .toggle-checkbox:checked + .toggle-label {
             background-color: var(--accent-primary);
         }
+        /* Custom styles for Analyzer Dropzones */
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            min-height: 100px;
+        }
+        .dropzone.drag-over {
+            border-color: var(--accent-primary);
+            background-color: var(--bg-tertiary);
+        }
     </style>
 </head>
 <body class="antialiased">
 
     <div id="app" class="max-w-7xl mx-auto p-4 md:p-6">
 
-        <!-- Header and Navigation -->
-        <header class="bg-secondary/80 backdrop-blur-lg sticky top-4 z-50 rounded-xl shadow-md border border-border-color">
+        <header id="main-header" class="bg-secondary/80 backdrop-blur-lg sticky top-4 z-50 rounded-xl shadow-md border border-border-color">
             <nav class="flex items-center justify-between p-3">
                 <div class="flex items-center space-x-2 cursor-pointer" onclick="switchView('home')">
                     <svg class="h-8 w-8 text-accent-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -86,10 +95,8 @@
                     </svg>
                     <h1 class="text-xl md:text-2xl font-bold text-primary">Skincare Hub</h1>
                 </div>
-                <!-- Desktop Nav -->
                 <div class="hidden lg:flex items-center space-x-1">
                     <button onclick="switchView('home')" class="nav-button" id="nav-home">Home</button>
-                    <!-- My Hub Dropdown -->
                     <div class="relative dropdown">
                         <button class="nav-button" id="nav-hub">My Hub</button>
                         <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
@@ -98,45 +105,40 @@
                              <a href="#" onclick="switchView('journal')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Journal</a>
                         </div>
                     </div>
-                    <!-- Core Tools Dropdown -->
                     <div class="relative dropdown">
                         <button class="nav-button" id="nav-core">Core Tools</button>
                         <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
-                             <a href="#" onclick="switchView('generator')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Generator</a>
+                             <a href="#" onclick="switchView('generator')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Builder</a>
                              <a href="#" onclick="switchView('analyzer')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Routine Analyzer</a>
                         </div>
                     </div>
-                    <!-- Discovery Dropdown -->
                     <div class="relative dropdown">
                         <button class="nav-button" id="nav-discovery">Discovery</button>
                          <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
+                             <a href="#" onclick="switchView('products')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Product Database</a>
                              <a href="#" onclick="switchView('ingredients')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Ingredient Dex</a>
                              <a href="#" onclick="switchView('dupes')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Dupe Finder</a>
                              <a href="#" onclick="switchView('combo')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Combo Checker</a>
                              <a href="#" onclick="switchView('decoder')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">INCI Decoder</a>
-                        </div>
+                         </div>
                     </div>
-                    <!-- Learn Dropdown -->
-                     <div class="relative dropdown">
-                        <button class="nav-button" id="nav-learn">Learn</button>
+                    <div class="relative dropdown">
+                         <button class="nav-button" id="nav-learn">Learn</button>
                          <div class="dropdown-menu mt-2 w-48 bg-secondary rounded-md shadow-lg border border-border-color py-1">
                             <a href="#" onclick="switchView('guides')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Guides</a>
                             <a href="#" onclick="switchView('glossary')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Glossary</a>
                             <a href="#" onclick="switchView('quiz')" class="block px-4 py-2 text-sm text-secondary hover:bg-tertiary">Skincare Quiz</a>
                          </div>
-                    </div>
+                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <!-- Settings Button -->
                     <button onclick="switchView('settings')" class="p-2 rounded-full hover:bg-tertiary" aria-label="Settings">
                          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L8.21 5.15c-.5.42-1.12.7-1.78.83l-2.05.32c-1.68.27-2.39 2.28-1.15 3.53l1.48 1.44c.36.35.52.86.44 1.37l-.32 2.05c-.27 1.68 1.45 3.03 3.03 2.45l2.05-.32c.5-.08 1.02.08 1.37.44l1.44 1.48c1.25 1.25 3.26.54 3.53-1.15l.32-2.05c.08-.5.42-1.02.83-1.44l1.83-1.48c1.25-1.25.54-3.26-1.15-3.53l-2.05-.32a2.6 2.6 0 0 1-1.78-.83l-1.48-1.83zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" clip-rule="evenodd"></path></svg>
                     </button>
-                    <!-- Dark Mode Toggle -->
                     <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-tertiary" aria-label="Toggle Dark Mode">
                         <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 5.05A1 1 0 016.465 3.636l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM5 11a1 1 0 100-2H4a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                     </button>
-                    <!-- Mobile Nav -->
                     <div class="lg:hidden">
                          <select onchange="switchView(this.value)" class="nav-button bg-secondary border border-border-color rounded-md p-2">
                              <option value="home">Home</option>
@@ -146,19 +148,20 @@
                                  <option value="journal">Journal</option>
                              </optgroup>
                              <optgroup label="Core Tools">
-                                <option value="generator">Generator</option>
-                                <option value="analyzer">Analyzer</option>
+                                 <option value="generator">Routine Builder</option>
+                                 <option value="analyzer">Routine Analyzer</option>
                              </optgroup>
                              <optgroup label="Discovery">
-                                <option value="ingredients">Ingredient Dex</option>
-                                <option value="dupes">Dupe Finder</option>
-                                <option value="combo">Combo Checker</option>
-                                <option value="decoder">INCI Decoder</option>
+                                 <option value="products">Product Database</option>
+                                 <option value="ingredients">Ingredient Dex</option>
+                                 <option value="dupes">Dupe Finder</option>
+                                 <option value="combo">Combo Checker</option>
+                                 <option value="decoder">INCI Decoder</option>
                              </optgroup>
                              <optgroup label="Learn">
-                                 <option value="guides">Guides</option>
-                                 <option value="glossary">Glossary</option>
-                                 <option value="quiz">Quiz</option>
+                                  <option value="guides">Guides</option>
+                                  <option value="glossary">Glossary</option>
+                                  <option value="quiz">Quiz</option>
                              </optgroup>
                              <option value="settings">Settings</option>
                          </select>
@@ -168,13 +171,13 @@
         </header>
 
         <main class="mt-8">
-            <!-- All views will be injected here by the router -->
             <div id="home-view" class="view"></div>
             <div id="shelf-view" class="view"></div>
             <div id="calendar-view" class="view"></div>
             <div id="journal-view" class="view"></div>
             <div id="generator-view" class="view"></div>
             <div id="analyzer-view" class="view"></div>
+            <div id="products-view" class="view"></div>
             <div id="ingredients-view" class="view"></div>
             <div id="dupes-view" class="view"></div>
             <div id="combo-view" class="view"></div>
@@ -183,9 +186,11 @@
             <div id="glossary-view" class="view"></div>
             <div id="quiz-view" class="view"></div>
             <div id="settings-view" class="view"></div>
+            <div id="layering-guide-view" class="view"></div>
+            <div id="spf-guide-view" class="view"></div>
+            <div id="patch-test-guide-view" class="view"></div>
         </main>
         
-        <!-- Modal for alerts and confirmations -->
         <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center p-4">
             <div id="modal-content" class="bg-secondary p-6 rounded-lg shadow-xl max-w-lg w-full max-h-full overflow-y-auto">
                 <div class="flex justify-between items-center">
@@ -211,10 +216,11 @@ const ingredientsDB = {
     'niacinamide': { name: 'Niacinamide (B3)', cat: 'Active', good: ['All', 'Oily', 'Acne', 'Redness'], safety: {}, desc: 'A versatile ingredient that helps with oil control, redness, pore appearance, and barrier function.' },
     'salicylic acid': { name: 'Salicylic Acid (BHA)', cat: 'Exfoliant', good: ['Oily', 'Acne'], safety: {pregnancy: 'consult', accutane: 'avoid'}, desc: 'A beta-hydroxy acid that exfoliates inside the pores, making it fantastic for treating acne and blackheads.' },
     'glycolic acid': { name: 'Glycolic Acid (AHA)', cat: 'Exfoliant', good: ['Normal', 'Pigmentation', 'Aging'], safety: {pregnancy: 'consult', accutane: 'avoid'}, desc: 'An alpha-hydroxy acid that exfoliates the surface of the skin to improve texture and brightness.' },
-    'lactic acid': { name: 'Lactic Acid (AHA)', cat: 'Exfoliant', good: ['Dry', 'Sensitive', 'Pigmentation'], safety: {}, desc: 'A gentler AHA that exfoliates and hydrates simultaneously.' },
-    'retinol': { name: 'Retinol (Vitamin A)', cat: 'Active', good: ['Aging', 'Acne'], safety: {pregnancy: 'avoid', accutane: 'avoid'}, desc: 'A form of Vitamin A that speeds up cell turnover. A gold-standard ingredient for anti-aging and acne.' },
+    'lactic acid': { name: 'Lactic Acid (AHA)', cat: 'Exfoliant', good: ['Dry', 'Sensitive', 'Pigmentation'], safety: {pregnancy: 'consult', accutane: 'avoid'}, desc: 'A gentler AHA that exfoliates and hydrates simultaneously.' },
+    'retinol': { name: 'Retinol (Vitamin A)', cat: 'Active', good: ['Aging', 'Acne'], safety: {pregnancy: 'avoid', accutane: 'avoid'}, desc: 'A form of Vitamin A that speeds up cell turnover. A gold-standard ingredient for anti-aging and acne. Avoid in AM.' },
     'bakuchiol': { name: 'Bakuchiol', cat: 'Active', good: ['Aging', 'Sensitive'], safety: {}, desc: 'A plant-based alternative to retinol with similar anti-aging benefits but less irritation potential.' },
-    'l-ascorbic acid': { name: 'L-Ascorbic Acid (Vit C)', cat: 'Antioxidant', good: ['All', 'Pigmentation', 'Aging', 'Dullness'], safety: {accutane: 'caution'}, desc: 'A potent antioxidant that can be irritating for compromised skin. Use with caution.' },
+    'l-ascorbic acid': { name: 'L-Ascorbic Acid (Vit C)', cat: 'Antioxidant', good: ['All', 'Pigmentation', 'Aging', 'Dullness'], safety: {accutane: 'caution'}, desc: 'Potent antioxidant that fights free radicals and brightens skin. Best used in the AM. Can be unstable.' },
+    'ferulic acid': { name: 'Ferulic Acid', cat: 'Antioxidant', good: ['All', 'Aging'], safety: {}, desc: 'An antioxidant that boosts the stability and efficacy of other antioxidants like Vitamins C and E.' },
     // Soothing & Barrier Support
     'ceramide np': { name: 'Ceramide NP', cat: 'Barrier', good: ['All', 'Dry', 'Sensitive'], safety: {}, desc: 'Lipids that are a fundamental part of the skin barrier. They help retain moisture and protect the skin.' },
     'centella asiatica extract': { name: 'Centella Asiatica (Cica)', cat: 'Soothing', good: ['Sensitive', 'Redness', 'Acne'], safety: {}, desc: 'A plant extract known for its soothing, anti-inflammatory, and wound-healing properties.' },
@@ -222,6 +228,7 @@ const ingredientsDB = {
     // UV Filters
     'zinc oxide': { name: 'Zinc Oxide', cat: 'UV Filter', good: ['All', 'Sensitive'], safety: {}, desc: 'A mineral (physical) sunscreen filter that provides broad-spectrum protection.' },
     'avobenzone': { name: 'Avobenzone', cat: 'UV Filter', good: ['All'], safety: {}, desc: 'A chemical sunscreen filter that provides excellent UVA protection.' },
+    'homosalate': { name: 'Homosalate', cat: 'UV Filter', good: ['All'], safety: {}, desc: 'A chemical sunscreen filter that primarily absorbs UVB rays.'},
     // Potentially Problematic
     'fragrance': { name: 'Fragrance (Parfum)', cat: 'Sensitizer', good: [], safety: { accutane: 'caution' }, desc: 'A common cause of skin sensitivity and allergic reactions. Can be listed as "Parfum".' },
     'alcohol denat': { name: 'Denatured Alcohol', cat: 'Solvent', good: ['Very Oily'], safety: {accutane: 'caution'}, desc: 'Can be very drying and irritating for many skin types, especially when high on the INCI list.' },
@@ -229,21 +236,26 @@ const ingredientsDB = {
 };
 
 const productsDB = [
-    { id: 'p01', name: "CeraVe Hydrating Cleanser", brand: "CeraVe", price: 15, type: 'cleanser', key_ing: ['ceramide np', 'hyaluronic acid'], all_ing: "water, glycerin, cetearyl alcohol, peg-40 stearate, stearyl alcohol, potassium phosphate, ceramide np, ceramide ap, ceramide eop, carbomer, glyceryl stearate, behentrimonium methosulfate, sodium lauroyl lactylate, sodium hyaluronate, cholesterol, phenoxyethanol, disodium edta, dipotassium phosphate, tocopherol, phytosphingosine, xanthan gum, cetyl alcohol, polysorbate 20, ethylhexylglycerin" },
-    { id: 'p02', name: "La Roche-Posay Toleriane Purifying Foaming Cleanser", brand: "La Roche-Posay", price: 16, type: 'cleanser', key_ing: ['ceramide np', 'niacinamide'], all_ing: "water, glycerin, coco-betaine, propanediol, sodium cocoyl glycinate, peg-120 methyl glucose dioleate, sodium chloride, ceramide np, niacinamide, sodium hydroxide, disodium edta, capryloyl glycine, caprylyl glycol, acrylates copolymer" },
-    { id: 'p03', name: "The Ordinary Niacinamide 10% + Zinc 1%", brand: "The Ordinary", price: 6, type: 'serum', key_ing: ['niacinamide'], all_ing: "water, niacinamide, pentylene glycol, zinc pca, dimethicone, tamarindus indica seed gum, xanthan gum, isoceteth-20, ethoxydiglycol, phenoxyethanol, chlorphenesin" },
-    { id: 'p04', name: "Paula's Choice 2% BHA Liquid Exfoliant", brand: "Paula's Choice", price: 32, type: 'exfoliant', key_ing: ['salicylic acid'], all_ing: "water, methylpropanediol, butylene glycol, salicylic acid, polysorbate 20, camellia oleifera (green tea) leaf extract, sodium hydroxide, tetrasodium edta" },
-    { id: 'p05', name: "SkinCeuticals C E Ferulic", brand: "SkinCeuticals", price: 169, type: 'serum', key_ing: ['l-ascorbic acid', 'tocopherol', 'ferulic acid'], all_ing: "water, ethoxydiglycol, l-ascorbic acid, glycerin, propylene glycol, laureth-23, phenoxyethanol, tocopherol, triethanolamine, ferulic acid, panthenol, sodium hyaluronate" },
-    { id: 'p06', name: "Drunk Elephant Protini Polypeptide Cream", brand: "Drunk Elephant", price: 68, type: 'moisturizer', key_ing: ['peptides', 'lactic acid'], all_ing: "water, dicaprylyl carbonate, glycerin, cetearyl alcohol, cetearyl olivate, sorbitan olivate, sh-oligopeptide-1, sh-oligopeptide-2, sh-polypeptide-1, sh-polypeptide-9, sh-polypeptide-11, copper palmitoyl heptapeptide-14, heptapeptide-15 palmitate, palmitoyl tetrapeptide-7, palmitoyl tripeptide-1, n-prolyl palmitoyl tripeptide-56 acetate, lactic acid, alanine, arginine, glycine, histidine, isoleucine, phenylalanine, proline, serine, threonine, valine, aspartic acid, sodium lactate, sodium pca, pca, sorbitan isostearate, carbomer, polysorbate 20, polysorbate 60, caprylyl glycol, phenoxyethanol, chlorphenesin, potassium sorbate, sodium benzoate" },
-    { id: 'p07', name: "The INKEY List Retinol Serum", brand: "The INKEY List", price: 11, type: 'serum', key_ing: ['retinol', 'squalane'], all_ing: "water, glycerin, butylene glycol, propanediol, dicaprylyl carbonate, dimethicone, retinol, hydroxyethyl acrylate/sodium acryloyldimethyl taurate copolymer, caprylyl glycol, phospholipids, caprylic/capric glycerides, squalane, sodium hyaluronate, polysorbate 60, phenoxyethanol, leuconostoc/radish root ferment filtrate, sorbitan isostearate" },
-    { id: 'p08', name: "Supergoop! Unseen Sunscreen SPF 40", brand: "Supergoop!", price: 36, type: 'sunscreen', key_ing: ['avobenzone', 'shea butter'], all_ing: "avobenzone, 3%, homosalate, 8%, octisalate, 5%, octocrylene, 4%, isododecane, dimethicone crosspolymer, dimethicone/bis-isobutyl ppg-20 crosspolymer, polymethylsilsesquioxane, isohexadecane, dicaprylyl carbonate, meadowfoam estolide, caprylic/capric triglyceride, trimethylsiloxysilicate, caprylyl glycol, silica, tocopherol, shea butter" },
+    { id: 'p01', name: "Hydrating Cleanser", brand: "CeraVe", price: 15, volume: 355, type: 'cleanser', key_ing: ['ceramide np', 'hyaluronic acid'], all_ing: "water, glycerin, cetearyl alcohol, peg-40 stearate, stearyl alcohol, potassium phosphate, ceramide np, ceramide ap, ceramide eop, carbomer, glyceryl stearate, behentrimonium methosulfate, sodium lauroyl lactylate, sodium hyaluronate, cholesterol, phenoxyethanol, disodium edta, dipotassium phosphate, tocopherol, phytosphingosine, xanthan gum, cetyl alcohol, polysorbate 20, ethylhexylglycerin" },
+    { id: 'p02', name: "Toleriane Purifying Foaming Cleanser", brand: "La Roche-Posay", price: 16, volume: 400, type: 'cleanser', key_ing: ['ceramide np', 'niacinamide'], all_ing: "water, glycerin, coco-betaine, propanediol, sodium cocoyl glycinate, peg-120 methyl glucose dioleate, sodium chloride, ceramide np, niacinamide, sodium hydroxide, disodium edta, capryloyl glycine, caprylyl glycol, acrylates copolymer" },
+    { id: 'p03', name: "Niacinamide 10% + Zinc 1%", brand: "The Ordinary", price: 6.50, volume: 30, type: 'serum', key_ing: ['niacinamide'], all_ing: "water, niacinamide, pentylene glycol, zinc pca, dimethicone, tamarindus indica seed gum, xanthan gum, isoceteth-20, ethoxydiglycol, phenoxyethanol, chlorphenesin" },
+    { id: 'p04', name: "2% BHA Liquid Exfoliant", brand: "Paula's Choice", price: 34, volume: 118, type: 'exfoliant', key_ing: ['salicylic acid'], all_ing: "water, methylpropanediol, butylene glycol, salicylic acid, polysorbate 20, camellia oleifera (green tea) leaf extract, sodium hydroxide, tetrasodium edta" },
+    { id: 'p05', name: "C E Ferulic", brand: "SkinCeuticals", price: 182, volume: 30, type: 'serum', key_ing: ['l-ascorbic acid', 'ferulic acid'], all_ing: "water, ethoxydiglycol, l-ascorbic acid, glycerin, propylene glycol, laureth-23, phenoxyethanol, tocopherol, triethanolamine, ferulic acid, panthenol, sodium hyaluronate" },
+    { id: 'p06', name: "Protini Polypeptide Cream", brand: "Drunk Elephant", price: 68, volume: 50, type: 'moisturizer', key_ing: ['lactic acid'], all_ing: "water, dicaprylyl carbonate, glycerin, cetearyl alcohol, cetearyl olivate, sorbitan olivate, sh-oligopeptide-1, sh-oligopeptide-2, sh-polypeptide-1, sh-polypeptide-9, sh-polypeptide-11, copper palmitoyl heptapeptide-14, heptapeptide-15 palmitate, palmitoyl tetrapeptide-7, palmitoyl tripeptide-1, n-prolyl palmitoyl tripeptide-56 acetate, lactic acid, alanine, arginine, glycine, histidine, isoleucine, phenylalanine, proline, serine, threonine, valine, aspartic acid, sodium lactate, sodium pca, pca, sorbitan isostearate, carbomer, polysorbate 20, polysorbate 60, caprylyl glycol, phenoxyethanol, chlorphenesin, potassium sorbate, sodium benzoate" },
+    { id: 'p07', name: "Retinol Serum 1%", brand: "The INKEY List", price: 12.99, volume: 30, type: 'serum', key_ing: ['retinol', 'squalane'], all_ing: "water, glycerin, butylene glycol, propanediol, dicaprylyl carbonate, dimethicone, retinol, hydroxyethyl acrylate/sodium acryloyldimethyl taurate copolymer, caprylyl glycol, phospholipids, caprylic/capric glycerides, squalane, sodium hyaluronate, polysorbate 60, phenoxyethanol, leuconostoc/radish root ferment filtrate, sorbitan isostearate" },
+    { id: 'p08', name: "Unseen Sunscreen SPF 40", brand: "Supergoop!", price: 38, volume: 50, type: 'sunscreen', key_ing: ['avobenzone', 'homosalate'], all_ing: "avobenzone, 3%, homosalate, 8%, octisalate, 5%, octocrylene, 4%, isododecane, dimethicone crosspolymer, dimethicone/bis-isobutyl ppg-20 crosspolymer, polymethylsilsesquioxane, isohexadecane, dicaprylyl carbonate, meadowfoam estolide, caprylic/capric triglyceride, trimethylsiloxysilicate, caprylyl glycol, silica, tocopherol, shea butter" },
+    { id: 'p09', name: "Great Barrier Relief", brand: "Krave Beauty", price: 28, volume: 45, type: 'serum', key_ing: ['niacinamide', 'ceramide np'], all_ing: "Water, Propanediol, Calophyllum Inophyllum Seed Oil, Dipropylene Glycol, Niacinamide, Carthamus Tinctorius (Safflower) Seed Oil, Cetearyl Olivate, Polysorbate 60, Rosa Canina Fruit Oil, Glyceryl Oleate, Sorbitan Olivate, Sorbitan Oleate, Octyldodecanol, Glycerin, Butylene glycol, Sodium Hyaluronate, Squalane, Serine, Acetyl Glutamine, Glycine, Ceramide NP, Oleic acid, Sodium PCA, Glycosyl trehalose, Caprylic/Capric Triglyceride, Hydrogenated Starch Hydrolysate, Saccharide Isomerate, Glycosphingolipids, Phospholipids, Cetearyl Alcohol, Palmitic acid, Stearic acid, Arginine, Alanine, Threonine, Mourera Fluviatilis Extract, Cholesterol, Phytosphingosine, Lactic Acid, Oleic Acid, Caprylyl Glycol, Tocopherol, Caprylhydroxamic acid, Coco-caprylate/caprate, Coconut Alkanes, Disodium EDTA, 1,2-Hexanediol"},
+    { id: 'p10', name: "Advanced Snail 96 Mucin Power Essence", brand: "COSRX", price: 25, volume: 100, type: 'serum', key_ing: ['panthenol', 'hyaluronic acid'], all_ing: "Snail Secretion Filtrate, Betaine, Butylene Glycol, 1,2-Hexanediol, Sodium Polyacrylate, Phenoxyethanol, Sodium Hyaluronate, Allantoin, Ethyl Hexanediol, Carbomer, Panthenol, Arginine" },
+    { id: 'p11', name: "Ultra Facial Cream", brand: "Kiehl's", price: 38, volume: 50, type: 'moisturizer', key_ing: ['squalane', 'glycerin'], all_ing: "Aqua/Water, Glycerin, Cyclohexasiloxane, Squalane, Bis-PEG-18 Methyl Ether Dimethyl Silane, Sucrose Stearate, Stearyl Alcohol, PEG-8 Stearate, Myristyl Myristate, Pentaerythrityl Tetraethlhexanoate, Prunus Armeniaca Kernal Oil/Apricot Kernal Oil, Phenoxyethanol, Persea Gratissima Oil/Avocado Oil, Glyceryl Stearate, Cetyl Alcohol, Oryza Sativa Bran Oil/Rice Bran Oil, Olea Europaea Fruit Oil/Olive Fruit Oil, Chlorphenesin, Stearic Acid, Palmitic Acid, Disodium EDTA, Acrylates/C10-30 Alkyl Acrylate Crosspolymer, Carbomer, Prunus Amygdalus Dulcis Oil/Sweet Almond Oil, Xanthan Gum, Ethylhexylglycerin, Sodium Hydroxide, Tocopherol, Glycine Soja Oil/Soybean Oil, Pseudoalteromonas Ferment Extract, Myristic Acid, Hydroxypalmitoyl Sphinganine, Salicylic Acid, Citric Acid."}
 ];
 
-// ... rest of DBs (glossaryDB, quizDB, ingredientConflicts) would be here, truncated for brevity ...
 const glossaryDB = {
     'Double Cleansing': 'A two-step cleansing method. First, an oil-based cleanser removes makeup and SPF. Second, a water-based cleanser cleans the skin itself. Ideal for PM routines.',
     'Comedogenic': 'Refers to ingredients or products that have a tendency to clog pores, which can lead to blackheads and acne. Ratings are a guide, not a rule.',
-    'Slugging': 'The practice of applying an occlusive layer (like Vaseline or Aquaphor) as the final step of a nighttime routine to prevent water loss and boost barrier function.'
+    'Slugging': 'The practice of applying an occlusive layer (like Vaseline or Aquaphor) as the final step of a nighttime routine to prevent water loss and boost barrier function.',
+    'INCI': 'Stands for International Nomenclature of Cosmetic Ingredients. It is the mandatory, standardized way of listing ingredients on a cosmetic product label.',
+    'Acid Mantle': 'A very thin, slightly acidic film on the surface of human skin that acts as a barrier to bacteria, viruses, and other potential contaminants.',
+    'Fungal Acne Safe': 'A term for products that do not contain ingredients known to feed the Malassezia yeast, which is implicated in fungal acne (pityrosporum folliculitis).'
 };
 
 const quizDB = [
@@ -268,10 +280,11 @@ const quizDB = [
 ];
 
 const ingredientConflicts = {
-    'retinol': ['glycolic acid', 'salicylic acid', 'l-ascorbic acid'],
+    'retinol': ['glycolic acid', 'salicylic acid', 'l-ascorbic acid', 'lactic acid'],
     'glycolic acid': ['retinol', 'salicylic acid'],
     'salicylic acid': ['retinol', 'glycolic acid'],
-    'l-ascorbic acid': ['retinol']
+    'lactic acid': ['retinol'],
+    'l-ascorbic acid': ['retinol', 'niacinamide'] // Niacinamide + L-AA can cause flushing/redness in some, though this is debated. Flagged as a precaution.
 };
 
 // --- APPLICATION STATE & LOGIC ---
@@ -285,9 +298,11 @@ let appState = {
             accutaneSafe: false,
             forbiddenIngredients: [],
         },
-        myShelf: [], // {productId: 'p01', status: 'owned'/'wishlist'/'empties', dateAdded: '...'}
-        journal: [],
-        calendar: {} // { '2024-06-09': { am: [p_id], pm: [p_id] } }
+        myShelf: [], // {productId: 'p01', status: 'owned'/'wishlist'/'empties', dateAdded: '...', repurchase: null}
+        journal: [], // {id: Date.now(), date: '...', content: '', productsUsed: [], holistic: {}}
+        calendar: {}, // { '2024-06-09': { am: [p_id], pm: [p_id] } }
+        routines: [{ name: 'Default Routine', am: [], pm: []}],
+        activeRoutineIndex: 0
     },
     productsFuse: null,
     ingredientsFuse: null,
@@ -297,35 +312,36 @@ let appState = {
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
-    // Load data from localStorage
     const savedData = localStorage.getItem('skincareHubData_v2');
     if (savedData) {
-        // A simple merge to prevent losing data on updates
         const parsedData = JSON.parse(savedData);
-        if (parsedData.settings) { // Check if settings exist before merging
-             Object.assign(appState.userData.settings, parsedData.settings);
-        }
-        appState.userData.myShelf = parsedData.myShelf || [];
-        appState.userData.journal = parsedData.journal || [];
-        appState.userData.calendar = parsedData.calendar || [];
-
+        // Deep merge to ensure new properties aren't lost
+        appState.userData = deepMerge(appState.userData, parsedData);
     } else {
         saveData();
     }
     
-    // Setup search
     appState.productsFuse = new Fuse(productsDB, { keys: ['name', 'brand'] });
     appState.ingredientsFuse = new Fuse(Object.values(ingredientsDB), { keys: ['name', 'cat', 'desc'] });
 
-    // Setup UI based on saved settings
     if (appState.userData.settings.darkMode) {
         document.documentElement.classList.add('dark');
     }
     updateThemeIcons();
-    switchView('home');
+
+    // Check for shared routine in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedRoutine = urlParams.get('routine');
+    const sharedView = urlParams.get('view');
+
+    if(sharedView === 'analyzer' && sharedRoutine) {
+        handleSharedRoutine(sharedRoutine);
+    } else {
+        switchView('home');
+    }
 }
 
-// --- DATA PERSISTENCE ---
+// --- DATA PERSISTENCE & HELPERS ---
 function saveData() {
     try {
         localStorage.setItem('skincareHubData_v2', JSON.stringify(appState.userData));
@@ -335,11 +351,22 @@ function saveData() {
     }
 }
 
+function deepMerge(target, source) {
+    for (const key in source) {
+        if (source[key] instanceof Object && key in target && target[key] instanceof Object) {
+            Object.assign(source[key], deepMerge(target[key], source[key]));
+        }
+    }
+    Object.assign(target || {}, source);
+    return target;
+}
+
 // --- VIEW ROUTING & RENDERING ---
-function switchView(viewId) {
+function switchView(viewId, params = {}) {
     if(!viewId) return;
-    const views = document.querySelectorAll('.view');
-    views.forEach(v => v.style.display = 'none');
+    
+    // Hide all views
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
     
     const targetView = document.getElementById(`${viewId}-view`);
     if (targetView) {
@@ -347,39 +374,49 @@ function switchView(viewId) {
         targetView.style.display = 'block';
         appState.currentView = viewId;
         
-        // Use a tiny timeout to allow the browser to render the "Loading..." message before starting a potentially long render
-        setTimeout(() => renderCurrentView(viewId), 10);
+        setTimeout(() => renderCurrentView(viewId, params), 10);
     }
 
-    // Update nav button states
-    document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+    updateNav(viewId);
+    
+    // Clear URL params on navigation, except when coming from a shared link
+    if (window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+
+function updateNav(viewId) {
+     document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`nav-${viewId}`) || document.querySelector(`#nav-${getNavGroup(viewId)}`);
     if (activeBtn) activeBtn.classList.add('active');
+    
+    // Update mobile dropdown
+    const mobileNav = document.querySelector('.lg\\:hidden select');
+    if (mobileNav) mobileNav.value = viewId;
 }
 
 function getNavGroup(viewId) {
     if (['shelf', 'calendar', 'journal'].includes(viewId)) return 'hub';
     if (['generator', 'analyzer'].includes(viewId)) return 'core';
-    if (['ingredients', 'dupes', 'combo', 'decoder'].includes(viewId)) return 'discovery';
-    if (['guides', 'glossary', 'quiz'].includes(viewId)) return 'learn';
+    if (['products', 'ingredients', 'dupes', 'combo', 'decoder'].includes(viewId)) return 'discovery';
+    if (['guides', 'glossary', 'quiz', 'layering-guide', 'spf-guide', 'patch-test-guide'].includes(viewId)) return 'learn';
     return viewId;
 }
 
-function renderCurrentView(viewId) {
+function renderCurrentView(viewId, params) {
     const container = document.getElementById(`${viewId}-view`);
     if (!container) return;
 
-    let renderer = window[`render${viewId.charAt(0).toUpperCase() + viewId.slice(1)}View`];
+    let renderer = window[`render${viewId.replace(/-/g, '_').charAt(0).toUpperCase() + viewId.replace(/-/g, '_').slice(1)}View`];
     if (typeof renderer === 'function') {
-        container.innerHTML = renderer();
+        container.innerHTML = renderer(params);
     } else {
         container.innerHTML = `<div class="text-center p-8 text-danger-primary">Error: View "${viewId}" not found.</div>`;
     }
     
-    // Post-render actions like attaching event listeners
-    let setupFunction = window[`setup${viewId.charAt(0).toUpperCase() + viewId.slice(1)}Listeners`];
+    let setupFunction = window[`setup${viewId.replace(/-/g, '_').charAt(0).toUpperCase() + viewId.replace(/-/g, '_').slice(1)}Listeners`];
     if (typeof setupFunction === 'function') {
-        setupFunction();
+        setupFunction(params);
     }
 }
 
@@ -392,19 +429,15 @@ function toggleDarkMode() {
 }
 
 function updateThemeIcons() {
-    if (document.documentElement.classList.contains('dark')) {
-        document.getElementById('theme-toggle-dark-icon').style.display = 'block';
-        document.getElementById('theme-toggle-light-icon').style.display = 'none';
-    } else {
-        document.getElementById('theme-toggle-dark-icon').style.display = 'none';
-        document.getElementById('theme-toggle-light-icon').style.display = 'block';
-    }
+    const isDark = document.documentElement.classList.contains('dark');
+    document.getElementById('theme-toggle-dark-icon').style.display = isDark ? 'block' : 'none';
+    document.getElementById('theme-toggle-light-icon').style.display = isDark ? 'none' : 'block';
 }
 
 // --- MODAL/ALERT SYSTEM ---
 function showAlert(title, body, actions = [{ text: 'OK', class: 'bg-accent-primary text-white', action: closeModal }]) {
     document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-body').innerHTML = body; // Use innerHTML to allow for formatted content
+    document.getElementById('modal-body').innerHTML = body;
     const actionsContainer = document.getElementById('modal-actions');
     actionsContainer.innerHTML = '';
     actions.forEach(act => {
@@ -423,8 +456,6 @@ function closeModal() {
 
 
 // --- DYNAMIC VIEW RENDERER FUNCTIONS ---
-// Each function is responsible for rendering the HTML for a single view.
-// This is more organized than a giant if/else block.
 
 function renderHomeView() {
     return `
@@ -464,8 +495,8 @@ function renderHomeView() {
 }
 
 function renderSettingsView() {
-     const forbiddenIngredientsText = appState.userData.settings.forbiddenIngredients.join(', ');
-     return `
+   const forbiddenIngredientsText = appState.userData.settings.forbiddenIngredients.join(', ');
+   return `
         <h2 class="text-3xl font-bold text-center mb-6">Settings</h2>
         <div class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color space-y-6">
             
@@ -513,6 +544,238 @@ function renderSettingsView() {
     `;
 }
 
+function renderShelfView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">My Digital Shelf</h2>
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color mb-6">
+                <h3 class="text-lg font-semibold mb-2">Add a Product to Your Shelf</h3>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="search" id="shelf-search-input" class="flex-grow p-2 bg-tertiary border border-border-color rounded-md" placeholder="Search for a product by name...">
+                    <button onclick="addProductToShelf()" class="px-4 py-2 bg-accent-primary text-white font-semibold rounded-lg hover:bg-opacity-90">Add to Owned</button>
+                </div>
+                <div id="shelf-search-results" class="mt-2"></div>
+            </div>
+
+            <div class="flex border-b border-border-color mb-4" id="shelf-tabs">
+                <button data-tab="owned" class="shelf-tab-button py-2 px-4 font-semibold text-primary border-b-2 border-accent-primary">Owned</button>
+                <button data-tab="wishlist" class="shelf-tab-button py-2 px-4 font-semibold text-secondary border-b-2 border-transparent">Wishlist</button>
+                <button data-tab="empties" class="shelf-tab-button py-2 px-4 font-semibold text-secondary border-b-2 border-transparent">Empties</button>
+            </div>
+
+            <div id="shelf-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+        </div>
+    `;
+}
+
+function renderAnalyzerView() {
+    const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
+    const routineOptions = appState.userData.routines.map((r, i) => `<option value="${i}" ${i === appState.userData.activeRoutineIndex ? 'selected' : ''}>${r.name}</option>`).join('');
+
+    return `
+        <h2 class="text-3xl font-bold text-center mb-2">Routine Analyzer</h2>
+        <p class="text-center text-secondary mb-6">Build your routine by dragging products from your shelf. Get instant feedback on conflicts and order.</p>
+
+        <div class="max-w-4xl mx-auto mb-4 flex flex-col sm:flex-row gap-2 items-center">
+            <label for="routine-selector" class="font-semibold">Current Routine:</label>
+            <select id="routine-selector" class="flex-grow p-2 border border-border-color rounded-md bg-tertiary">${routineOptions}</select>
+            <input type="text" id="new-routine-name" placeholder="New Routine Name" class="p-2 border border-border-color rounded-md bg-tertiary">
+            <button onclick="createNewRoutine()" class="px-3 py-2 bg-accent-secondary text-white rounded-md text-sm">Create New</button>
+            <button onclick="deleteCurrentRoutine()" class="px-3 py-2 bg-danger-primary text-white rounded-md text-sm">Delete</button>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
+            <div class="lg:w-1/3 bg-secondary p-4 rounded-xl shadow-md border border-border-color">
+                <h3 class="font-bold text-lg mb-2">Your Shelf (Owned Products)</h3>
+                <div id="analyzer-shelf-products" class="space-y-2 max-h-96 overflow-y-auto">
+                    </div>
+            </div>
+
+            <div class="lg:w-2/3 space-y-6">
+                <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color">
+                    <h3 class="font-bold text-lg mb-2 text-yellow-500">AM Routine ☀️</h3>
+                    <div id="am-routine-dropzone" data-time="am" class="dropzone p-4 rounded-lg space-y-2">
+                        </div>
+                </div>
+
+                <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color">
+                    <h3 class="font-bold text-lg mb-2 text-indigo-400">PM Routine 🌙</h3>
+                    <div id="pm-routine-dropzone" data-time="pm" class="dropzone p-4 rounded-lg space-y-2">
+                        </div>
+                </div>
+                
+                <div class="flex items-center justify-end space-x-2">
+                     <button onclick="shareRoutine()" class="px-4 py-2 bg-accent-secondary text-white font-semibold rounded-lg hover:bg-opacity-90">Share Routine</button>
+                    <button onclick="analyzeRoutine()" class="px-6 py-3 bg-accent-primary text-white font-bold rounded-lg hover:bg-opacity-90">Analyze My Routine</button>
+                </div>
+
+                <div id="analyzer-results" class="mt-6"></div>
+            </div>
+        </div>
+    `;
+}
+
+function renderCalendarView() {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = new Date().getDay();
+
+    let calendarHtml = days.map((day, index) => `
+        <div class="bg-secondary rounded-lg border border-border-color ${index === today ? 'border-accent-primary' : ''}">
+            <h3 class="font-bold text-center p-2 border-b border-border-color">${day}</h3>
+            <div class="p-2 space-y-2">
+                <div class="dropzone p-2 rounded-md" data-day="${day}" data-time="am">
+                    <h4 class="text-xs font-semibold text-yellow-500 mb-1">AM ☀️</h4>
+                    <div id="cal-${day}-am" class="min-h-[40px] space-y-1"></div>
+                </div>
+                <div class="dropzone p-2 rounded-md" data-day="${day}" data-time="pm">
+                    <h4 class="text-xs font-semibold text-indigo-400 mb-1">PM 🌙</h4>
+                    <div id="cal-${day}-pm" class="min-h-[40px] space-y-1"></div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    return `
+        <h2 class="text-3xl font-bold text-center mb-2">Weekly Routine Calendar</h2>
+        <p class="text-center text-secondary mb-6">Plan your week by dragging products from your shelf to specific days to avoid over-exfoliation.</p>
+        
+        <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
+            <div class="lg:w-1/4 bg-secondary p-4 rounded-xl shadow-md border border-border-color self-start">
+                <h3 class="font-bold text-lg mb-2">Your Shelf</h3>
+                <div id="calendar-shelf-products" class="space-y-2 max-h-[500px] overflow-y-auto">
+                    </div>
+            </div>
+
+            <div class="lg:w-3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                ${calendarHtml}
+            </div>
+        </div>
+    `;
+}
+
+function renderJournalView() {
+    const entries = appState.userData.journal.sort((a,b) => b.id - a.id);
+    let entriesHtml = entries.length ? entries.map(entry => `
+        <div class="bg-tertiary p-4 rounded-lg border border-border-color">
+            <div class="flex justify-between items-center">
+                <h4 class="font-bold text-primary">${new Date(entry.id).toLocaleDateString()}</h4>
+                <button onclick="deleteJournalEntry(${entry.id})" class="text-sm text-danger-primary">&times; Delete</button>
+            </div>
+            <p class="text-sm text-secondary mt-2">${entry.content.replace(/\n/g, '<br>')}</p>
+            ${entry.holistic ? `
+                <div class="text-xs text-secondary mt-2 flex flex-wrap gap-x-4">
+                    <span>Sleep: ${entry.holistic.sleep || 'N/A'}</span>
+                    <span>Stress: ${entry.holistic.stress || 'N/A'}</span>
+                    <span>Cycle: ${entry.holistic.cycle || 'N/A'}</span>
+                </div>
+            ` : ''}
+        </div>
+    `).join('') : '<p class="text-center text-secondary">No journal entries yet.</p>';
+
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Skincare Journal & Progress Tracker</h2>
+        <div class="max-w-3xl mx-auto space-y-6">
+            <div class="bg-secondary p-6 rounded-xl shadow-md border border-border-color">
+                <h3 class="text-lg font-semibold mb-4">New Entry for ${new Date().toLocaleDateString()}</h3>
+                <textarea id="journal-content" class="w-full p-2 bg-tertiary border border-border-color rounded-md" rows="5" placeholder="How is your skin today? Noticed any changes? Starting a new product? Log it here..."></textarea>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div>
+                        <label class="text-sm font-medium">Sleep Quality</label>
+                        <select id="journal-sleep" class="w-full p-2 bg-tertiary border border-border-color rounded-md text-sm">
+                            <option>Good</option><option>Average</option><option>Poor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium">Stress Level</label>
+                        <select id="journal-stress" class="w-full p-2 bg-tertiary border border-border-color rounded-md text-sm">
+                            <option>Low</option><option>Medium</option><option>High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium">Menstrual Cycle</label>
+                        <select id="journal-cycle" class="w-full p-2 bg-tertiary border border-border-color rounded-md text-sm">
+                            <option>None</option><option>Follicular</option><option>Ovulatory</option><option>Luteal</option><option>Menstrual</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="addJournalEntry()" class="w-full mt-4 px-4 py-3 bg-accent-primary text-white font-bold rounded-lg hover:bg-opacity-90">Save Entry</button>
+            </div>
+            <div class="space-y-4">${entriesHtml}</div>
+        </div>
+    `;
+}
+
+function renderGeneratorView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Routine Builder 101</h2>
+        <p class="text-center text-secondary mb-6 max-w-2xl mx-auto">New to skincare? This wizard will help you build a solid, basic routine with product examples.</p>
+        <div id="generator-content" class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color">
+            </div>
+    `;
+}
+
+function renderProductsView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Product Database</h2>
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <input type="search" id="product-search-input" class="p-2 bg-tertiary border border-border-color rounded-md" placeholder="Search by name/brand...">
+                <select id="product-type-filter" class="p-2 bg-tertiary border border-border-color rounded-md">
+                    <option value="">All Types</option>
+                    ${[...new Set(productsDB.map(p=>p.type))].map(t=>`<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`).join('')}
+                </select>
+                <select id="product-ing-filter" class="p-2 bg-tertiary border border-border-color rounded-md">
+                    <option value="">All Ingredients</option>
+                     ${Object.keys(ingredientsDB).map(key => `<option value="${key}">${ingredientsDB[key].name}</option>`).join('')}
+                </select>
+                 <button onclick="filterProducts()" class="px-4 py-2 bg-accent-primary text-white font-semibold rounded-lg hover:bg-opacity-90">Filter</button>
+            </div>
+            
+            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+        </div>
+    `;
+}
+
+function renderIngredientsView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Ingredient Dex</h2>
+        <div class="max-w-4xl mx-auto">
+             <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <input type="search" id="ing-search-input" class="p-2 bg-tertiary border border-border-color rounded-md" placeholder="Search by name...">
+                <select id="ing-cat-filter" class="p-2 bg-tertiary border border-border-color rounded-md">
+                    <option value="">All Categories</option>
+                    ${[...new Set(Object.values(ingredientsDB).map(i => i.cat))].sort().map(c => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+                 <button onclick="filterIngredients()" class="px-4 py-2 bg-accent-primary text-white font-semibold rounded-lg hover:bg-opacity-90">Filter</button>
+            </div>
+
+            <div id="ingredients-list" class="space-y-3">
+                </div>
+        </div>
+    `;
+}
+
+function renderComboView() {
+    const options = Object.entries(ingredientsDB).map(([key, val]) => `<option value="${key}">${val.name}</option>`).join('');
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Ingredient Combination Checker</h2>
+        <div class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color">
+            <p class="text-secondary mb-4">Select two ingredients to see if they work well together, are neutral, or could cause irritation when combined in the same routine.</p>
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <select id="combo-ing1" class="w-full p-2 border border-border-color rounded-md bg-tertiary">${options}</select>
+                <span class="font-bold text-accent-primary">+</span>
+                <select id="combo-ing2" class="w-full p-2 border border-border-color rounded-md bg-tertiary">${options}</select>
+            </div>
+            <button onclick="checkCombination()" class="w-full mt-4 px-4 py-3 bg-accent-primary text-white font-bold rounded-lg hover:bg-opacity-90">Check Combination</button>
+            <div id="combo-results" class="mt-6"></div>
+        </div>
+    `;
+}
+
 function renderDupesView() {
     let options = productsDB
         .sort((a, b) => b.price - a.price) // Show most expensive first
@@ -521,14 +784,14 @@ function renderDupesView() {
     return `
          <h2 class="text-3xl font-bold text-center mb-6">Product Dupe Finder</h2>
          <div class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color">
-            <p class="text-secondary mb-4">Select a product (usually a pricier one) to find other products in our database that share one or more of its key active ingredients.</p>
-            <select id="dupe-product-select" onchange="findDupes(this.value)" class="w-full p-2 border border-border-color rounded-md bg-tertiary">
-                <option value="">-- Select a Product --</option>
-                ${options}
-            </select>
-            <div id="dupe-results" class="mt-6">
-                <p class="text-center text-secondary">Your dupe results will appear here.</p>
-            </div>
+             <p class="text-secondary mb-4">Select a product (usually a pricier one) to find other products in our database that share one or more of its key active ingredients.</p>
+             <select id="dupe-product-select" onchange="findDupes(this.value)" class="w-full p-2 border border-border-color rounded-md bg-tertiary">
+                 <option value="">-- Select a Product --</option>
+                 ${options}
+             </select>
+             <div id="dupe-results" class="mt-6">
+                 <p class="text-center text-secondary">Your dupe results will appear here.</p>
+             </div>
          </div>
     `;
 }
@@ -570,23 +833,238 @@ function renderDecoderView() {
     `;
 }
 
-// Stubs for other views that are more complex and would be implemented next
-function renderShelfView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">My Shelf feature is under construction.</div>`; }
-function renderCalendarView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Calendar feature is under construction.</div>`; }
-function renderJournalView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Journal feature is under construction.</div>`; }
-function renderGeneratorView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Generator feature is under construction.</div>`; }
-function renderAnalyzerView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Analyzer feature is under construction.</div>`; }
-function renderIngredientsView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Ingredient Dex feature is under construction.</div>`; }
-function renderComboView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Combo Checker feature is under construction.</div>`; }
-function renderGuidesView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Guides feature is under construction.</div>`; }
-function renderGlossaryView() { return `<div class="p-4 bg-secondary rounded-lg text-center text-secondary">Glossary feature is under construction.</div>`; }
+function renderGuidesView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Skincare Guides</h2>
+        <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div onclick="switchView('layering-guide')" class="p-6 bg-secondary hover:shadow-lg rounded-lg cursor-pointer transition-shadow border border-border-color">
+                <h3 class="text-xl font-bold text-primary mb-2">Interactive Layering Guide</h3>
+                <p class="text-sm text-secondary">Learn the correct order to apply your products for maximum effectiveness.</p>
+            </div>
+            <div onclick="switchView('spf-guide')" class="p-6 bg-secondary hover:shadow-lg rounded-lg cursor-pointer transition-shadow border border-border-color">
+                <h3 class="text-xl font-bold text-primary mb-2">SPF Application Guide</h3>
+                <p class="text-sm text-secondary">Visually learn the 'two-finger' rule and set reapplication reminders.</p>
+            </div>
+             <div onclick="switchView('patch-test-guide')" class="p-6 bg-secondary hover:shadow-lg rounded-lg cursor-pointer transition-shadow border border-border-color">
+                <h3 class="text-xl font-bold text-primary mb-2">Patch Testing Guide</h3>
+                <p class="text-sm text-secondary">How to properly test new products to avoid irritation, with timers.</p>
+            </div>
+            <div class="p-6 bg-secondary rounded-lg border border-border-color">
+                <h3 class="text-xl font-bold text-primary mb-2">Seasonal Skincare Tips</h3>
+                <p class="text-sm text-secondary">In summer, opt for gel moisturizers. In winter, switch to heavier creams and add hydrating serums. Always wear SPF regardless of the season!</p>
+            </div>
+        </div>
+    `;
+}
 
+function renderGlossaryView() {
+    const termsHtml = Object.entries(glossaryDB).sort((a, b) => a[0].localeCompare(b[0])).map(([term, def]) => `
+        <div class="bg-tertiary p-4 rounded-lg border border-border-color">
+            <h3 class="font-semibold text-primary">${term}</h3>
+            <p class="text-sm text-secondary">${def}</p>
+        </div>
+    `).join('');
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">Skincare Glossary</h2>
+        <div class="max-w-3xl mx-auto space-y-4">
+            ${termsHtml}
+        </div>
+    `;
+}
+
+function renderLayering_guideView() {
+    const steps = [
+        { name: 'Oil Cleanser', type: 'cleanser', time: 'PM', desc: 'Step 1 (PM): Dissolves makeup, SPF, and sebum.' },
+        { name: 'Water-Based Cleanser', type: 'cleanser', time: 'AM/PM', desc: 'Step 2: Cleans the skin itself. Use after oil cleanser in PM.' },
+        { name: 'Exfoliating Toner', type: 'exfoliant', time: 'AM or PM', desc: 'Optional: Use 2-3 times a week after cleansing.' },
+        { name: 'Essence / Toner', type: 'serum', time: 'AM/PM', desc: 'Apply thin, watery products first to prep the skin.'},
+        { name: 'Serums (e.g., Vitamin C, HA)', type: 'serum', time: 'AM/PM', desc: 'Apply targeted treatments. Go from thinnest to thickest consistency.' },
+        { name: 'Retinoid', type: 'serum', time: 'PM', desc: 'Apply in the PM after serums, before moisturizer.' },
+        { name: 'Moisturizer', type: 'moisturizer', time: 'AM/PM', desc: 'Hydrates and locks in serums.' },
+        { name: 'Face Oil', type: 'moisturizer', time: 'PM', desc: 'Optional: Apply after moisturizer to seal everything in.' },
+        { name: 'Sunscreen', type: 'sunscreen', time: 'AM', desc: 'The final and most crucial step of your AM routine.' },
+    ];
+    let stepsHtml = steps.map((step, index) => `
+        <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-12 h-12 bg-accent-primary text-white flex items-center justify-center rounded-full font-bold text-xl">${index+1}</div>
+            <div>
+                <h4 class="font-bold text-primary">${step.name} <span class="text-xs font-normal text-accent-secondary">${step.time}</span></h4>
+                <p class="text-secondary">${step.desc}</p>
+            </div>
+        </div>
+    `).join('');
+    return `
+         <h2 class="text-3xl font-bold text-center mb-6">The Art of Layering</h2>
+         <p class="text-center text-secondary mb-8 max-w-2xl mx-auto">The general rule is to apply products from the thinnest consistency to the thickest. This ensures that thinner products can penetrate the skin effectively without being blocked by heavier ones.</p>
+         <div class="max-w-2xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color space-y-6">
+            ${stepsHtml}
+         </div>
+    `;
+}
+
+function renderSpf_guideView() {
+     return `
+        <h2 class="text-3xl font-bold text-center mb-6">SPF Application & Reapplication Guide</h2>
+        <div class="max-w-3xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color text-center">
+            <h3 class="text-xl font-bold text-primary mb-4">The Two-Finger Rule</h3>
+            <p class="text-secondary mb-4">To get the stated SPF protection on the bottle, you need to apply enough product. A good guideline is the "Two-Finger Rule": squeeze sunscreen along the full length of your index and middle fingers. This amount is for your face and neck.</p>
+            <img src="https://i.ibb.co/6r1PCxS/spf-fingers.png" alt="Two finger rule for sunscreen application" class="mx-auto rounded-lg mb-6 max-w-sm w-full">
+            
+            <h3 class="text-xl font-bold text-primary mb-4">Reapplication Timer</h3>
+            <p class="text-secondary mb-4">You should reapply sunscreen at least every 2 hours, and more often if you've been swimming, sweating, or toweling off. Click to start a timer!</p>
+            <button onclick="startSpfTimer()" class="px-6 py-3 bg-accent-secondary text-white font-bold rounded-lg hover:bg-opacity-90">Start 2-Hour Reapplication Timer</button>
+            <p id="spf-timer-status" class="mt-4 text-sm text-secondary"></p>
+        </div>
+    `;
+}
+
+function renderPatch_test_guideView() {
+    return `
+        <h2 class="text-3xl font-bold text-center mb-6">How to Patch Test</h2>
+        <div class="max-w-3xl mx-auto bg-secondary p-6 rounded-xl shadow-md border border-border-color space-y-4">
+             <p class="text-secondary">Patch testing before using a new product is crucial to prevent a potential widespread allergic reaction or irritation. Here's how:</p>
+            <ol class="list-decimal list-inside space-y-2 text-secondary">
+                <li><strong>Choose a discreet area:</strong> Apply a small amount of the product to a test spot, like the inside of your wrist or elbow, or behind your ear.</li>
+                <li><strong>Apply as directed:</strong> If it's a rinse-off product, leave it on for the recommended time. If it's a leave-on, let it dry.</li>
+                <li><strong>Wait and observe:</strong> Leave the area alone for at least 24 hours. Some experts recommend waiting up to 72 hours, especially for sensitive skin.</li>
+                <li><strong>Check for reactions:</strong> Look for any signs of redness, itching, swelling, or blistering. If you see any, wash the area immediately and do not use the product.</li>
+            </ol>
+             <p class="text-secondary">If no reaction occurs, the product is likely safe for you to use. Click to start a timer to remind you to check the area.</p>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button onclick="startPatchTimer(24)" class="px-4 py-2 bg-accent-secondary text-white font-semibold rounded-lg hover:bg-opacity-90">Start 24hr Timer</button>
+                <button onclick="startPatchTimer(48)" class="px-4 py-2 bg-accent-secondary text-white font-semibold rounded-lg hover:bg-opacity-90">Start 48hr Timer</button>
+                <button onclick="startPatchTimer(72)" class="px-4 py-2 bg-accent-secondary text-white font-semibold rounded-lg hover:bg-opacity-90">Start 72hr Timer</button>
+            </div>
+        </div>
+    `;
+}
+
+// --- SETUP LISTENERS FUNCTIONS ---
+
+function setupShelfViewListeners() {
+    renderShelfContent('owned'); // Initial render
+    
+    document.getElementById('shelf-search-input').addEventListener('keyup', (e) => {
+        const query = e.target.value;
+        const resultsContainer = document.getElementById('shelf-search-results');
+        if (query.length < 2) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+        const results = appState.productsFuse.search(query).slice(0, 5);
+        if (results.length > 0) {
+            resultsContainer.innerHTML = results.map(r => 
+                `<div class="p-2 hover:bg-tertiary cursor-pointer" onclick="selectProductForShelf('${r.item.id}', '${r.item.name}')">${r.item.name} <span class="text-xs text-secondary">${r.item.brand}</span></div>`
+            ).join('');
+        } else {
+            resultsContainer.innerHTML = '<p class="p-2 text-sm text-secondary">No products found.</p>';
+        }
+    });
+
+    document.querySelectorAll('.shelf-tab-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const tab = e.target.dataset.tab;
+            document.querySelectorAll('.shelf-tab-button').forEach(btn => {
+                btn.classList.remove('text-primary', 'border-accent-primary');
+                btn.classList.add('text-secondary', 'border-transparent');
+            });
+            e.target.classList.add('text-primary', 'border-accent-primary');
+            e.target.classList.remove('text-secondary', 'border-transparent');
+            renderShelfContent(tab);
+        });
+    });
+}
+
+function setupAnalyzerViewListeners() {
+    renderAnalyzerShelf();
+    renderRoutineDropzones();
+
+    const amDropzone = document.getElementById('am-routine-dropzone');
+    const pmDropzone = document.getElementById('pm-routine-dropzone');
+
+    [amDropzone, pmDropzone].forEach(zone => {
+        zone.addEventListener('dragover', e => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', e => {
+            zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const productId = e.dataTransfer.getData('text/plain');
+            const time = zone.dataset.time;
+            
+            const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
+            if (!routine[time].includes(productId)) {
+                routine[time].push(productId);
+                saveData();
+                renderRoutineDropzones();
+            }
+        });
+    });
+
+    document.getElementById('routine-selector').addEventListener('change', (e) => {
+        appState.userData.activeRoutineIndex = parseInt(e.target.value);
+        saveData();
+        switchView('analyzer'); // Re-render the view
+    });
+}
+
+function setupCalendarViewListeners() {
+    renderCalendarShelf();
+    renderCalendarGrid();
+
+    document.querySelectorAll('.dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', e => {
+            zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const productId = e.dataTransfer.getData('text/plain');
+            const day = zone.dataset.day;
+            const time = zone.dataset.time;
+            
+            if (!appState.userData.calendar[day]) {
+                appState.userData.calendar[day] = { am: [], pm: [] };
+            }
+
+            // Prevent duplicates
+            if (!appState.userData.calendar[day][time].includes(productId)) {
+                appState.userData.calendar[day][time].push(productId);
+                saveData();
+                renderCalendarGrid();
+            }
+        });
+    });
+}
+
+function setupGeneratorViewListeners() {
+    renderGeneratorStep(1);
+}
+
+function setupProductsViewListeners() {
+    filterProducts(); // Initial render of all products
+}
+
+function setupIngredientsViewListeners(){
+    filterIngredients(); // initial render
+}
 
 // --- FEATURE LOGIC ---
+
+// -- Settings --
 function updateSetting(key, value) {
     if (appState.userData.settings.hasOwnProperty(key)) {
         appState.userData.settings[key] = value;
         saveData();
+        showAlert('Setting Saved', `The '${key}' setting has been updated.`);
     }
 }
 
@@ -594,9 +1072,627 @@ function updateForbiddenIngredients() {
     const input = document.getElementById('forbidden-ingredients-input').value;
     appState.userData.settings.forbiddenIngredients = input.split(',')
         .map(s => s.trim().toLowerCase())
-        .filter(s => s); // remove empty strings
+        .filter(s => s);
     saveData();
     showAlert("Success!", "Your forbidden ingredients list has been saved.");
+}
+
+function exportData() {
+    const dataStr = JSON.stringify(appState.userData, null, 2);
+    const dataBlob = new Blob([dataStr], {type : 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `skincare-hub-backup-${new Date().toISOString().slice(0,10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function confirmDeleteData() {
+    showAlert(
+        "Are you sure?", 
+        "This will permanently delete all your saved products, journal entries, and settings. This action cannot be undone.",
+        [
+            { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
+            { text: 'Yes, Delete Everything', class: 'bg-danger-primary text-white', action: () => {
+                localStorage.removeItem('skincareHubData_v2');
+                // Reset state to default, keeping dark mode preference
+                const isDark = document.documentElement.classList.contains('dark');
+                appState.userData = { settings: { darkMode: isDark }, myShelf: [], journal: [], calendar: {}, routines: [{ name: 'Default Routine', am: [], pm: []}], activeRoutineIndex: 0 };
+                switchView('settings');
+                closeModal();
+            }}
+        ]
+    );
+}
+
+// -- Shelf Logic --
+function selectProductForShelf(id, name) {
+    const input = document.getElementById('shelf-search-input');
+    input.value = name;
+    input.dataset.selectedId = id;
+    document.getElementById('shelf-search-results').innerHTML = '';
+}
+
+function addProductToShelf() {
+    const input = document.getElementById('shelf-search-input');
+    const productId = input.dataset.selectedId;
+    if (!productId) {
+        showAlert('No Product Selected', 'Please search for and select a product from the list first.');
+        return;
+    }
+    // Check if product is already on any shelf
+    if (appState.userData.myShelf.some(p => p.productId === productId)) {
+        showAlert('Product Already on Shelf', 'This product is already in your "Owned", "Wishlist", or "Empties".');
+        return;
+    }
+    appState.userData.myShelf.push({
+        productId,
+        status: 'owned',
+        dateAdded: new Date().toISOString()
+    });
+    saveData();
+    renderShelfContent('owned');
+    input.value = '';
+    delete input.dataset.selectedId;
+}
+
+function renderShelfContent(tab) {
+    const container = document.getElementById('shelf-content');
+    const shelfItems = appState.userData.myShelf.filter(p => p.status === tab);
+
+    if (shelfItems.length === 0) {
+        container.innerHTML = `<p class="text-secondary text-center md:col-span-2 lg:col-span-3">No products in this section.</p>`;
+        return;
+    }
+    
+    container.innerHTML = shelfItems.map(item => {
+        const product = productsDB.find(p => p.id === item.productId);
+        if (!product) return '';
+        
+        let actionsHtml = '';
+        if (tab === 'owned') {
+            actionsHtml = `
+                <button onclick="moveProductStatus('${item.productId}', 'wishlist')" class="text-xs px-2 py-1 bg-sky-500 text-white rounded">To Wishlist</button>
+                <button onclick="moveProductStatus('${item.productId}', 'empties')" class="text-xs px-2 py-1 bg-green-500 text-white rounded">Finished</button>
+            `;
+        } else if (tab === 'wishlist') {
+            actionsHtml = `
+                <button onclick="moveProductStatus('${item.productId}', 'owned')" class="text-xs px-2 py-1 bg-sky-500 text-white rounded">Purchased</button>
+            `;
+        } else if (tab === 'empties') {
+            actionsHtml = `
+                <button onclick="setRepurchaseStatus('${item.productId}', true)" class="text-xs px-2 py-1 ${item.repurchase === true ? 'bg-success-primary' : 'bg-gray-400'} text-white rounded">Repurchase</button>
+                <button onclick="setRepurchaseStatus('${item.productId}', false)" class="text-xs px-2 py-1 ${item.repurchase === false ? 'bg-danger-primary' : 'bg-gray-400'} text-white rounded">Won't</button>
+            `;
+        }
+
+        return `
+            <div class="bg-tertiary p-3 rounded-lg border border-border-color flex flex-col justify-between">
+                <div>
+                    <h4 class="font-semibold text-primary">${product.name}</h4>
+                    <p class="text-sm text-secondary">${product.brand}</p>
+                    <p class="text-xs text-secondary mt-1">Key: ${product.key_ing.join(', ')}</p>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <div class="flex gap-1">
+                        ${actionsHtml}
+                    </div>
+                    <button onclick="removeProductFromShelf('${item.productId}')" class="text-sm text-danger-primary font-semibold">&times;</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function moveProductStatus(productId, newStatus) {
+    const item = appState.userData.myShelf.find(p => p.productId === productId);
+    if (item) {
+        const oldStatus = item.status;
+        item.status = newStatus;
+        if (newStatus === 'empties') {
+            item.repurchase = null; // Reset repurchase status
+        }
+        saveData();
+        renderShelfContent(oldStatus);
+    }
+}
+
+function setRepurchaseStatus(productId, status) {
+    const item = appState.userData.myShelf.find(p => p.productId === productId);
+    if (item) {
+        item.repurchase = status;
+        saveData();
+        renderShelfContent('empties');
+    }
+}
+
+function removeProductFromShelf(productId) {
+    const currentTab = document.querySelector('.shelf-tab-button.border-accent-primary').dataset.tab;
+    appState.userData.myShelf = appState.userData.myShelf.filter(p => p.productId !== productId);
+    saveData();
+    renderShelfContent(currentTab);
+}
+
+// -- Analyzer Logic --
+function renderAnalyzerShelf() {
+    const container = document.getElementById('analyzer-shelf-products');
+    const shelfItems = appState.userData.myShelf.filter(p => p.status === 'owned');
+    if (shelfItems.length === 0) {
+        container.innerHTML = '<p class="text-sm text-secondary">Add products to your "Owned" shelf to build a routine.</p>';
+        return;
+    }
+    container.innerHTML = shelfItems.map(item => {
+        const product = productsDB.find(p => p.id === item.productId);
+        if (!product) return '';
+        return `
+            <div class="bg-tertiary p-2 rounded-md border border-border-color cursor-grab" draggable="true" ondragstart="dragProduct(event, '${product.id}')">
+                <p class="font-semibold text-sm">${product.name}</p>
+                <p class="text-xs text-secondary">${product.brand}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderRoutineDropzones() {
+    const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
+    if (!routine) return;
+
+    ['am', 'pm'].forEach(time => {
+        const container = document.getElementById(`${time}-routine-dropzone`);
+        if (routine[time].length > 0) {
+            container.innerHTML = routine[time].map(productId => {
+                const product = productsDB.find(p => p.id === productId);
+                return `
+                    <div class="bg-tertiary p-2 rounded-md border border-border-color flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-sm">${product.name}</p>
+                            <p class="text-xs text-secondary">${product.brand}</p>
+                        </div>
+                        <button onclick="removeProductFromRoutine('${productId}', '${time}')" class="text-danger-primary font-bold">&times;</button>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            container.innerHTML = `<p class="text-sm text-center text-secondary">Drop products here</p>`;
+        }
+    });
+}
+
+function dragProduct(event, productId) {
+    event.dataTransfer.setData('text/plain', productId);
+}
+
+function removeProductFromRoutine(productId, time) {
+    const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
+    routine[time] = routine[time].filter(id => id !== productId);
+    saveData();
+    renderRoutineDropzones();
+}
+
+function analyzeRoutine() {
+    const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
+    const resultsContainer = document.getElementById('analyzer-results');
+    let issues = [];
+    let suggestions = [];
+    
+    // Check for core steps
+    const hasCleanser = [...routine.am, ...routine.pm].some(id => productsDB.find(p => p.id === id)?.type === 'cleanser');
+    const hasMoisturizer = [...routine.am, ...routine.pm].some(id => productsDB.find(p => p.id === id)?.type === 'moisturizer');
+    const hasSunscreen = routine.am.some(id => productsDB.find(p => p.id === id)?.type === 'sunscreen');
+    if (!hasCleanser) suggestions.push({ type: 'suggestion', text: 'Consider adding a cleanser to your routine for basic hygiene.'});
+    if (!hasMoisturizer) suggestions.push({ type: 'suggestion', text: 'Adding a moisturizer is key for skin hydration and barrier health.'});
+    if (!hasSunscreen) issues.push({ type: 'warning', text: 'Your AM routine is missing sunscreen, the most crucial step for skin protection and anti-aging.'});
+
+    // AM/PM specific checks
+    const amProducts = routine.am.map(id => productsDB.find(p => p.id === id));
+    const pmProducts = routine.pm.map(id => productsDB.find(p => p.id === id));
+    
+    const amIngredients = amProducts.flatMap(p => p.key_ing);
+    if (amIngredients.includes('retinol')) {
+        issues.push({ type: 'critical', text: `Retinol should not be used in the AM routine as it can be destabilized by UV light and increase sun sensitivity.`});
+    }
+
+    // Conflict checks
+    const checkConflicts = (products, time) => {
+        const keyIngredients = products.flatMap(p => p.key_ing);
+        for (const ing1 of keyIngredients) {
+            if (ingredientConflicts[ing1]) {
+                for (const ing2 of keyIngredients) {
+                    if (ingredientConflicts[ing1].includes(ing2)) {
+                        issues.push({ type: 'critical', text: `Conflict in ${time.toUpperCase()} routine: <strong>${ing1}</strong> and <strong>${ing2}</strong> should generally not be used in the same application.` });
+                    }
+                }
+            }
+        }
+    };
+    checkConflicts(amProducts, 'am');
+    checkConflicts(pmProducts, 'pm');
+
+    // Safety checks
+    const { pregnancySafe, accutaneSafe, forbiddenIngredients } = appState.userData.settings;
+    if (pregnancySafe || accutaneSafe || forbiddenIngredients.length > 0) {
+        [...amProducts, ...pmProducts].forEach(product => {
+            const productIngredients = product.all_ing.split(',').map(i => i.trim().toLowerCase());
+            productIngredients.forEach(ingName => {
+                const found = Object.entries(ingredientsDB).find(([key, _]) => ingName.includes(key));
+                if (found) {
+                    const [key, ingData] = found;
+                    if (pregnancySafe && ingData.safety?.pregnancy === 'avoid') {
+                        issues.push({ type: 'warning', text: `Pregnancy concern in <strong>${product.name}</strong>: Contains <strong>${ingData.name}</strong>.`});
+                    }
+                    if (accutaneSafe && ingData.safety?.accutane === 'avoid') {
+                         issues.push({ type: 'warning', text: `Accutane concern in <strong>${product.name}</strong>: Contains <strong>${ingData.name}</strong>.`});
+                    }
+                }
+                 if(forbiddenIngredients.some(f => ingName.includes(f))) {
+                    issues.push({type: 'warning', text: `Forbidden ingredient in <strong>${product.name}</strong>: Contains <strong>${ingName}</strong>.`});
+                }
+            });
+        });
+    }
+    
+    // Cost calculation
+    let totalCost = 0;
+    let costHtml = '<h4 class="font-bold text-primary mt-4">Cost Analysis (Beta)</h4><ul class="list-disc list-inside text-sm text-secondary">';
+    [...amProducts, ...pmProducts].forEach(p => {
+        totalCost += p.price;
+        costHtml += `<li>${p.name}: $${p.price.toFixed(2)} for ${p.volume}ml</li>`;
+    });
+    costHtml += `</ul><p class="font-semibold mt-2">Total one-time cost for this routine: $${totalCost.toFixed(2)}</p>`;
+
+
+    // Render results
+    let html = `<div class="bg-tertiary p-4 rounded-lg border border-border-color space-y-3">`;
+    if (issues.length === 0 && suggestions.length === 0) {
+        html += `<div class="p-3 rounded-md bg-success-primary/20 border border-success-primary/50 text-success-primary">
+            <h4 class="font-bold">All Clear!</h4>
+            <p>Your routine looks great! No major conflicts or issues found based on our database.</p>
+        </div>`;
+    } else {
+        // Use a Set to only show unique issues
+        html += [...new Set(issues.map(i => i.text))].map(uniqueText => {
+            const issue = issues.find(i => i.text === uniqueText);
+            let colorClass = 'bg-yellow-500/20 border-yellow-500/50 text-yellow-600'; // warning
+            if (issue.type === 'critical') colorClass = 'bg-danger-primary/20 border-danger-primary/50 text-danger-primary';
+            return `<div class="p-3 rounded-md ${colorClass}">${issue.text}</div>`;
+        }).join('');
+        
+        html += [...new Set(suggestions.map(s => s.text))].map(uniqueText => {
+            const suggestion = suggestions.find(s => s.text === uniqueText);
+            return `<div class="p-3 rounded-md bg-sky-500/20 border-sky-500/50 text-sky-600">${suggestion.text}</div>`;
+        }).join('');
+    }
+    
+    html += costHtml;
+    html += `</div>`;
+    resultsContainer.innerHTML = html;
+}
+
+function createNewRoutine() {
+    const nameInput = document.getElementById('new-routine-name');
+    const name = nameInput.value.trim();
+    if (!name) {
+        showAlert('Invalid Name', 'Please provide a name for the new routine.');
+        return;
+    }
+    appState.userData.routines.push({ name, am: [], pm: [] });
+    appState.userData.activeRoutineIndex = appState.userData.routines.length - 1;
+    saveData();
+    switchView('analyzer'); // Re-render
+}
+
+function deleteCurrentRoutine() {
+    if (appState.userData.routines.length <= 1) {
+        showAlert('Cannot Delete', 'You cannot delete your only routine.');
+        return;
+    }
+    showAlert('Confirm Deletion', `Are you sure you want to delete the "${appState.userData.routines[appState.userData.activeRoutineIndex].name}" routine?`, [
+        { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
+        { text: 'Delete', class: 'bg-danger-primary text-white', action: () => {
+            appState.userData.routines.splice(appState.userData.activeRoutineIndex, 1);
+            appState.userData.activeRoutineIndex = 0;
+            saveData();
+            closeModal();
+            switchView('analyzer');
+        }}
+    ]);
+}
+
+function shareRoutine() {
+    const routine = appState.userData.routines[appState.userData.activeRoutineIndex];
+    if (routine.am.length === 0 && routine.pm.length === 0) {
+        showAlert('Empty Routine', 'Add some products to your routine before sharing.');
+        return;
+    }
+    const amString = routine.am.join(',');
+    const pmString = routine.pm.join(',');
+    const routineString = `${amString};${pmString}`;
+    const url = `${window.location.origin}${window.location.pathname}?view=analyzer&routine=${btoa(routineString)}`;
+    
+    navigator.clipboard.writeText(url).then(() => {
+        showAlert('Link Copied!', 'A shareable link to this routine has been copied to your clipboard.');
+    }).catch(err => {
+        showAlert('Copy Failed', 'Could not copy the link automatically. Please copy it manually from the text box below.', [{ text: 'OK', class: 'bg-accent-primary text-white', action: closeModal }]);
+        document.getElementById('modal-body').innerHTML += `<textarea class="w-full mt-2 p-2 bg-tertiary border rounded">${url}</textarea>`;
+    });
+}
+
+function handleSharedRoutine(base64String) {
+    try {
+        const decoded = atob(base64String);
+        const [amString, pmString] = decoded.split(';');
+        const amIds = amString ? amString.split(',') : [];
+        const pmIds = pmString ? pmString.split(',') : [];
+
+        // Create a new routine from the shared link
+        const newRoutine = {
+            name: `Shared Routine (${new Date().toLocaleDateString()})`,
+            am: amIds.filter(id => productsDB.some(p => p.id === id)), // Ensure products exist in DB
+            pm: pmIds.filter(id => productsDB.some(p => p.id === id))
+        };
+
+        appState.userData.routines.push(newRoutine);
+        appState.userData.activeRoutineIndex = appState.userData.routines.length - 1;
+        saveData();
+        switchView('analyzer');
+        setTimeout(analyzeRoutine, 200); // Analyze after a short delay
+    } catch (e) {
+        console.error('Failed to parse shared routine:', e);
+        showAlert('Invalid Link', 'The shared routine link appears to be broken or invalid.');
+        switchView('home');
+    }
+}
+
+
+// -- Calendar Logic --
+function renderCalendarShelf() {
+    const container = document.getElementById('calendar-shelf-products');
+    const shelfItems = appState.userData.myShelf.filter(p => p.status === 'owned');
+    if (shelfItems.length === 0) {
+        container.innerHTML = '<p class="text-sm text-secondary">Add products to your "Owned" shelf first.</p>';
+        return;
+    }
+    container.innerHTML = shelfItems.map(item => {
+        const product = productsDB.find(p => p.id === item.productId);
+        if (!product) return '';
+        return `
+            <div class="bg-tertiary p-2 rounded-md border border-border-color cursor-grab" draggable="true" ondragstart="dragProduct(event, '${product.id}')">
+                <p class="font-semibold text-sm">${product.name}</p>
+                <p class="text-xs text-secondary">${product.brand}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderCalendarGrid() {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    days.forEach(day => {
+        ['am', 'pm'].forEach(time => {
+            const container = document.getElementById(`cal-${day}-${time}`);
+            const productIds = appState.userData.calendar[day]?.[time] || [];
+            if (productIds.length > 0) {
+                container.innerHTML = productIds.map(id => {
+                    const product = productsDB.find(p => p.id === id);
+                    return `
+                        <div class="bg-tertiary text-xs p-1 rounded border border-border-color flex justify-between items-center">
+                            <span>${product.name}</span>
+                            <button onclick="removeProductFromCalendar('${day}', '${time}', '${id}')" class="text-danger-primary">&times;</button>
+                        </div>`;
+                }).join('');
+            } else {
+                container.innerHTML = '';
+            }
+        });
+    });
+}
+
+function removeProductFromCalendar(day, time, productId) {
+    if (appState.userData.calendar[day] && appState.userData.calendar[day][time]) {
+        appState.userData.calendar[day][time] = appState.userData.calendar[day][time].filter(id => id !== productId);
+        saveData();
+        renderCalendarGrid();
+    }
+}
+
+// -- Journal Logic --
+function addJournalEntry() {
+    const content = document.getElementById('journal-content').value.trim();
+    if (!content) {
+        showAlert('Empty Entry', 'Please write something in your journal entry.');
+        return;
+    }
+    const newEntry = {
+        id: Date.now(),
+        content: content,
+        holistic: {
+            sleep: document.getElementById('journal-sleep').value,
+            stress: document.getElementById('journal-stress').value,
+            cycle: document.getElementById('journal-cycle').value,
+        }
+    };
+    appState.userData.journal.push(newEntry);
+    saveData();
+    switchView('journal'); // Re-render the view
+}
+
+function deleteJournalEntry(id) {
+    appState.userData.journal = appState.userData.journal.filter(entry => entry.id !== id);
+    saveData();
+    switchView('journal');
+}
+
+// -- Generator Logic --
+function renderGeneratorStep(step) {
+    const container = document.getElementById('generator-content');
+    let html = '';
+    switch(step) {
+        case 1:
+            html = `
+                <h3 class="font-bold text-lg mb-4">Step 1: What is your skin type?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="renderGeneratorStep(2, {type: 'Dry'})" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Dry:</strong> Feels tight, may be flaky.</button>
+                    <button onclick="renderGeneratorStep(2, {type: 'Normal'})" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Normal:</strong> Well-balanced, not too oily or dry.</button>
+                    <button onclick="renderGeneratorStep(2, {type: 'Combination'})" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Combination:</strong> Oily T-zone, normal/dry cheeks.</button>
+                    <button onclick="renderGeneratorStep(2, {type: 'Oily'})" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Oily:</strong> Shiny appearance, larger pores.</button>
+                </div>
+            `;
+            break;
+        case 2:
+            html = `
+                <h3 class="font-bold text-lg mb-4">Step 2: What is your main goal?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <button onclick="generateRoutine('Hydration')" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>General Hydration:</strong> Just want a healthy, hydrated base.</button>
+                     <button onclick="generateRoutine('Acne')" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Acne & Blemishes:</strong> To control breakouts.</button>
+                     <button onclick="generateRoutine('Anti-Aging')" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Anti-Aging:</strong> To address fine lines.</button>
+                     <button onclick="generateRoutine('Brightening')" class="p-4 bg-tertiary rounded-lg text-left hover:bg-border-color"><strong>Brightening:</strong> To even out skin tone and fade dark spots.</button>
+                </div>
+            `;
+            break;
+    }
+    container.innerHTML = html;
+}
+
+function generateRoutine(goal) {
+    const container = document.getElementById('generator-content');
+    // Simple logic: find one of each core product type. This can be expanded.
+    const cleanser = productsDB.find(p => p.id === 'p01'); // CeraVe Hydrating
+    const moisturizer = productsDB.find(p => p.id === 'p11'); // Kiehls
+    const sunscreen = productsDB.find(p => p.id === 'p08'); // Supergoop
+
+    let treatment = null;
+    if (goal === 'Acne') treatment = productsDB.find(p => p.key_ing.includes('salicylic acid'));
+    else if (goal === 'Anti-Aging') treatment = productsDB.find(p => p.key_ing.includes('retinol'));
+    else if (goal === 'Brightening') treatment = productsDB.find(p => p.key_ing.includes('l-ascorbic acid'));
+
+    let html = `
+        <h3 class="font-bold text-lg mb-4">Here is a basic suggested routine for <span class="text-accent-primary">${goal}</span>:</h3>
+        <p class="text-sm text-secondary mb-4">This is a starting point. You can add these example products to your shelf or find similar ones.</p>
+        <div class="space-y-4">
+            <div>
+                <h4 class="font-semibold">☀️ AM Routine</h4>
+                <ul class="list-disc list-inside text-secondary ml-4">
+                    <li><strong>Cleanse:</strong> ${cleanser.name}</li>
+                    ${goal === 'Brightening' ? `<li><strong>Treat:</strong> ${treatment.name}</li>` : ''}
+                    <li><strong>Moisturize:</strong> ${moisturizer.name}</li>
+                    <li><strong>Protect:</strong> ${sunscreen.name}</li>
+                </ul>
+            </div>
+             <div>
+                <h4 class="font-semibold">🌙 PM Routine</h4>
+                <ul class="list-disc list-inside text-secondary ml-4">
+                    <li><strong>Cleanse:</strong> ${cleanser.name}</li>
+                    ${goal === 'Acne' || goal === 'Anti-Aging' ? `<li><strong>Treat:</strong> ${treatment.name} (Start 2-3 times a week)</li>` : ''}
+                    <li><strong>Moisturize:</strong> ${moisturizer.name}</li>
+                </ul>
+            </div>
+        </div>
+        <button onclick="renderGeneratorStep(1)" class="w-full mt-6 px-4 py-3 bg-accent-secondary text-white font-bold rounded-lg hover:bg-opacity-90">Start Over</button>
+    `;
+    container.innerHTML = html;
+}
+
+
+// -- Product/Ingredient Discovery --
+function filterProducts() {
+    const query = document.getElementById('product-search-input').value.toLowerCase();
+    const type = document.getElementById('product-type-filter').value;
+    const ing = document.getElementById('product-ing-filter').value;
+    const grid = document.getElementById('products-grid');
+
+    let filtered = productsDB;
+
+    if (query) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query));
+    }
+    if (type) {
+        filtered = filtered.filter(p => p.type === type);
+    }
+    if (ing) {
+        filtered = filtered.filter(p => p.key_ing.includes(ing) || p.all_ing.includes(ing));
+    }
+    
+    grid.innerHTML = filtered.map(product => `
+         <div class="bg-secondary p-4 rounded-xl shadow-md border border-border-color flex flex-col justify-between">
+            <div>
+                <h4 class="font-semibold text-primary">${product.name}</h4>
+                <p class="text-sm text-secondary">${product.brand}</p>
+                <p class="text-xs text-secondary mt-1">Type: <span class="font-medium text-primary">${product.type}</span></p>
+                <p class="text-xs text-secondary">Key Ingredients: ${product.key_ing.join(', ')}</p>
+            </div>
+            <div class="flex items-center justify-between mt-3">
+                 <span class="font-bold text-lg text-accent-primary">$${product.price}</span>
+                 <button onclick="addProductToShelfFromDb('${product.id}')" class="text-sm px-3 py-1 bg-accent-secondary text-white rounded">Add to Shelf</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addProductToShelfFromDb(productId) {
+    if (appState.userData.myShelf.some(p => p.productId === productId)) {
+        showAlert('Product Already on Shelf', 'This product is already in your "Owned", "Wishlist", or "Empties".');
+        return;
+    }
+    appState.userData.myShelf.push({
+        productId,
+        status: 'owned',
+        dateAdded: new Date().toISOString()
+    });
+    saveData();
+    showAlert('Product Added', `The product has been added to the "Owned" section of your shelf.`);
+}
+
+function filterIngredients() {
+    const query = document.getElementById('ing-search-input').value.toLowerCase();
+    const category = document.getElementById('ing-cat-filter').value;
+    const list = document.getElementById('ingredients-list');
+
+    let filtered = Object.values(ingredientsDB);
+
+    if (query) {
+        filtered = filtered.filter(i => i.name.toLowerCase().includes(query) || i.desc.toLowerCase().includes(query));
+    }
+    if (category) {
+        filtered = filtered.filter(i => i.cat === category);
+    }
+
+    list.innerHTML = filtered.map(ingData => `
+        <div class="p-4 bg-secondary rounded-lg border border-border-color">
+            <h4 class="font-semibold text-primary">${ingData.name} <span class="text-xs font-normal text-accent-primary bg-accent-primary/10 px-2 py-0.5 rounded-full">${ingData.cat}</span></h4>
+            <p class="text-sm text-secondary mt-1">${ingData.desc}</p>
+        </div>
+    `).join('');
+}
+
+function checkCombination() {
+    const ing1Key = document.getElementById('combo-ing1').value;
+    const ing2Key = document.getElementById('combo-ing2').value;
+    const resultsContainer = document.getElementById('combo-results');
+
+    if (ing1Key === ing2Key) {
+        resultsContainer.innerHTML = `<p class="text-center text-secondary">Please select two different ingredients.</p>`;
+        return;
+    }
+
+    const ing1Name = ingredientsDB[ing1Key].name;
+    const ing2Name = ingredientsDB[ing2Key].name;
+
+    let result = {
+        type: 'good',
+        text: `<strong>Good to Go!</strong> <strong>${ing1Name}</strong> and <strong>${ing2Name}</strong> have no known negative interactions and can be used together.`
+    };
+
+    if (ingredientConflicts[ing1Key]?.includes(ing2Key) || ingredientConflicts[ing2Key]?.includes(ing1Key)) {
+        result = {
+            type: 'bad',
+            text: `<strong>Use with Caution!</strong> It's generally not recommended to use <strong>${ing1Name}</strong> and <strong>${ing2Name}</strong> in the same routine, as it can lead to increased irritation or decreased effectiveness.`
+        };
+    }
+    
+    let colorClass = 'bg-success-primary/20 text-success-primary';
+    if(result.type === 'bad') colorClass = 'bg-danger-primary/20 text-danger-primary';
+
+    resultsContainer.innerHTML = `<div class="p-4 rounded-lg ${colorClass}">${result.text}</div>`;
 }
 
 function findDupes(productId) {
@@ -622,13 +1718,13 @@ function findDupes(productId) {
     }
     
     let html = `<h3 class="font-bold text-primary mb-2">Potential Alternatives for <span class="text-accent-primary">${targetProduct.name}</span></h3>`;
-    html += dupes.map(dupe => {
+    html += dupes.sort((a,b) => a.price - b.price).map(dupe => {
         const sharedIng = dupe.key_ing.filter(ing => targetProduct.key_ing.includes(ing));
         return `
             <div class="p-4 bg-tertiary rounded-lg border border-border-color mb-3">
                 <div class="flex justify-between items-center">
                     <h4 class="font-semibold text-primary">${dupe.name}</h4>
-                    <span class="font-bold text-lg ${dupe.price < targetProduct.price ? 'text-green-500' : 'text-danger-primary'}">$${dupe.price}</span>
+                    <span class="font-bold text-lg ${dupe.price < targetProduct.price ? 'text-success-primary' : 'text-danger-primary'}">$${dupe.price}</span>
                 </div>
                 <p class="text-xs text-secondary">${dupe.brand}</p>
                 <p class="text-sm mt-2">Shared Key Ingredients: <span class="font-semibold">${sharedIng.join(', ')}</span></p>
@@ -638,6 +1734,48 @@ function findDupes(productId) {
     resultsContainer.innerHTML = html;
 }
 
+function decodeInci() {
+    const inciList = document.getElementById('inci-input').value.split(',')
+        .map(i => i.trim().toLowerCase().replace(/[^\w\s-]/g, ''))
+        .filter(i => i);
+    
+    const resultsContainer = document.getElementById('decoder-results');
+    if(inciList.length === 0) {
+        resultsContainer.innerHTML = `<p class="text-secondary text-center">Please enter an ingredient list.</p>`;
+        return;
+    }
+
+    let html = '<div class="space-y-2">';
+    inciList.forEach(ingName => {
+        const found = Object.entries(ingredientsDB).find(([key, val]) => ingName.includes(key) || val.name.toLowerCase().includes(ingName));
+        
+        let colorClass = '';
+        if (found) {
+            const [key, ingData] = found;
+            if (ingData.cat === 'Sensitizer') colorClass = 'border-l-4 border-danger-primary';
+            else if (ingData.cat === 'Active' || ingData.cat === 'Exfoliant' || ingData.cat === 'Antioxidant') colorClass = 'border-l-4 border-accent-secondary';
+            else if (ingData.cat === 'Soothing' || ingData.cat === 'Barrier') colorClass = 'border-l-4 border-success-primary';
+
+            html += `
+                <div class="p-3 bg-tertiary rounded-lg border border-border-color ${colorClass}">
+                    <h4 class="font-semibold text-primary">${ingData.name} <span class="text-xs font-normal text-accent-primary">${ingData.cat}</span></h4>
+                    <p class="text-sm text-secondary">${ingData.desc}</p>
+                </div>
+            `;
+        } else {
+             html += `
+                <div class="p-3 bg-tertiary rounded-lg border border-border-color opacity-60">
+                    <h4 class="font-semibold text-primary">${ingName}</h4>
+                    <p class="text-sm text-secondary">No information for this ingredient in our database.</p>
+                </div>
+            `;
+        }
+    });
+    html += '</div>';
+    resultsContainer.innerHTML = html;
+}
+
+// -- Learning & Utility --
 function submitQuiz() {
     let score = 0;
     quizDB.forEach((q, index) => {
@@ -657,70 +1795,22 @@ function submitQuiz() {
     `;
 }
 
-function decodeInci() {
-    const inciList = document.getElementById('inci-input').value.split(',')
-        .map(i => i.trim().toLowerCase().replace(/[^\w\s-]/g, ''))
-        .filter(i => i);
-    
-    const resultsContainer = document.getElementById('decoder-results');
-    if(inciList.length === 0) {
-        resultsContainer.innerHTML = `<p class="text-secondary text-center">Please enter an ingredient list.</p>`;
-        return;
-    }
-
-    let html = '<div class="space-y-2">';
-    inciList.forEach(ingName => {
-        const found = Object.entries(ingredientsDB).find(([key, val]) => ingName.includes(key));
-        if (found) {
-            const [key, ingData] = found;
-            html += `
-                <div class="p-3 bg-tertiary rounded-lg border border-border-color">
-                    <h4 class="font-semibold text-primary">${ingData.name} <span class="text-xs font-normal text-accent-primary">${ingData.cat}</span></h4>
-                    <p class="text-sm text-secondary">${ingData.desc}</p>
-                </div>
-            `;
-        } else {
-             html += `
-                <div class="p-3 bg-tertiary rounded-lg border border-border-color opacity-60">
-                    <h4 class="font-semibold text-primary">${ingName}</h4>
-                    <p class="text-sm text-secondary">No information for this ingredient in our database.</p>
-                </div>
-            `;
-        }
-    });
-    html += '</div>';
-    resultsContainer.innerHTML = html;
+function startSpfTimer() {
+    const statusEl = document.getElementById('spf-timer-status');
+    statusEl.textContent = 'Timer started! You will be alerted in 2 hours.';
+    setTimeout(() => {
+        showAlert('Reapply Sunscreen!', 'It has been 2 hours. Time to reapply your SPF for continued protection.');
+        statusEl.textContent = 'Timer finished. Don\'t forget to reapply!';
+    }, 2 * 60 * 60 * 1000); // 2 hours in ms
 }
 
-
-function exportData() {
-    const dataStr = JSON.stringify(appState.userData, null, 2);
-    const dataBlob = new Blob([dataStr], {type : 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `skincare-hub-backup-${new Date().toISOString().slice(0,10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+function startPatchTimer(hours) {
+    showAlert('Timer Started', `A reminder has been set. You'll be alerted in ${hours} hours to check your patch test.`);
+    setTimeout(() => {
+        showAlert('Check Patch Test', `It has been ${hours} hours. Please check your patch test area for any signs of irritation.`);
+    }, hours * 60 * 60 * 1000);
 }
 
-function confirmDeleteData() {
-    showAlert(
-        "Are you sure?", 
-        "This will permanently delete all your saved products, journal entries, and settings. This action cannot be undone.",
-        [
-            { text: 'Cancel', class: 'bg-tertiary text-primary', action: closeModal },
-            { text: 'Yes, Delete Everything', class: 'bg-danger-primary text-white', action: () => {
-                localStorage.removeItem('skincareHubData_v2');
-                // Reset state to default
-                appState.userData = { settings: { darkMode: document.documentElement.classList.contains('dark') }, myShelf: [], journal: [], calendar: {} };
-                // Re-render the settings view to reflect the change
-                switchView('settings');
-                closeModal();
-            }}
-        ]
-    );
-}
 
 </script>
 </body>
