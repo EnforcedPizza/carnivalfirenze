@@ -3,351 +3,710 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carnival Firenze iMessage Guide</title>
+    <title>Skincare Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: "Warm Neutrals" - A calm, harmonious palette with a base of #F5F5F4 (stone-100), primary text #44403C (stone-700), headers #1C1917 (stone-900), accents #A8A29E (stone-400), and a subtle highlight #059669 (emerald-600) for interactive elements. -->
-    <!-- Application Structure Plan: The SPA is designed as a user-friendly, task-oriented guide, departing from the linear report structure. It starts with a clear "Bottom Line Up Front" (BLUF) summary. The core is an interactive "Action Plan" with three distinct sections: 1. Why it's a Gamble (the tech explanation), 2. Pre-Cruise Checklist (actionable steps), and 3. Onboard Strategy (what to do on the ship). This is followed by a "Plan B" section detailing reliable alternatives. This structure guides the user from understanding the problem to taking action, and finally to having a backup plan, which is the most logical and useful flow for a traveler seeking practical advice. -->
-    <!-- Visualization & Content Choices: 1. Report Info: Wi-Fi Plan Comparison -> Goal: Compare -> Viz: Interactive HTML Table -> Interaction: Hover highlight -> Justification: Clearly presents official options and costs. 2. Report Info: iPhone Settings -> Goal: Inform/Action -> Viz: Interactive Checklist -> Interaction: Click to check -> Justification: Turns passive instructions into an active, engaging task for the user. 3. Report Info: Reliability of Communication Methods -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Interaction: Tooltips on hover -> Justification: Visually quantifies the abstract concept of reliability for different methods, making the trade-offs immediately apparent. 4. Report Info: Technical "Loophole" -> Goal: Inform/Organize -> Viz: HTML/CSS Diagram -> Interaction: None -> Justification: Simplifies a complex technical concept into an easy-to-digest visual flow. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F5F5F4;
-            color: #44403C;
         }
-        .nav-button {
-            transition: all 0.3s ease;
-        }
-        .nav-button.active {
-            background-color: #059669;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        .content-section {
+        /* Simple transition for view switching */
+        .view {
             display: none;
+            animation: fadeIn 0.5s;
         }
-        .content-section.active {
-            display: block;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .checklist-item input:checked + label .checkbox-icon {
-            background-color: #059669;
-            border-color: #059669;
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .checklist-item input:checked + label .checkbox-icon svg {
-            display: block;
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
-        .checklist-item input:checked + label {
-            text-decoration: line-through;
-            color: #A8A29E;
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
-<body class="antialiased">
-    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-stone-900 tracking-tight">Free iMessage on Carnival?</h1>
-            <p class="mt-2 text-lg text-stone-600">Your Family's Guide to Staying Connected on the Carnival Firenze</p>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" class="max-w-7xl mx-auto p-4 md:p-8">
+
+        <!-- Header and Navigation -->
+        <header class="bg-white/80 backdrop-blur-lg sticky top-4 z-50 rounded-xl shadow-md border border-slate-200">
+            <nav class="flex items-center justify-between p-4">
+                <div class="flex items-center space-x-2">
+                    <svg class="h-8 w-8 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.624l.259 1.035L18 21.75l-.843-2.846a4.5 4.5 0 00-3.09-3.09L11.25 15l2.846-.813a4.5 4.5 0 003.09-3.09l.813-2.846L18 9.75l-.259 1.035a3.375 3.375 0 00-2.455 2.456L14.25 14.25l1.036.259a3.375 3.375 0 002.455 2.456z" />
+                    </svg>
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-900">Skincare Hub</h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-2">
+                    <button onclick="switchView('home')" class="nav-button" id="nav-home">Home</button>
+                    <button onclick="switchView('generator')" class="nav-button" id="nav-generator">Routine Generator</button>
+                    <button onclick="switchView('analyzer')" class="nav-button" id="nav-analyzer">Routine Analyzer</button>
+                    <button onclick="switchView('ingredients')" class="nav-button" id="nav-ingredients">Ingredient Dex</button>
+                    <button onclick="switchView('guides')" class="nav-button" id="nav-guides">Guides</button>
+                </div>
+                <div class="md:hidden">
+                    <select onchange="switchView(this.value)" class="nav-button bg-white border border-slate-300 rounded-md p-2">
+                        <option value="home">Home</option>
+                        <option value="generator">Generator</option>
+                        <option value="analyzer">Analyzer</option>
+                        <option value="ingredients">Ingredient Dex</option>
+                        <option value="guides">Guides</option>
+                    </select>
+                </div>
+            </nav>
         </header>
 
-        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
-            <h2 class="text-2xl font-bold text-stone-900 mb-3">The Bottom Line Up Front</h2>
-            <p class="text-stone-700">Getting free iMessage on your cruise is a <span class="font-semibold">game of chance, not a guarantee</span>. It sometimes works by piggybacking on the ship's free Wi-Fi used for the Carnival Hub App. However, Carnival is actively closing this loophole, especially on newer ships like the Firenze. This guide gives you the best possible shot, but you <span class="font-semibold text-red-700">must have a backup plan</span>.</p>
-        </div>
-
-        <main>
-            <nav class="flex justify-center flex-wrap gap-2 mb-8">
-                <button data-target="action-plan" class="nav-button active font-semibold py-2 px-4 rounded-full bg-stone-200 text-stone-800">Your Action Plan</button>
-                <button data-target="alternatives" class="nav-button font-semibold py-2 px-4 rounded-full bg-stone-200 text-stone-800">Plan B: Reliable Alternatives</button>
-                <button data-target="tech-deep-dive" class="nav-button font-semibold py-2 px-4 rounded-full bg-stone-200 text-stone-800">The Tech Deep Dive</button>
-            </nav>
-
-            <div id="content-container">
-                <section id="action-plan" class="content-section active space-y-8">
-                    <div>
-                        <h3 class="text-2xl font-bold text-center text-stone-900 mb-4">Your 2-Step Action Plan</h3>
-                        <p class="text-center max-w-2xl mx-auto text-stone-600">Follow these steps to maximize your chances. Complete the Pre-Cruise Checklist at home, and follow the Onboard Strategy as soon as you get on the ship.</p>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="bg-white p-6 rounded-2xl shadow-lg">
-                            <h4 class="text-xl font-bold text-stone-900 mb-4">1. Pre-Cruise Checklist</h4>
-                            <p class="text-sm text-stone-600 mb-4">Do this for every iPhone in your family before you leave home.</p>
-                            <div id="checklist" class="space-y-3"></div>
+        <main class="mt-8">
+            <!-- Home View -->
+            <div id="home-view" class="view">
+                <div class="text-center p-8 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Welcome to Your Personal Skincare Hub</h2>
+                    <p class="max-w-2xl mx-auto text-slate-600 mb-8">
+                        Everything you need to understand your skin and build the perfect routine. All data is stored in your browser, ensuring your privacy. No servers, no sign-ups, just skincare science.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div onclick="switchView('generator')" class="p-6 bg-pink-50 hover:bg-pink-100 rounded-lg cursor-pointer transition-colors border border-pink-200">
+                            <h3 class="text-xl font-bold text-pink-800 mb-2">Routine Generator</h3>
+                            <p class="text-pink-700">Answer a few questions and get a personalized AM & PM skincare routine in seconds.</p>
                         </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-lg">
-                            <h4 class="text-xl font-bold text-stone-900 mb-4">2. Onboard Strategy</h4>
-                             <p class="text-sm text-stone-600 mb-4">Follow these steps in order on embarkation day.</p>
-                            <ol class="space-y-4">
-                                <li class="flex items-start">
-                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">1</div>
-                                    <div>
-                                        <h5 class="font-semibold">Engage Airplane Mode</h5>
-                                        <p class="text-sm text-stone-600">Turn this ON immediately to avoid costly "Cellular at Sea" charges. Then, manually turn Wi-Fi back ON.</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start">
-                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">2</div>
-                                    <div>
-                                        <h5 class="font-semibold">Connect to Guest Wi-Fi</h5>
-                                        <p class="text-sm text-stone-600">Connect to the "Carnival-Guest" network. On the pop-up page, choose the FREE option for the Hub App access only. Do NOT select a paid plan.</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start">
-                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">3</div>
-                                    <div>
-                                        <h5 class="font-semibold">Test with a Simple Text</h5>
-                                        <p class="text-sm text-stone-600">Open iMessage and send a plain text message (no photos!) to another iPhone user. Look for the "Delivered" status under the blue bubble.</p>
-                                    </div>
-                                </li>
-                                 <li class="flex items-start">
-                                    <div class="flex-shrink-0 bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">4</div>
-                                    <div>
-                                        <h5 class="font-semibold">If it Fails, Troubleshoot</h5>
-                                        <p class="text-sm text-stone-600">Toggle your Wi-Fi off and on. "Forget" the network and reconnect. Restart your iPhone. Be patient and try again later.</p>
-                                    </div>
-                                </li>
-                            </ol>
+                        <div onclick="switchView('analyzer')" class="p-6 bg-sky-50 hover:bg-sky-100 rounded-lg cursor-pointer transition-colors border border-sky-200">
+                            <h3 class="text-xl font-bold text-sky-800 mb-2">Routine Analyzer</h3>
+                            <p class="text-sky-700">Input your current products to check for conflicts, comedogenic ingredients, and get expert feedback.</p>
                         </div>
                     </div>
-                </section>
-
-                <section id="alternatives" class="content-section space-y-8">
-                     <div>
-                        <h3 class="text-2xl font-bold text-center text-stone-900 mb-4">Plan B: Reliable Alternatives</h3>
-                        <p class="text-center max-w-2xl mx-auto text-stone-600">When free iMessage fails or isn't reliable enough, these are your best options. This chart compares their estimated reliability against the free iMessage attempt. Higher is better.</p>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                        <div class="chart-container">
-                            <canvas id="reliabilityChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="border-b border-stone-200">
-                                    <th class="p-4 text-sm font-semibold text-stone-900">Method</th>
-                                    <th class="p-4 text-sm font-semibold text-stone-900">Best For</th>
-                                    <th class="p-4 text-sm font-semibold text-stone-900">Approx. Cost</th>
-                                    <th class="p-4 text-sm font-semibold text-stone-900">Key Downside</th>
-                                </tr>
-                            </thead>
-                            <tbody id="alternatives-table" class="divide-y divide-stone-200">
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section id="tech-deep-dive" class="content-section space-y-8">
-                     <div>
-                        <h3 class="text-2xl font-bold text-center text-stone-900 mb-4">How the "iMessage Loophole" Works</h3>
-                        <p class="text-center max-w-2xl mx-auto text-stone-600">Curious why iMessage might work at all? It's about a technical "loophole" involving Apple's Push Notification Service (APNs). Carnival needs to allow APNs traffic for its own Hub App, and iMessage tries to sneak through that same open door.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                         <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
-                            <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                                    <span class="text-4xl">📱</span>
-                                </div>
-                                <span class="font-semibold">Your iPhone</span>
-                                <p class="text-xs text-stone-500">Sends iMessage</p>
-                            </div>
-                            <div class="text-2xl font-mono text-emerald-600 animate-pulse hidden md:block">&rarr;</div>
-                             <div class="text-2xl font-mono text-emerald-600 animate-pulse md:hidden">&darr;</div>
-                            <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-stone-100 rounded-lg flex items-center justify-center p-2 mb-2">
-                                    <span class="text-4xl">🚢</span>
-                                </div>
-                                <span class="font-semibold">Carnival Wi-Fi</span>
-                                 <p class="text-xs text-stone-500">Checks traffic</p>
-                            </div>
-                             <div class="text-2xl font-mono text-emerald-600 animate-pulse hidden md:block">&rarr;</div>
-                             <div class="text-2xl font-mono text-emerald-600 animate-pulse md:hidden">&darr;</div>
-                             <div class="flex flex-col items-center p-4 border-2 border-dashed border-emerald-500 rounded-lg bg-emerald-50">
-                                <span class="font-semibold text-emerald-800">The "APNs Door"</span>
-                                 <p class="text-xs text-stone-500 mb-2">TCP Ports 5223 & 443</p>
-                                <div class="flex gap-4">
-                                    <div class="flex flex-col items-center text-center">
-                                        <p class="text-sm text-green-700 font-medium">✅ Hub App Notifications</p>
-                                        <p class="text-xs text-green-600">(Allowed)</p>
-                                    </div>
-                                    <div class="flex flex-col items-center text-center">
-                                        <p class="text-sm text-blue-700 font-medium">❓ iMessage</p>
-                                        <p class="text-xs text-blue-600">(Sometimes slips through)</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-2xl font-mono text-emerald-600 animate-pulse hidden md:block">&rarr;</div>
-                            <div class="text-2xl font-mono text-emerald-600 animate-pulse md:hidden">&darr;</div>
-                            <div class="flex flex-col items-center">
-                                <div class="w-24 h-24 bg-stone-800 rounded-full flex items-center justify-center mb-2">
-                                    <span class="text-4xl">☁️</span>
-                                </div>
-                                <span class="font-semibold">Apple's Servers</span>
-                                <p class="text-xs text-stone-500">Receives & Forwards</p>
-                            </div>
-                        </div>
-                        <p class="mt-6 text-sm text-stone-600 text-center max-w-3xl mx-auto">Carnival's network is designed to allow notifications for their Hub App, which use Apple's APNs. Because iMessage uses the same encrypted APNs system, the ship's filters can't easily tell the difference. If the "door" is open for the Hub App, your iMessage might get through too. But as Carnival upgrades their systems, they get better at spotting and blocking this unofficial traffic.</p>
-                    </div>
-                </section>
+                </div>
             </div>
+
+            <!-- Routine Generator View -->
+            <div id="generator-view" class="view">
+                <h2 class="text-3xl font-bold text-center mb-6">Create Your Skincare Routine</h2>
+                <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-md border border-slate-200">
+                    <form id="generator-form" class="space-y-6">
+                        <div>
+                            <label for="skin-type" class="block text-sm font-medium text-slate-700">1. What is your skin type?</label>
+                            <select id="skin-type" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
+                                <option>Normal</option>
+                                <option>Oily</option>
+                                <option>Dry</option>
+                                <option>Combination</option>
+                                <option>Sensitive</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="skin-concern" class="block text-sm font-medium text-slate-700">2. What is your primary skin concern?</label>
+                            <select id="skin-concern" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
+                                <option>Acne & Blemishes</option>
+                                <option>Fine Lines & Wrinkles</option>
+                                <option>Hyperpigmentation & Dark Spots</option>
+                                <option>Redness & Rosacea</option>
+                                <option>Dehydration & Dullness</option>
+                                <option>General Maintenance</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="experience-level" class="block text-sm font-medium text-slate-700">3. What is your skincare experience level?</label>
+                            <select id="experience-level" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500">
+                                <option>Beginner (Just starting out)</option>
+                                <option>Intermediate (Comfortable with a few steps)</option>
+                                <option>Advanced (Know my way around actives)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            Generate My Routine
+                        </button>
+                    </form>
+                </div>
+                <div id="routine-result" class="mt-8 max-w-4xl mx-auto"></div>
+            </div>
+
+            <!-- Routine Analyzer View -->
+            <div id="analyzer-view" class="view">
+                <h2 class="text-3xl font-bold text-center mb-6">Analyze Your Skincare Routine</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4">Input Your Products</h3>
+                        <p class="text-sm text-slate-500 mb-4">Add products from your routine. You can select from our list of popular products or paste an ingredient list manually.</p>
+                        
+                        <!-- Product Input Section -->
+                        <div class="space-y-4">
+                             <div>
+                                <label for="product-category" class="block text-sm font-medium text-slate-700">Product Category</label>
+                                <select id="product-category" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
+                                    <option value="cleanser">Cleanser</option>
+                                    <option value="toner">Toner</option>
+                                    <option value="serum">Serum</option>
+                                    <option value="moisturizer">Moisturizer</option>
+                                    <option value="sunscreen">Sunscreen</option>
+                                    <option value="other">Other/Exfoliant</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Option 1: Select a Product</label>
+                                <select id="product-select" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
+                                   <option value="">-- Choose a product --</option>
+                                </select>
+                                <button onclick="addProductFromSelect()" class="mt-2 w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg transition-colors text-sm">Add Selected Product</button>
+                            </div>
+                            <div class="text-center font-semibold text-slate-500">OR</div>
+                            <div>
+                                <label for="ingredient-paste" class="block text-sm font-medium text-slate-700">Option 2: Paste Ingredient List</label>
+                                <textarea id="ingredient-paste" rows="4" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500" placeholder="e.g., Water, Glycerin, Niacinamide, ..."></textarea>
+                                 <input type="text" id="manual-product-name" class="mt-2 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500" placeholder="Enter Product Name (Optional)">
+                                <button onclick="addProductFromPaste()" class="mt-2 w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-4 rounded-lg transition-colors text-sm">Add Manual Product</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                             <h4 class="font-bold text-md mb-2">Your Current Routine</h4>
+                             <div id="current-routine-list" class="space-y-2">
+                                <p class="text-slate-500 text-sm">No products added yet.</p>
+                             </div>
+                             <button onclick="analyzeRoutine()" class="mt-4 w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">Analyze My Routine</button>
+                             <button onclick="clearRoutine()" class="mt-2 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Clear Routine</button>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Result Section -->
+                    <div id="analysis-result-container" class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                         <h3 class="font-bold text-lg mb-4 text-center">Analysis Report</h3>
+                         <div id="analysis-result" class="text-slate-600 text-center pt-8">
+                            Your report will appear here.
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingredient Dex View -->
+            <div id="ingredients-view" class="view">
+                 <h2 class="text-3xl font-bold text-center mb-6">Ingredient Dictionary</h2>
+                 <div class="max-w-3xl mx-auto">
+                    <input type="text" id="ingredient-search" onkeyup="renderIngredientDex()" placeholder="Search for an ingredient..." class="w-full p-3 rounded-lg border border-slate-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 mb-6">
+                    <div id="ingredient-dex-list" class="space-y-4"></div>
+                 </div>
+            </div>
+
+            <!-- Guides View -->
+            <div id="guides-view" class="view">
+                 <h2 class="text-3xl font-bold text-center mb-6">Skincare Guides</h2>
+                 <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                        <h3 class="text-xl font-bold mb-3 text-slate-900">The Correct Order of Product Application</h3>
+                        <p class="text-slate-600 mb-4">Applying products in the right order ensures your skin receives the full benefits of each formula. The general rule is to apply from the thinnest consistency to the thickest.</p>
+                        <ol class="list-decimal list-inside space-y-2 text-slate-700">
+                            <li><strong>Cleanser:</strong> Start with a clean canvas. (Use an oil-based cleanser first if double cleansing at night).</li>
+                            <li><strong>Toner / Essence / Mists:</strong> These are watery products that prep the skin.</li>
+                            <li><strong>Serums (Actives):</strong> Apply your treatment serums (e.g., Vitamin C, Niacinamide, Retinol).</li>
+                            <li><strong>Eye Cream:</strong> Gently tap around the orbital bone.</li>
+                            <li><strong>Moisturizer:</strong> Lock in hydration and protect the skin barrier.</li>
+                            <li><strong>Face Oil (Optional):</strong> Apply a few drops to seal everything in (usually at night).</li>
+                            <li><strong>Sunscreen (AM Only):</strong> The most critical step in any morning routine. Non-negotiable!</li>
+                        </ol>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                        <h3 class="text-xl font-bold mb-3 text-slate-900">Sunscreen 101: Your Skin's Best Friend</h3>
+                        <p class="text-slate-600 mb-4">Sunscreen is the single most effective anti-aging and skin health product you can use. Here's what you need to know:</p>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700">
+                            <li><strong>Broad Spectrum:</strong> Protects against both UVA (aging) and UVB (burning) rays.</li>
+                            <li><strong>SPF 30 or Higher:</strong> SPF 30 blocks 97% of UVB rays. SPF 50 blocks 98%. Daily use is recommended.</li>
+                            <li><strong>Mineral vs. Chemical:</strong> 
+                                <span class="font-semibold">Mineral</span> (Zinc Oxide, Titanium Dioxide) sits on top of the skin and reflects UV rays. Better for sensitive skin.
+                                <span class="font-semibold">Chemical</span> (Avobenzone, Oxybenzone, etc.) absorbs UV radiation and converts it into heat. Often more cosmetically elegant.
+                            </li>
+                            <li><strong>Reapplication:</strong> Reapply at least every 2 hours when in direct sun, or after swimming or sweating.</li>
+                        </ul>
+                    </div>
+                 </div>
+            </div>
+
         </main>
 
-        <footer class="text-center mt-12 text-xs text-stone-500">
-            <p>This guide is based on an analysis of user reports and technical documentation. It is for informational purposes only.</p>
-            <p>iMessage is a trademark of Apple Inc. Carnival is a trademark of Carnival Corporation. This guide is not affiliated with or endorsed by either company.</p>
-        </footer>
     </div>
 
-<script>
-    const navButtons = document.querySelectorAll('.nav-button');
-    const contentSections = document.querySelectorAll('.content-section');
+    <script>
+    // --- DATABASE (Self-contained, no external calls) ---
+    // This section acts as our "backend". All data is stored here.
 
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetId = button.dataset.target;
+    const ingredientsDB = {
+        'water': { name: 'Water (Aqua)', category: 'Solvent', goodFor: ['All'], description: 'The base for most skincare products. Used as a solvent to dissolve other ingredients.' },
+        'glycerin': { name: 'Glycerin', category: 'Humectant', goodFor: ['All', 'Dry', 'Dehydrated'], description: 'A powerful humectant that draws moisture from the air into the skin. Excellent for hydration.' },
+        'niacinamide': { name: 'Niacinamide (Vitamin B3)', category: 'Active', goodFor: ['All', 'Oily', 'Acne', 'Redness'], description: 'A versatile ingredient that helps with oil control, redness, pore appearance, and barrier function.' },
+        'hyaluronic acid': { name: 'Hyaluronic Acid', category: 'Humectant', goodFor: ['All', 'Dry', 'Dehydrated'], description: 'Can hold up to 1000x its weight in water, providing intense hydration. Works best in humid environments.' },
+        'salicylic acid': { name: 'Salicylic Acid (BHA)', category: 'Exfoliant', goodFor: ['Oily', 'Acne'], description: 'A beta-hydroxy acid that exfoliates inside the pores, making it fantastic for treating acne and blackheads.' },
+        'glycolic acid': { name: 'Glycolic Acid (AHA)', category: 'Exfoliant', goodFor: ['Normal', 'Combination', 'Hyperpigmentation', 'Aging'], description: 'An alpha-hydroxy acid that exfoliates the surface of the skin to improve texture and brightness.' },
+        'retinol': { name: 'Retinol', category: 'Active', goodFor: ['Aging', 'Acne'], description: 'A form of Vitamin A that speeds up cell turnover. A gold-standard ingredient for anti-aging and acne. Can be irritating.' },
+        'l-ascorbic acid': { name: 'L-Ascorbic Acid (Vitamin C)', category: 'Antioxidant', goodFor: ['All', 'Hyperpigmentation', 'Aging', 'Dullness'], description: 'A potent antioxidant that protects against free radical damage, brightens the skin, and boosts collagen production.' },
+        'tocopherol': { name: 'Tocopherol (Vitamin E)', category: 'Antioxidant', goodFor: ['Dry', 'Normal'], description: 'An oil-soluble antioxidant that protects the skin and helps stabilize Vitamin C.' },
+        'squalane': { name: 'Squalane', category: 'Emollient', goodFor: ['All'], description: 'A lightweight, non-comedogenic oil that mimics the skin\'s natural sebum, providing moisture without feeling heavy.' },
+        'ceramide np': { name: 'Ceramide NP', category: 'Barrier Support', goodFor: ['All', 'Dry', 'Sensitive'], description: 'Lipids that are a fundamental part of the skin barrier. They help retain moisture and protect the skin.' },
+        'centella asiatica extract': { name: 'Centella Asiatica Extract', category: 'Soothing', goodFor: ['Sensitive', 'Redness', 'Acne'], description: 'A plant extract known for its soothing, anti-inflammatory, and wound-healing properties.' },
+        'zinc oxide': { name: 'Zinc Oxide', category: 'UV Filter', goodFor: ['All', 'Sensitive'], description: 'A mineral (physical) sunscreen filter that provides broad-spectrum protection. Also has soothing properties.' },
+        'dimethicone': { name: 'Dimethicone', category: 'Occlusive', goodFor: ['All'], description: 'A silicone that forms a protective barrier on the skin, locking in moisture and giving a smooth, silky feel.' },
+        'shea butter': { name: 'Shea Butter', category: 'Emollient', goodFor: ['Dry'], description: 'A rich plant butter that deeply moisturizes and nourishes the skin. Can be heavy for oily types.' },
+        'coconut oil': { name: 'Coconut Oil', category: 'Emollient', goodFor: ['Very Dry Body Skin'], description: 'A very moisturizing oil, but highly comedogenic and not recommended for the face for most people.' }
+    };
 
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+    const comedogenicRatings = {
+        'coconut oil': 4,
+        'cocoa butter': 4,
+        'isopropyl myristate': 5,
+        'lauric acid': 4,
+        'cetearyl alcohol': 2,
+        'cetyl alcohol': 2,
+        'shea butter': 2, // Can be debated, but can clog some.
+        'dimethicone': 1,
+        'squalane': 1,
+        'sunflower oil': 0,
+        'hyaluronic acid': 0,
+        'glycerin': 0,
+        'niacinamide': 0,
+        'salicylic acid': 0,
+        'glycolic acid': 0
+    };
 
-            contentSections.forEach(section => {
-                if (section.id === targetId) {
-                    section.classList.add('active');
-                } else {
-                    section.classList.remove('active');
-                }
-            });
+    const productsDB = [
+        { name: "CeraVe Hydrating Cleanser", type: "cleanser", ingredients: ["water", "glycerin", "cetearyl alcohol", "ceramide np", "hyaluronic acid"] },
+        { name: "The Ordinary Niacinamide 10% + Zinc 1%", type: "serum", ingredients: ["water", "niacinamide", "zinc pca", "tamarindus indica seed gum"] },
+        { name: "Paula's Choice 2% BHA Liquid Exfoliant", type: "other", ingredients: ["water", "methylpropanediol", "salicylic acid", "camellia oleifera leaf extract"] },
+        { name: "La Roche-Posay Toleriane Double Repair Moisturizer", type: "moisturizer", ingredients: ["water", "glycerin", "dimethicone", "niacinamide", "ceramide np"] },
+        { name: "Supergoop! Unseen Sunscreen SPF 40", type: "sunscreen", ingredients: ["isododecane", "dimethicone", "shea butter", "squalane"] },
+        { name: "SkinCeuticals C E Ferulic", type: "serum", ingredients: ["water", "l-ascorbic acid", "glycerin", "tocopherol", "ferulic acid"] },
+        { name: "The INKEY List Retinol Serum", type: "serum", ingredients: ["water", "squalane", "glycerin", "retinol", "hyaluronic acid"] }
+    ];
+
+    const ingredientConflicts = {
+        'retinol': ['glycolic acid', 'salicylic acid', 'l-ascorbic acid'],
+        'glycolic acid': ['retinol', 'salicylic acid'],
+        'salicylic acid': ['retinol', 'glycolic acid'],
+        'l-ascorbic acid': ['retinol'] // Primarily a stability issue and potential for irritation
+    };
+
+
+    // --- APPLICATION LOGIC ---
+
+    let currentView = 'home';
+    let userRoutine = []; // For the analyzer
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initial setup
+        switchView('home');
+        populateProductSelect();
+        renderIngredientDex();
+
+        // Attach form listener for generator
+        document.getElementById('generator-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateRoutine();
         });
     });
     
-    const checklistData = [
-        { id: 'iosUpdate', label: 'Update iOS to Latest Version', details: 'Ensures you have the latest networking protocols from Apple. Path: Settings > General > Software Update.' },
-        { id: 'imessageActive', label: 'Confirm iMessage is Active', details: 'Your iMessage must be working perfectly before you cruise. Path: Settings > Messages > iMessage (ON).' },
-        { id: 'backgroundRefresh', label: 'Turn Off Background App Refresh', details: 'Crucial for stopping other apps from interfering. Set to OFF globally. Path: Settings > General > Background App Refresh.' },
-        { id: 'lowQualityImage', label: 'Enable Low Quality Image Mode', details: 'If texts work, this gives small photos a tiny chance. Path: Settings > Messages > Low Quality Image Mode (ON).' },
-        { id: 'restartPhone', label: 'Restart iPhone Before Boarding', details: 'A simple restart can clear network glitches before you connect to the ship\'s Wi-Fi.' },
-    ];
+    // --- View Switching Logic ---
+    function switchView(viewId) {
+        currentView = viewId;
+        const views = document.querySelectorAll('.view');
+        views.forEach(view => view.style.display = 'none');
+        document.getElementById(`${viewId}-view`).style.display = 'block';
 
-    const checklistContainer = document.getElementById('checklist');
-    checklistData.forEach(item => {
-        const itemHtml = `
-            <div class="checklist-item bg-stone-50 rounded-lg p-3">
-                <input type="checkbox" id="${item.id}" class="hidden">
-                <label for="${item.id}" class="flex items-center cursor-pointer">
-                    <span class="checkbox-icon w-6 h-6 mr-3 border-2 border-stone-300 rounded-md flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
-                    </span>
-                    <span class="flex-grow">
-                        <span class="font-medium text-stone-800">${item.label}</span>
-                        <p class="text-xs text-stone-500">${item.details}</p>
-                    </span>
-                </label>
+        // Update active nav button style
+        const navButtons = document.querySelectorAll('.nav-button');
+        navButtons.forEach(btn => {
+            btn.classList.remove('bg-pink-100', 'text-pink-700', 'font-bold');
+            if (btn.id === `nav-${viewId}`) {
+                btn.classList.add('bg-pink-100', 'text-pink-700', 'font-bold');
+            }
+        });
+    }
+
+    // --- Routine Generator Logic ---
+    function generateRoutine() {
+        const skinType = document.getElementById('skin-type').value;
+        const concern = document.getElementById('skin-concern').value;
+        const experience = document.getElementById('experience-level').value;
+
+        let routine = {
+            am: [],
+            pm: []
+        };
+        
+        // --- AM ROUTINE ---
+        // 1. Cleanser
+        if (skinType === 'Dry' || skinType === 'Sensitive') {
+            routine.am.push({ step: 'Cleanser', type: 'Gentle, Hydrating Cleanser', desc: 'Wash face with lukewarm water and a non-foaming cleanser.' });
+        } else {
+            routine.am.push({ step: 'Cleanser', type: 'Gentle Foaming or Gel Cleanser', desc: 'Cleanse to remove overnight buildup without stripping the skin.' });
+        }
+
+        // 2. Treatment (AM)
+        if (concern === 'Hyperpigmentation & Dark Spots' || concern === 'Fine Lines & Wrinkles' || concern === 'Dehydration & Dullness') {
+             routine.am.push({ step: 'Antioxidant Serum', type: 'Vitamin C Serum', desc: 'Protects against environmental damage and brightens the skin. A must for these concerns.' });
+        } else if(concern === 'Acne & Blemishes' && experience !== 'Beginner') {
+            routine.am.push({ step: 'Hydrating/Soothing Serum', type: 'Niacinamide or Hyaluronic Acid Serum', desc: 'Helps with hydration, oil control, and calming the skin before applying acne treatments at night.' });
+        } else {
+             routine.am.push({ step: 'Hydrating Serum', type: 'Hyaluronic Acid Serum', desc: 'A simple hydration step to plump the skin.' });
+        }
+
+        // 3. Moisturizer
+        if (skinType === 'Oily') {
+            routine.am.push({ step: 'Moisturizer', type: 'Lightweight Gel or Lotion', desc: 'Provides hydration without feeling heavy or greasy.' });
+        } else if (skinType === 'Dry') {
+            routine.am.push({ step: 'Moisturizer', type: 'Rich Cream', desc: 'Provides deep hydration and helps lock in moisture throughout the day.' });
+        } else {
+            routine.am.push({ step: 'Moisturizer', type: 'Standard Lotion or Cream', desc: 'A balanced moisturizer to keep skin hydrated and protected.' });
+        }
+
+        // 4. Sunscreen
+        routine.am.push({ step: 'Sunscreen', type: 'Broad Spectrum SPF 30+', desc: 'The most important step. Protects your skin from UV damage, preventing aging and hyperpigmentation. Non-negotiable.' });
+
+
+        // --- PM ROUTINE ---
+        // 1. Double Cleanse
+        routine.pm.push({ step: 'Double Cleanse', type: '1. Oil/Balm Cleanser, 2. Water-Based Cleanser', desc: 'First cleanse removes makeup/SPF. Second cleanse cleans the skin. Use the same AM cleanser for the second step.' });
+        
+        // 2. Treatment (PM)
+        let treatmentStep = { step: 'Treatment Serum/Active', type: '', desc: '' };
+        switch(concern) {
+            case 'Acne & Blemishes':
+                treatmentStep.type = experience === 'Advanced' ? 'Salicylic Acid (BHA) 2%' : 'Gentle Salicylic Acid or Niacinamide';
+                treatmentStep.desc = 'Exfoliates inside the pores to fight acne. Start 2-3 times a week and increase as tolerated.';
+                break;
+            case 'Fine Lines & Wrinkles':
+                treatmentStep.type = experience === 'Beginner' ? 'Granactive Retinoid or Bakuchiol' : 'Retinol (0.25% - 0.5%)';
+                treatmentStep.desc = 'Increases cell turnover to reduce fine lines. Introduce slowly (1-2 times a week) to avoid irritation.';
+                break;
+            case 'Hyperpigmentation & Dark Spots':
+                treatmentStep.type = experience === 'Beginner' ? 'Niacinamide or Azelaic Acid' : 'Glycolic Acid (AHA) or Retinoid';
+                treatmentStep.desc = 'Exfoliates surface skin or targets pigment production. Alternate with hydrating serums on off-nights.';
+                break;
+            case 'Redness & Rosacea':
+                treatmentStep.type = 'Azelaic Acid or Centella Asiatica Serum';
+                treatmentStep.desc = 'Calms inflammation and reduces redness. Focus on gentle, soothing ingredients.';
+                break;
+            default: // Dehydration or General Maintenance
+                treatmentStep.type = 'Hydrating & Barrier Repair Serum';
+                treatmentStep.desc = 'Use a serum with Ceramides, Hyaluronic Acid, and/or Peptides to support a healthy skin barrier.';
+        }
+        routine.pm.push(treatmentStep);
+
+        // 3. Moisturizer
+        routine.pm.push({ step: 'Moisturizer', type: 'Nourishing Moisturizer', desc: 'Use the same as your AM moisturizer, or a slightly richer one to support overnight repair.' });
+        
+        renderRoutine(routine);
+    }
+
+    function renderRoutine(routine) {
+        const resultDiv = document.getElementById('routine-result');
+        let html = `
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 animate-fadeIn">
+                <h3 class="text-2xl font-bold text-center mb-6">Your Personalized Routine</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- AM Routine -->
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 text-pink-600">☀️ Morning (AM)</h4>
+                        <div class="space-y-4">
+                            ${routine.am.map((item, index) => `
+                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                                    <p class="font-bold text-slate-800">${index + 1}. ${item.step}: <span class="font-normal">${item.type}</span></p>
+                                    <p class="text-sm text-slate-600 mt-1">${item.desc}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <!-- PM Routine -->
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 text-sky-600">🌙 Evening (PM)</h4>
+                        <div class="space-y-4">
+                             ${routine.pm.map((item, index) => `
+                                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                                    <p class="font-bold text-slate-800">${index + 1}. ${item.step}: <span class="font-normal">${item.type}</span></p>
+                                    <p class="text-sm text-slate-600 mt-1">${item.desc}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-center mt-6 text-slate-500"><strong>Disclaimer:</strong> This is a generated guide. Always patch-test new products and introduce active ingredients slowly.</p>
             </div>
         `;
-        checklistContainer.innerHTML += itemHtml;
-    });
+        resultDiv.innerHTML = html;
+    }
+
+    // --- Routine Analyzer Logic ---
+    function populateProductSelect() {
+        const select = document.getElementById('product-select');
+        productsDB.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.name;
+            option.textContent = p.name;
+            select.appendChild(option);
+        });
+    }
+
+    function addProductFromSelect() {
+        const productName = document.getElementById('product-select').value;
+        const category = document.getElementById('product-category').value;
+        if (!productName) return;
+        const product = productsDB.find(p => p.name === productName);
+        if (product) {
+            userRoutine.push({ ...product, userCategory: category });
+            renderUserRoutine();
+        }
+    }
+
+    function addProductFromPaste() {
+        const ingredientsText = document.getElementById('ingredient-paste').value;
+        const productName = document.getElementById('manual-product-name').value || 'Manually Added Product';
+        const category = document.getElementById('product-category').value;
+        
+        if (!ingredientsText) return;
+        
+        const ingredients = ingredientsText.split(',')
+            .map(i => i.trim().toLowerCase().replace(/[^\w\s-]/g, ''))
+            .filter(i => i);
+
+        userRoutine.push({ name: productName, type: 'manual', userCategory: category, ingredients });
+        renderUserRoutine();
+        document.getElementById('ingredient-paste').value = '';
+        document.getElementById('manual-product-name').value = '';
+    }
+
+    function renderUserRoutine() {
+        const listDiv = document.getElementById('current-routine-list');
+        if (userRoutine.length === 0) {
+            listDiv.innerHTML = '<p class="text-slate-500 text-sm">No products added yet.</p>';
+            return;
+        }
+        listDiv.innerHTML = userRoutine.map((p, index) => `
+            <div class="flex justify-between items-center bg-slate-100 p-2 rounded-md text-sm">
+                <span><strong>${p.userCategory.charAt(0).toUpperCase() + p.userCategory.slice(1)}:</strong> ${p.name}</span>
+                <button onclick="removeProduct(${index})" class="text-red-500 hover:text-red-700 font-bold">✕</button>
+            </div>
+        `).join('');
+    }
+
+    function removeProduct(index) {
+        userRoutine.splice(index, 1);
+        renderUserRoutine();
+    }
     
-    const alternativesData = [
-        { method: 'Hub App Chat', bestFor: 'On-ship family chat', cost: '~$5/person per cruise', downside: 'Notifications can be very unreliable.' },
-        { method: 'Social Wi-Fi Plan', bestFor: 'WhatsApp, FB Messenger, etc. (and maybe iMessage)', cost: '~$19/day per person', downside: 'Costly; iMessage still not guaranteed.' },
-        { method: 'Premium Wi-Fi Plan', bestFor: 'Full internet, email, some streaming', cost: '~$24/day per person', downside: 'Most expensive option per person.' },
-        { method: 'Wi-Fi in Port', bestFor: 'Catching up for free', cost: 'Free (at cafes, etc.)', downside: 'Only available when docked.' }
-    ];
+    function clearRoutine() {
+        userRoutine = [];
+        renderUserRoutine();
+        const resultDiv = document.getElementById('analysis-result');
+        resultDiv.innerHTML = 'Your report will appear here.';
+        resultDiv.parentElement.classList.remove('animate-fadeIn');
+    }
 
-    const alternativesTable = document.getElementById('alternatives-table');
-    alternativesData.forEach(alt => {
-        const rowHtml = `
-            <tr class="hover:bg-stone-50">
-                <td class="p-4 font-semibold text-stone-800">${alt.method}</td>
-                <td class="p-4">${alt.bestFor}</td>
-                <td class="p-4">${alt.cost}</td>
-                <td class="p-4">${alt.downside}</td>
-            </tr>
-        `;
-        alternativesTable.innerHTML += rowHtml;
-    });
+    function analyzeRoutine() {
+        const resultDiv = document.getElementById('analysis-result');
+        resultDiv.parentElement.classList.add('animate-fadeIn');
+        
+        if (userRoutine.length === 0) {
+            resultDiv.innerHTML = '<p class="text-red-500 font-semibold">Please add at least one product to analyze.</p>';
+            return;
+        }
 
-    const reliabilityData = {
-        labels: ['Free iMessage Attempt', 'Hub App Chat', 'Social Plan Messaging', 'Wi-Fi in Port'],
-        datasets: [{
-            label: 'Estimated Reliability',
-            data: [15, 60, 90, 100],
-            backgroundColor: [
-                'rgba(239, 68, 68, 0.6)',
-                'rgba(245, 158, 11, 0.6)',
-                'rgba(5, 150, 105, 0.6)',
-                'rgba(37, 99, 235, 0.6)'
-            ],
-            borderColor: [
-                'rgb(239, 68, 68)',
-                'rgb(245, 158, 11)',
-                'rgb(5, 150, 105)',
-                'rgb(37, 99, 235)'
-            ],
-            borderWidth: 1
-        }]
-    };
+        let report = {
+            summary: [],
+            comedogenic: [],
+            conflicts: [],
+            missing: [],
+            breakdown: []
+        };
+        
+        // --- ANALYSIS CHECKS ---
+        let allIngredients = [];
+        let activeIngredients = [];
 
-    const ctx = document.getElementById('reliabilityChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: reliabilityData,
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                       callback: function(value) {
-                           return value + '%'
-                       }
-                    }
-                },
-                 y: {
-                    ticks: {
-                        autoSkip: false,
-                        font: {
-                            size: 10
-                        }
-                    }
+        userRoutine.forEach(product => {
+            product.ingredients.forEach(ing => {
+                const cleanIng = ing.toLowerCase().trim();
+                allIngredients.push(cleanIng);
+
+                if (ingredientsDB[cleanIng] && (ingredientsDB[cleanIng].category === 'Active' || ingredientsDB[cleanIng].category === 'Exfoliant')) {
+                    activeIngredients.push(cleanIng);
                 }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return ` ${context.dataset.label}: ${context.raw}%`;
-                        }
+                
+                if (comedogenicRatings[cleanIng] && comedogenicRatings[cleanIng] > 2) {
+                    report.comedogenic.push({ product: product.name, ingredient: cleanIng, rating: comedogenicRatings[cleanIng] });
+                }
+            });
+            
+             // Create breakdown for each product
+            let productBreakdown = {
+                name: product.name,
+                category: product.userCategory,
+                keyIngredients: product.ingredients.map(ing => {
+                    const dbEntry = ingredientsDB[ing.toLowerCase().trim()];
+                    return dbEntry ? { name: dbEntry.name, desc: dbEntry.description } : null;
+                }).filter(i => i).slice(0, 3) // Show top 3 known ingredients
+            };
+            report.breakdown.push(productBreakdown);
+        });
+        
+        // Check for conflicts
+        for (const ing1 of activeIngredients) {
+            if (ingredientConflicts[ing1]) {
+                for (const ing2 of activeIngredients) {
+                    if (ing1 !== ing2 && ingredientConflicts[ing1].includes(ing2)) {
+                         const conflictPair = [ing1, ing2].sort().join('-');
+                         if (!report.conflicts.find(c => c.pair === conflictPair)) {
+                             report.conflicts.push({
+                                 pair: conflictPair,
+                                 message: `Potential for irritation using <strong>${ingredientsDB[ing1].name}</strong> and <strong>${ingredientsDB[ing2].name}</strong> in the same routine. Consider alternating days/nights.`
+                             });
+                         }
                     }
                 }
             }
         }
-    });
-</script>
 
+        // Check for missing items
+        if (!userRoutine.some(p => p.userCategory === 'cleanser')) {
+            report.missing.push('<strong>Cleanser:</strong> A foundational step to clean your skin is missing.');
+        }
+        if (!userRoutine.some(p => p.userCategory === 'moisturizer')) {
+            report.missing.push('<strong>Moisturizer:</strong> Missing a moisturizer to hydrate and protect your skin barrier.');
+        }
+        if (!userRoutine.some(p => p.userCategory === 'sunscreen')) {
+            report.missing.push('<strong>Sunscreen:</strong> Critical for AM use. No sunscreen found in your routine.');
+        }
+        
+        renderAnalysisReport(report);
+    }
+    
+    function renderAnalysisReport(report) {
+        const resultDiv = document.getElementById('analysis-result');
+        let html = '<div class="space-y-6 text-left">';
+        
+        // Summary
+        let score = 100;
+        if(report.comedogenic.length > 0) score -= 20;
+        if(report.conflicts.length > 0) score -= 30;
+        if(report.missing.length > 0) score -= (report.missing.length * 15);
+
+        let summaryMessage = "Looks like a great starting point!";
+        if(score < 50) summaryMessage = "This routine has some major issues to address.";
+        else if (score < 80) summaryMessage = "A good routine, but with room for improvement!";
+
+        html += `
+            <div>
+                <h4 class="font-bold text-lg mb-2 text-slate-800">Overall Assessment</h4>
+                <div class="p-4 rounded-lg bg-slate-100 border border-slate-200">
+                    <p class="font-bold text-lg text-center">${summaryMessage}</p>
+                    <p class="text-sm text-center text-slate-500 mt-1">Routine Score: ~${Math.max(0, score)}/100</p>
+                </div>
+            </div>`;
+
+
+        // Conflicts
+        if (report.conflicts.length > 0) {
+            html += `
+            <div>
+                <h4 class="font-bold text-lg mb-2 text-yellow-600">⚠️ Active Ingredient Conflicts</h4>
+                <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200 space-y-2">
+                    ${report.conflicts.map(c => `<p class="text-sm text-yellow-800">${c.message}</p>`).join('')}
+                </div>
+            </div>`;
+        }
+        
+        // Comedogenic
+        if (report.comedogenic.length > 0) {
+            html += `
+            <div>
+                <h4 class="font-bold text-lg mb-2 text-orange-600">🚨 Potentially Comedogenic Ingredients</h4>
+                <p class="text-sm text-slate-500 mb-2">These ingredients have a rating of 3+ and may cause clogged pores for some individuals.</p>
+                <div class="p-4 rounded-lg bg-orange-50 border border-orange-200 space-y-2">
+                    ${report.comedogenic.map(c => `<p class="text-sm text-orange-800"><strong>${c.product}:</strong> Contains ${c.ingredient} (Rating: ${c.rating})</p>`).join('')}
+                </div>
+            </div>`;
+        }
+
+        // Missing Items
+        if (report.missing.length > 0) {
+            html += `
+            <div>
+                <h4 class="font-bold text-lg mb-2 text-sky-600">🧐 Missing Essentials</h4>
+                 <div class="p-4 rounded-lg bg-sky-50 border border-sky-200 space-y-2">
+                    ${report.missing.map(m => `<p class="text-sm text-sky-800">${m}</p>`).join('')}
+                </div>
+            </div>`;
+        }
+
+        // Product Breakdown
+        if (report.breakdown.length > 0) {
+            html += `
+            <div>
+                <h4 class="font-bold text-lg mb-2 text-slate-800">🔬 Product Breakdown</h4>
+                <div class="space-y-3">
+                    ${report.breakdown.map(p => `
+                        <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                           <p class="font-semibold text-slate-700">${p.name} (${p.category})</p>
+                           ${p.keyIngredients.length > 0 ? `
+                               <ul class="list-disc list-inside mt-1 text-xs text-slate-500">
+                                   ${p.keyIngredients.map(i => `<li><strong>${i.name}:</strong> ${i.desc.substring(0, 80)}...</li>`).join('')}
+                               </ul>
+                           ` : '<p class="text-xs text-slate-500 mt-1">No detailed ingredient data found.</p>'}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+        }
+
+        if (report.conflicts.length === 0 && report.comedogenic.length === 0 && report.missing.length === 0) {
+            html += `
+                 <div class="p-4 rounded-lg bg-green-50 border border-green-200 text-center">
+                    <p class="font-semibold text-green-800">✨ Looks Great!</p>
+                    <p class="text-sm text-green-700">No major conflicts, comedogenic ingredients, or missing steps found. Keep it up!</p>
+                </div>
+            `;
+        }
+
+        html += '</div>';
+        resultDiv.innerHTML = html;
+    }
+
+
+    // --- Ingredient Dex Logic ---
+    function renderIngredientDex() {
+        const searchTerm = document.getElementById('ingredient-search').value.toLowerCase();
+        const listDiv = document.getElementById('ingredient-dex-list');
+        listDiv.innerHTML = '';
+        
+        const filteredIngredients = Object.keys(ingredientsDB).filter(key => 
+            key.includes(searchTerm) || ingredientsDB[key].name.toLowerCase().includes(searchTerm)
+        );
+
+        if (filteredIngredients.length === 0) {
+             listDiv.innerHTML = '<p class="text-slate-500 text-center">No ingredients found.</p>';
+             return;
+        }
+
+        filteredIngredients.forEach(key => {
+            const ing = ingredientsDB[key];
+            const div = document.createElement('div');
+            div.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
+            div.innerHTML = `
+                <h3 class="font-bold text-lg text-slate-800">${ing.name}</h3>
+                <p class="text-sm font-semibold text-pink-600 mb-2">${ing.category}</p>
+                <p class="text-slate-600">${ing.description}</p>
+                <p class="text-xs text-slate-500 mt-2"><strong>Good for:</strong> ${ing.goodFor.join(', ')}</p>
+            `;
+            listDiv.appendChild(div);
+        });
+    }
+
+    </script>
 </body>
 </html>
